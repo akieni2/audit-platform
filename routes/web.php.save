@@ -1,0 +1,129 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MissionController;
+use App\Http\Controllers\ProcessusController;
+use App\Http\Controllers\ActifController;
+use App\Http\Controllers\RisqueController;
+use App\Http\Controllers\CartographieController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\EntretienController;
+use App\Models\Risque;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
+
+
+Route::middleware(['auth'])->group(function () {
+
+    /*
+    |---------------------------------------
+    | PROFILE
+    |---------------------------------------
+    */
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+    /*
+    |---------------------------------------
+    | MISSIONS
+    |---------------------------------------
+    */
+
+    Route::get('/missions', [MissionController::class, 'index'])->name('missions.index');
+
+    Route::get('/missions/create', [MissionController::class, 'create'])->name('missions.create');
+
+    Route::post('/missions', [MissionController::class, 'store'])->name('missions.store');
+
+
+    /*
+    |---------------------------------------
+    | SERVICES AUDITES
+    |---------------------------------------
+    */
+
+    Route::get('/missions/{id}/services', [ServiceController::class,'index'])->name('services.index');
+
+    Route::post('/services', [ServiceController::class,'store'])->name('services.store');
+
+
+    /*
+    |---------------------------------------
+    | PROCESSUS
+    |---------------------------------------
+    */
+
+    Route::get('/missions/{id}/processus', [ProcessusController::class,'index'])->name('processus.index');
+
+    Route::post('/processus', [ProcessusController::class,'store'])->name('processus.store');
+
+
+    /*
+    |---------------------------------------
+    | ACTIFS
+    |---------------------------------------
+    */
+
+    Route::get('/processus/{id}/actifs', [ActifController::class,'index'])->name('actifs.index');
+
+    Route::post('/actifs', [ActifController::class,'store'])->name('actifs.store');
+
+
+    /*
+    |---------------------------------------
+    | RISQUES
+    |---------------------------------------
+    */
+
+    Route::get('/actifs/{id}/risques', [RisqueController::class,'index'])->name('risques.index');
+
+    Route::post('/risques', [RisqueController::class,'store'])->name('risques.store');
+
+
+    /*
+    |---------------------------------------
+    | CARTOGRAPHIE
+    |---------------------------------------
+    */
+
+    // Sélection de la mission
+    Route::get('/cartographie', [CartographieController::class,'select'])->name('cartographie.select');
+
+    // Cartographie d'une mission
+    Route::get('/missions/{id}/cartographie', [CartographieController::class,'index'])->name('cartographie.index');
+
+});
+
+
+/*
+|---------------------------------------
+| API TEST (optionnel)
+|---------------------------------------
+*/
+
+Route::get('/risk-map', function () {
+
+    return Risque::select(
+        'impact_inherent',
+        'probabilite_inherent',
+        'score_inherent',
+        'description'
+    )->get();
+
+});
+
+
+require __DIR__.'/auth.php';
