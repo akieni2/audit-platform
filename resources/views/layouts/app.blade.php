@@ -1,183 +1,435 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'Audit Platform') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: linear-gradient(165deg, #0f172a 0%, #1e293b 48%, #172554 100%);
+            --sidebar-border: rgba(148, 163, 184, 0.12);
+            --sidebar-text: #e2e8f0;
+            --sidebar-muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-soft: rgba(99, 102, 241, 0.18);
+            --success: #10b981;
+            --success-soft: rgba(16, 185, 129, 0.15);
+            --danger: #ef4444;
+            --main-bg: #f8fafc;
+            --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+            --radius: 10px;
+            --sidebar-width: 288px;
+        }
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+        * { box-sizing: border-box; }
 
-<title>Audit Platform</title>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'DM Sans', system-ui, sans-serif;
+            font-size: 15px;
+            color: #0f172a;
+            background: var(--main-bg);
+        }
 
-<style>
+        .app-shell {
+            display: flex;
+            min-height: 100vh;
+            align-items: stretch;
+        }
 
-body{
-display:flex;
-margin:0;
-font-family:Arial;
-}
+        /* Sidebar : défilante — la section IAM reste accessible même avec beaucoup de pôles */
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid var(--sidebar-border);
+            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+        }
 
-.sidebar{
-width:220px;
-background:#1e293b;
-color:white;
-min-height:100vh;
-padding:20px;
-}
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 6px;
+        }
 
-.sidebar a{
-color:white;
-text-decoration:none;
-display:block;
-padding:8px;
-}
+        .sidebar-inner {
+            padding: 1.25rem 1rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
 
-.sidebar a:hover{
-background:#334155;
-}
+        .brand {
+            padding: 0.35rem 0.5rem 0.15rem;
+            border-bottom: 1px solid var(--sidebar-border);
+            margin-bottom: 0.25rem;
+        }
 
-.content{
-flex:1;
-padding:20px;
-background:#f1f5f9;
-}
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #fff;
+            margin: 0;
+            line-height: 1.3;
+        }
 
-.app-topbar{
-background:linear-gradient(90deg,#1e293b 0%,#334155 100%);
-color:#fff;
-padding:14px 18px;
-margin:-20px -20px 18px -20px;
-display:flex;
-justify-content:space-between;
-align-items:flex-start;
-flex-wrap:wrap;
-gap:12px;
-border-bottom:3px solid #2563eb;
-}
+        .brand-sub {
+            font-size: 0.72rem;
+            color: var(--sidebar-muted);
+            margin: 0.25rem 0 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
 
-.app-topbar .welcome-badge{
-display:inline-block;
-background:#059669;
-padding:5px 12px;
-border-radius:6px;
-font-size:13px;
-margin-right:10px;
-font-weight:600;
-}
+        .nav-section-title {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--sidebar-muted);
+            margin: 0.75rem 0.5rem 0.35rem;
+        }
 
-</style>
+        .nav-section-title:first-of-type { margin-top: 0; }
 
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.65rem;
+            margin: 0.15rem 0;
+            border-radius: var(--radius);
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background: var(--accent-soft);
+            border-color: rgba(99, 102, 241, 0.35);
+            color: #fff;
+        }
+
+        .nav-link .ni {
+            font-size: 1rem;
+            opacity: 0.88;
+            width: 1.25rem;
+            text-align: center;
+        }
+
+        .nav-card {
+            border-radius: var(--radius);
+            padding: 0.65rem 0.5rem;
+            margin: 0.35rem 0 0.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.5) 100%);
+        }
+
+        .nav-card-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #6ee7b7;
+            margin: 0 0.45rem 0.5rem;
+        }
+
+        .nav-card .nav-link {
+            margin: 0.2rem 0;
+            font-size: 0.86rem;
+        }
+
+        .nav-card .nav-link.cta {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(16, 185, 129, 0.4);
+            font-weight: 600;
+        }
+
+        .nav-card .nav-link.cta:hover {
+            background: rgba(16, 185, 129, 0.32);
+        }
+
+        .dept-pill {
+            font-size: 0.78rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        .main-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--main-bg);
+        }
+
+        .content {
+            flex: 1;
+            padding: 1.35rem 1.75rem 2.5rem;
+            max-width: 100%;
+        }
+
+        .app-topbar {
+            background: linear-gradient(105deg, #1e293b 0%, #312e81 55%, #1e3a5f 100%);
+            color: #fff;
+            padding: 1rem 1.35rem;
+            margin: -1.35rem -1.75rem 1.35rem -1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            border-bottom: 3px solid var(--accent);
+            box-shadow: var(--card-shadow);
+        }
+
+        .app-topbar .welcome-badge {
+            display: inline-block;
+            background: var(--success);
+            color: #042f2e;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            margin-right: 0.65rem;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            width: 100%;
+            margin-top: 0.35rem;
+            padding: 0.55rem 0.65rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(248, 113, 113, 0.45);
+            background: rgba(127, 29, 29, 0.35);
+            color: #fecaca;
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(185, 28, 28, 0.55);
+            color: #fff;
+        }
+
+        @media (max-width: 960px) {
+            .app-shell { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 55vh;
+                position: relative;
+            }
+        }
+    </style>
+    @stack('styles')
 </head>
-
 <body>
-
-<div class="sidebar">
-
-<h3>Audit Platform</h3>
-
-<a href="{{ route('dashboard') }}">Dashboard</a>
-
-@can('viewExecutiveDashboard')
-<a href="{{ route('dashboard.executive') }}">Tableau de bord exécutif</a>
-@endcan
-
-<b>Missions</b>
-<a href="{{ route('missions.index') }}">Liste missions</a>
-<a href="{{ route('missions.create') }}">Nouvelle mission</a>
-
-<br>
-
-<b>Audit</b>
-
-<a href="{{ route('missions.index') }}">Services audités</a>
-<a href="{{ route('cartographie.select') }}">Cartographie des risques</a>
-
-<br>
-
-<b>Analyse</b>
-
-<a href="{{ route('module.entretiens') }}">Entretiens</a>
-<a href="{{ route('module.processus') }}">Processus</a>
-<a href="{{ route('module.actifs') }}">Actifs</a>
-<a href="{{ route('module.risques') }}">Risques</a>
-
-<br>
-
-<b>Suivi</b>
-
-<a href="{{ route('module.actions') }}">Actions correctives</a>
-<a href="{{ route('module.rapports') }}">Rapports</a>
-
-@if(isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
-<br><br>
-<b>Pôles / départements</b>
-@foreach($sidebarDepartments as $dept)
-<a href="{{ route('missions.index', ['department' => $dept->id]) }}"
-   style="{{ (string) request()->query('department') === (string) $dept->id ? 'background:#334155;font-weight:bold;' : '' }}">
-    {{ $dept->code }} — {{ \Illuminate\Support\Str::limit($dept->name, 28) }}
-</a>
-@endforeach
-<a href="{{ route('missions.index') }}" style="opacity:.85;font-size:12px;">Toutes missions</a>
-@endif
-
-@can('manageUsers')
-<br><br>
-<b>Gestion des utilisateurs</b>
-<a href="{{ route('admin.users.index') }}">Liste des utilisateurs</a>
-<a href="{{ route('admin.users.create') }}" style="background:#059669;font-weight:bold;">+ Créer un utilisateur</a>
-<br><br>
-<b>Administration système</b>
-<a href="{{ route('admin.home') }}">Tableau de bord admin</a>
-<a href="{{ route('admin.security.audit-logs') }}">Journal sécurité</a>
-@endcan
-
-@if(auth()->check())
-<br><br>
-<b>Compte</b>
-<a href="{{ route('profile.edit') }}">Mon profil</a>
-<a href="{{ route('profile.security') }}">Sécurité</a>
-<form method="POST" action="{{ route('logout') }}" style="margin-top:8px;">
-    @csrf
-    <button type="submit" style="width:100%;text-align:left;background:#b91c1c;color:white;border:none;padding:8px;border-radius:4px;cursor:pointer;font:inherit;">
-        Déconnexion
-    </button>
-</form>
-@endif
-
-</div>
-
-<div class="content">
-
-@auth
-@php
-    auth()->user()->loadMissing('department', 'institutionalRole');
-@endphp
-<div class="app-topbar">
-    <div>
-        @if(session('welcome_once'))
-            <span class="welcome-badge">{{ session('welcome_once') }}</span>
-        @endif
-        <span style="font-size:16px;"><strong>{{ auth()->user()->displayName() }}</strong></span>
-        @if(auth()->user()->institutionalRole)
-            <span style="opacity:.88;font-size:13px;margin-left:10px;">{{ auth()->user()->institutionalRole->name }}</span>
-        @endif
-    </div>
-    <div style="text-align:right;max-width:520px;">
-        @if(auth()->user()->department)
-            <div style="font-size:12px;opacity:.85;text-transform:uppercase;letter-spacing:.04em;">Pôle / département</div>
-            <div style="font-size:15px;margin-top:4px;">
-                <strong>{{ auth()->user()->department->code }}</strong>
-                <span style="opacity:.9;"> — {{ auth()->user()->department->name }}</span>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Navigation principale">
+        <div class="sidebar-inner">
+            <div class="brand">
+                <p class="brand-title">Audit Platform</p>
+                <p class="brand-sub">DGCPT · Pilotage</p>
             </div>
-        @else
-            <div style="font-size:13px;opacity:.75;">Aucun département affecté — demandez une affectation à l’administration.</div>
-        @endif
+
+            <nav>
+                <p class="nav-section-title">Accueil</p>
+                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                   href="{{ route('dashboard') }}">
+                    <span class="ni" aria-hidden="true">◆</span>
+                    Tableau de bord
+                </a>
+                @can('viewExecutiveDashboard')
+                    <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
+                       href="{{ route('dashboard.executive') }}">
+                        <span class="ni" aria-hidden="true">◈</span>
+                        Tableau exécutif
+                    </a>
+                @endcan
+
+                {{-- IAM en haut : visible sans défiler (profils autorisés uniquement) --}}
+                @if(! empty($canManageUsers))
+                    <div class="nav-card" role="region" aria-label="Gestion des utilisateurs">
+                        <p class="nav-card-title">Gestion des utilisateurs</p>
+                        <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}"
+                           href="{{ route('admin.users.index') }}">
+                            <span class="ni" aria-hidden="true">☷</span>
+                            Liste des utilisateurs
+                        </a>
+                        <a class="nav-link cta {{ request()->routeIs('admin.users.create') ? 'active' : '' }}"
+                           href="{{ route('admin.users.create') }}">
+                            <span class="ni" aria-hidden="true">＋</span>
+                            Créer un utilisateur
+                        </a>
+                        <p class="nav-section-title" style="margin-top:0.85rem;margin-bottom:0.35rem;">Administration</p>
+                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
+                           href="{{ route('admin.home') }}">
+                            <span class="ni" aria-hidden="true">⚙</span>
+                            Console admin
+                        </a>
+                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
+                           href="{{ route('admin.security.audit-logs') }}">
+                            <span class="ni" aria-hidden="true">☰</span>
+                            Journal sécurité
+                        </a>
+                    </div>
+                @endif
+
+                <p class="nav-section-title">Missions</p>
+                <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
+                   href="{{ route('missions.index') }}">
+                    <span class="ni" aria-hidden="true">≡</span>
+                    Liste des missions
+                </a>
+                <a class="nav-link {{ request()->routeIs('missions.create') ? 'active' : '' }}"
+                   href="{{ route('missions.create') }}">
+                    <span class="ni" aria-hidden="true">＋</span>
+                    Nouvelle mission
+                </a>
+
+                <p class="nav-section-title">Audit</p>
+                <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
+                   href="{{ route('missions.index') }}">
+                    <span class="ni" aria-hidden="true">◇</span>
+                    Services audités
+                </a>
+                <a class="nav-link {{ request()->routeIs('cartographie.*') ? 'active' : '' }}"
+                   href="{{ route('cartographie.select') }}">
+                    <span class="ni" aria-hidden="true">◎</span>
+                    Cartographie des risques
+                </a>
+
+                <p class="nav-section-title">Analyse</p>
+                <a class="nav-link {{ request()->routeIs('module.entretiens') ? 'active' : '' }}"
+                   href="{{ route('module.entretiens') }}">
+                    <span class="ni" aria-hidden="true">○</span>
+                    Entretiens
+                </a>
+                <a class="nav-link {{ request()->routeIs('module.processus') ? 'active' : '' }}"
+                   href="{{ route('module.processus') }}">
+                    <span class="ni" aria-hidden="true">↗</span>
+                    Processus
+                </a>
+                <a class="nav-link {{ request()->routeIs('module.actifs') ? 'active' : '' }}"
+                   href="{{ route('module.actifs') }}">
+                    <span class="ni" aria-hidden="true">▣</span>
+                    Actifs
+                </a>
+                <a class="nav-link {{ request()->routeIs('module.risques') ? 'active' : '' }}"
+                   href="{{ route('module.risques') }}">
+                    <span class="ni" aria-hidden="true">⚠</span>
+                    Risques
+                </a>
+
+                <p class="nav-section-title">Suivi</p>
+                <a class="nav-link {{ request()->routeIs('module.actions') ? 'active' : '' }}"
+                   href="{{ route('module.actions') }}">
+                    <span class="ni" aria-hidden="true">✓</span>
+                    Actions correctives
+                </a>
+                <a class="nav-link {{ request()->routeIs('module.rapports') ? 'active' : '' }}"
+                   href="{{ route('module.rapports') }}">
+                    <span class="ni" aria-hidden="true">▤</span>
+                    Rapports
+                </a>
+
+                @if(isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
+                    <p class="nav-section-title">Pôles / départements</p>
+                    @foreach($sidebarDepartments as $dept)
+                        <a class="nav-link dept-pill {{ (string) request()->query('department') === (string) $dept->id ? 'active' : '' }}"
+                           href="{{ route('missions.index', ['department' => $dept->id]) }}">
+                            <span class="ni" aria-hidden="true">▸</span>
+                            <span><strong>{{ $dept->code }}</strong> — {{ \Illuminate\Support\Str::limit($dept->name, 26) }}</span>
+                        </a>
+                    @endforeach
+                    <a class="nav-link" href="{{ route('missions.index') }}" style="opacity:.88;font-size:0.82rem;">
+                        <span class="ni" aria-hidden="true">∞</span>
+                        Toutes les missions
+                    </a>
+                @endif
+
+                @auth
+                    <p class="nav-section-title">Compte</p>
+                    <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
+                       href="{{ route('profile.edit') }}">
+                        <span class="ni" aria-hidden="true">●</span>
+                        Mon profil
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
+                       href="{{ route('profile.security') }}">
+                        <span class="ni" aria-hidden="true">◇</span>
+                        Sécurité
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn-logout">Déconnexion</button>
+                    </form>
+                @endauth
+            </nav>
+        </div>
+    </aside>
+
+    <div class="main-wrap">
+        <div class="content">
+            @auth
+                @php
+                    auth()->user()->loadMissing('department', 'institutionalRole');
+                @endphp
+                <div class="app-topbar">
+                    <div>
+                        @if(session('welcome_once'))
+                            <span class="welcome-badge">{{ session('welcome_once') }}</span>
+                        @endif
+                        <span style="font-size:1.02rem;"><strong>{{ auth()->user()->displayName() }}</strong></span>
+                        @if(auth()->user()->institutionalRole)
+                            <span style="opacity:.88;font-size:0.82rem;margin-left:0.5rem;">{{ auth()->user()->institutionalRole->name }}</span>
+                        @endif
+                    </div>
+                    <div style="text-align:right;max-width:32rem;">
+                        @if(auth()->user()->department)
+                            <div style="font-size:0.72rem;opacity:.82;text-transform:uppercase;letter-spacing:.06em;">Pôle / département</div>
+                            <div style="font-size:0.95rem;margin-top:0.25rem;">
+                                <strong>{{ auth()->user()->department->code }}</strong>
+                                <span style="opacity:.92;"> — {{ auth()->user()->department->name }}</span>
+                            </div>
+                        @else
+                            <div style="font-size:0.82rem;opacity:.78;">Aucun département affecté — contactez l’administration.</div>
+                        @endif
+                    </div>
+                </div>
+            @endauth
+
+            {{ $slot }}
+        </div>
     </div>
-</div>
-@endauth
-
-{{ $slot }}
-
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@stack('scripts')
 </body>
 </html>
