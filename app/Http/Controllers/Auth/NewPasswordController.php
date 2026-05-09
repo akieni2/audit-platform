@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Iam\SecurityAuditService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,9 +46,12 @@ class NewPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
+                    'password_changed_at' => now(),
                 ])->save();
 
                 event(new PasswordReset($user));
+
+                app(SecurityAuditService::class)->passwordResetCompleted($user, $request);
             }
         );
 

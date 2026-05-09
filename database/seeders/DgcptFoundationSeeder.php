@@ -36,6 +36,21 @@ class DgcptFoundationSeeder extends Seeder
             ['slug' => 'escalate', 'name' => 'Escalader', 'group' => 'workflow'],
             ['slug' => 'supervise', 'name' => 'Superviser', 'group' => 'executive'],
             ['slug' => 'export', 'name' => 'Exporter', 'group' => 'reporting'],
+            ['slug' => 'view_department_data', 'name' => 'Voir données du département', 'group' => 'iam'],
+            ['slug' => 'view_shared_data', 'name' => 'Voir données partagées', 'group' => 'iam'],
+            ['slug' => 'view_global_dashboard', 'name' => 'Tableau de bord global', 'group' => 'iam'],
+            ['slug' => 'create_mission', 'name' => 'Créer mission', 'group' => 'iam'],
+            ['slug' => 'update_mission', 'name' => 'Modifier mission', 'group' => 'iam'],
+            ['slug' => 'delete_mission', 'name' => 'Supprimer mission', 'group' => 'iam'],
+            ['slug' => 'validate_mission', 'name' => 'Valider mission', 'group' => 'iam'],
+            ['slug' => 'create_risk', 'name' => 'Créer risque', 'group' => 'iam'],
+            ['slug' => 'transfer_risk', 'name' => 'Transférer risque', 'group' => 'iam'],
+            ['slug' => 'manage_users', 'name' => 'Gérer utilisateurs', 'group' => 'iam'],
+            ['slug' => 'manage_departments', 'name' => 'Gérer départements', 'group' => 'iam'],
+            ['slug' => 'export_reports', 'name' => 'Exporter rapports institutionnels', 'group' => 'iam'],
+            ['slug' => 'manage_roles', 'name' => 'Gérer rôles', 'group' => 'iam'],
+            ['slug' => 'supervise_department', 'name' => 'Superviser un département', 'group' => 'iam'],
+            ['slug' => 'supervise_global', 'name' => 'Supervision nationale', 'group' => 'iam'],
         ];
 
         foreach ($permissionSlugs as $p) {
@@ -46,6 +61,7 @@ class DgcptFoundationSeeder extends Seeder
         }
 
         $roles = [
+            ['slug' => 'super_admin', 'name' => 'Super administrateur technique', 'hierarchy_level' => 110],
             ['slug' => 'inspecteur_services', 'name' => 'Inspecteur des Services', 'hierarchy_level' => 100],
             ['slug' => 'inspecteur_adjoint', 'name' => 'Inspecteur adjoint', 'hierarchy_level' => 80],
             ['slug' => 'inspecteur_verificateur', 'name' => 'Inspecteur vérificateur', 'hierarchy_level' => 60],
@@ -69,6 +85,11 @@ class DgcptFoundationSeeder extends Seeder
         }
 
         $allPermissionIds = Permission::query()->pluck('id');
+        $superAdminRole = Role::query()->where('slug', 'super_admin')->first();
+        if ($superAdminRole) {
+            $superAdminRole->permissions()->sync($allPermissionIds);
+        }
+
         $inspecteur = Role::query()->where('slug', 'inspecteur_services')->first();
         if ($inspecteur) {
             $inspecteur->permissions()->sync($allPermissionIds);
@@ -95,6 +116,7 @@ class DgcptFoundationSeeder extends Seeder
             [
                 'name' => 'Inspecteur des Services (démo)',
                 'password' => Hash::make('password'),
+                'password_changed_at' => now(),
                 'role' => 'admin',
                 'department_id' => $deptCompta?->id,
                 'role_id' => $roleInspecteur?->id,
@@ -108,6 +130,7 @@ class DgcptFoundationSeeder extends Seeder
             [
                 'name' => 'Référent SI (démo)',
                 'password' => Hash::make('password'),
+                'password_changed_at' => now(),
                 'role' => 'manager',
                 'department_id' => Department::query()->where('code', 'IT')->value('id'),
                 'role_id' => Role::query()->where('slug', 'inspecteur_verificateur')->value('id'),

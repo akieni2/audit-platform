@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Mission extends Model
@@ -55,6 +56,33 @@ class Mission extends Model
     public function auditPlans()
     {
         return $this->hasMany(AuditPlan::class);
+    }
+
+    /**
+     * Isolation des données : missions du pôle, supervision ou visibilité nationale.
+     *
+     * @param  Builder<Mission>  $query
+     * @return Builder<Mission>
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->canViewAllInstitutionalData()) {
+            return $query;
+        }
+
+        $deptId = $user->department_id;
+        if ($deptId === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->canSuperviseEntirePole()) {
+            return $query->where('department_id', $deptId);
+        }
+
+        return $query->where(function (Builder $q) use ($deptId) {
+            $q->where('department_id', $deptId)
+                ->orWhere('supervising_department_id', $deptId);
+        });
     }
 
     /*

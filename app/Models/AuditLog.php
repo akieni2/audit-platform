@@ -3,23 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
+    protected $fillable = [
+        'user_id',
+        'action',
+        'module',
+        'description',
+        'ip',
+        'user_agent',
+        'metadata',
+    ];
 
-protected $fillable = [
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'array',
+        ];
+    }
 
-'user_id',
-'action',
-'module',
-'description',
-'ip'
-
-];
-
-public function user()
-{
-return $this->belongsTo(User::class);
-}
-
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

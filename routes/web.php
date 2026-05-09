@@ -15,8 +15,9 @@ use App\Http\Controllers\ConstatController;
 use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\Admin\UserRoleController;
+use App\Http\Controllers\AccountPasswordController;
 use App\Http\Controllers\ExecutiveDashboardController;
+use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
 
 /*
@@ -37,11 +38,11 @@ Route::get('/', function () {
 */
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'active'])
     ->name('dashboard');
 
 Route::get('/dashboard/executive', ExecutiveDashboardController::class)
-    ->middleware(['auth', 'can:viewExecutiveDashboard'])
+    ->middleware(['auth', 'active', 'can:viewExecutiveDashboard'])
     ->name('dashboard.executive');
 
 
@@ -51,7 +52,7 @@ Route::get('/dashboard/executive', ExecutiveDashboardController::class)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -62,6 +63,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/account/password', [AccountPasswordController::class, 'edit'])->name('account.password');
 
 
     /*
@@ -214,9 +217,14 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
-        Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
-        Route::patch('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
+    Route::middleware(['can:manageUsers'])->prefix('admin')->name('admin.')->group(function (): void {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::patch('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
+        Route::post('/users/{user}/password-reset', [UserManagementController::class, 'sendPasswordReset'])->name('users.password-reset');
     });
 
 });

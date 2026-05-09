@@ -9,7 +9,11 @@ class MissionController extends Controller
 {
     public function index()
     {
-        $missions = Mission::all();
+        $user = Auth::user();
+        $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
+            ->orderByDesc('id')
+            ->get();
 
         return view('missions.index', compact('missions'));
     }

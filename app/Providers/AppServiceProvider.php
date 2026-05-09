@@ -24,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Risque::class, RisquePolicy::class);
+        Gate::policy(User::class, \App\Policies\UserPolicy::class);
+
+        Gate::define('manageUsers', function (?User $user): bool {
+            if (! $user) {
+                return false;
+            }
+
+            return $user->role === 'admin'
+                || $user->institutionalRole?->slug === 'super_admin'
+                || $user->hasPermission('manage_users');
+        });
 
         Gate::define('viewExecutiveDashboard', function (?User $user): bool {
             if (! $user) {
@@ -32,7 +43,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $user->isAdmin()
                 || $user->institutionalRole?->slug === 'inspecteur_services'
-                || $user->hasPermission('supervise');
+                || $user->hasPermission('supervise')
+                || $user->hasPermission('supervise_global');
         });
 
         Risque::observe(RisqueObserver::class);

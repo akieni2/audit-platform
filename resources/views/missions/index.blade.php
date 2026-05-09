@@ -2,7 +2,7 @@
 
 <h2>Liste des missions</h2>
 
-<a href="/missions/create">? Nouvelle mission</a>
+<a href="{{ route('missions.create') }}">Nouvelle mission</a>
 
 <br><br>
 
@@ -10,7 +10,7 @@
 
 <tr>
 <th>Organisation</th>
-<th>Date dÈbut</th>
+<th>Date dùbut</th>
 <th>Date fin</th>
 <th>Actions</th>
 </tr>
@@ -25,20 +25,20 @@
 
 <td>
 
-<a href="/missions/{{ $mission->id }}/services">
-?? Services
+<a href="{{ route('services.index', $mission->id) }}">
+Services
 </a>
 
 <br>
 
-<a href="/missions/{{ $mission->id }}/cartographie">
-?? Cartographie
+<a href="{{ route('cartographie.index', $mission->id) }}">
+Cartographie
 </a>
 
 <br>
 
-<a href="/missions/{{ $mission->id }}/rapport">
-?? TÈlÈcharger rapport PDF
+<a href="{{ route('missions.rapport', $mission->id) }}">
+TÈlÈcharger rapport PDF
 </a>
 
 </td>
@@ -49,7 +49,7 @@
 
 <tr>
 <td colspan="4" style="text-align:center;">
-Aucune mission enregistrÈe
+Aucune mission enregistrùe
 </td>
 </tr>
 

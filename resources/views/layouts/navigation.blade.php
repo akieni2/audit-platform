@@ -89,8 +89,26 @@ Rapports
 <x-slot name="content">
 
 <x-dropdown-link :href="route('profile.edit')">
-Profile
+Mon profil
 </x-dropdown-link>
+
+<x-dropdown-link :href="route('account.password')">
+Changer le mot de passe
+</x-dropdown-link>
+
+<x-dropdown-link :href="route('profile.edit')">
+Notifications
+</x-dropdown-link>
+
+<x-dropdown-link :href="route('profile.edit')">
+Paramètres
+</x-dropdown-link>
+
+@can('manageUsers')
+<x-dropdown-link :href="route('admin.users.index')">
+Administration utilisateurs
+</x-dropdown-link>
+@endcan
 
 <form method="POST" action="{{ route('logout') }}">
 @csrf
@@ -99,7 +117,7 @@ Profile
 onclick="event.preventDefault();
 this.closest('form').submit();">
 
-Log Out
+Déconnexion
 
 </x-dropdown-link>
 

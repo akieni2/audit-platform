@@ -2,57 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActionCorrective;
 use App\Models\Mission;
 use App\Models\Risque;
-use App\Models\ActionCorrective;
 use App\Models\Service;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        if ($user === null) {
+            abort(403);
+        }
 
-        /*
-        |-----------------------------------------
-        | KPI PRINCIPAUX
-        |-----------------------------------------
-        */
+        $missionsVisible = Mission::query()->visibleToUser($user);
+        $missions = (clone $missionsVisible)->count();
 
-        $missions = Mission::count();
+        $risquesVisible = Risque::query()->visibleToUser($user);
+        $risques = (clone $risquesVisible)->count();
 
-        $risques = Risque::count();
+        $risquesCritiques = (clone $risquesVisible)->where('score_residuel', '>=', 16)->count();
 
-        $risquesCritiques = Risque::where('score_residuel','>=',16)->count();
-
-        $actionsOuvertes = ActionCorrective::where('statut','ouvert')->count();
-
-        $actionsRetard = ActionCorrective::all()
-            ->filter(fn($a)=>$a->isOverdue())
+        $actionsOuvertes = ActionCorrective::query()
+            ->where('statut', 'ouvert')
+            ->whereHas('risque', fn ($q) => $q->visibleToUser($user))
             ->count();
 
+        $actionsRetard = ActionCorrective::query()
+            ->where('statut', '!=', 'ferme')
+            ->whereHas('risque', fn ($q) => $q->visibleToUser($user))
+            ->get()
+            ->filter(fn ($a) => $a->isOverdue())
+            ->count();
 
-        /*
-        |-----------------------------------------
-        | SERVICES POUR GRAPHIQUE
-        |-----------------------------------------
-        */
+        $services = Service::query()
+            ->whereHas('mission', fn ($q) => $q->visibleToUser($user))
+            ->get();
 
-        $services = Service::all();
-
-        foreach($services as $service){
-
-        $service->risques_count = Risque::whereHas('actif.processus', function($q) use ($service){
-        $q->where('mission_id',$service->mission_id);
-        })->count();
-
-}
-
-
-        /*
-        |-----------------------------------------
-        | RETOUR VUE
-        |-----------------------------------------
-        */
+        foreach ($services as $service) {
+            $service->risques_count = Risque::query()
+                ->visibleToUser($user)
+                ->whereHas('actif.processus', function ($q) use ($service) {
+                    $q->where('mission_id', $service->mission_id);
+                })
+                ->count();
+        }
 
         return view('dashboard', compact(
             'missions',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +23,10 @@ class PasswordController extends Controller
 
         $request->user()->update([
             'password' => Hash::make($validated['password']),
+            'password_changed_at' => now(),
         ]);
+
+        app(SecurityAuditService::class)->passwordChanged($request->user(), $request);
 
         return back()->with('status', 'password-updated');
     }

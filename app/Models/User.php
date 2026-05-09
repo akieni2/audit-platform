@@ -28,6 +28,13 @@ class User extends Authenticatable
         'active',
         'position',
         'phone',
+        'profile_photo',
+        'last_login_at',
+        'password_changed_at',
+        'failed_login_attempts',
+        'locked_until',
+        'mfa_enabled',
+        'mfa_recovery_codes',
     ];
 
     protected $hidden = [
@@ -41,6 +48,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'active' => 'boolean',
+            'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
+            'locked_until' => 'datetime',
+            'mfa_enabled' => 'boolean',
         ];
     }
 
@@ -71,13 +82,40 @@ class User extends Authenticatable
             return false;
         }
 
+        if ($role->slug === 'super_admin') {
+            return true;
+        }
+
         return $role->permissions->contains(fn (Permission $p) => $p->slug === $slug);
+    }
+
+    /** Visibilité nationale (tous départements / missions / risques). */
+    public function canViewAllInstitutionalData(): bool
+    {
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        return $this->institutionalRole?->slug === 'inspecteur_services'
+            || $this->institutionalRole?->slug === 'super_admin'
+            || $this->hasPermission('supervise_global');
+    }
+
+    /** Supervision de tout un pôle (missions du département). */
+    public function canSuperviseEntirePole(): bool
+    {
+        if ($this->canViewAllInstitutionalData()) {
+            return true;
+        }
+
+        return $this->institutionalRole?->slug === 'inspecteur_adjoint';
     }
 
     public function isAdmin(): bool
     {
         return $this->role === 'admin'
-            || $this->institutionalRole?->slug === 'admin';
+            || $this->institutionalRole?->slug === 'admin'
+            || $this->institutionalRole?->slug === 'super_admin';
     }
 
     public function isAuditeur(): bool

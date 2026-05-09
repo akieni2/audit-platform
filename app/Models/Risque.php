@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\Risk\CriticalityEvaluationService;
 use App\Services\Risk\ResidualRiskCalculationService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -84,6 +85,41 @@ class Risque extends Model
     public function ownerDepartment(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'owner_department_id');
+    }
+
+    /**
+     * Risques du département, partagés/transverses, ou rattachés à une mission visible.
+     *
+     * @param  Builder<Risque>  $query
+     * @return Builder<Risque>
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->canViewAllInstitutionalData()) {
+            return $query;
+        }
+
+        $deptId = $user->department_id;
+        if ($deptId === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $outer) use ($user, $deptId) {
+            $outer->where('owner_department_id', $deptId)
+                ->orWhere('source_department_id', $deptId)
+                ->orWhere('target_department_id', $deptId)
+                ->orWhere(function (Builder $q) use ($deptId) {
+                    $q->where('shared', true)
+                        ->where(function (Builder $inner) use ($deptId) {
+                            $inner->whereNull('target_department_id')
+                                ->orWhere('target_department_id', $deptId);
+                        });
+                })
+                ->orWhereHas(
+                    'actif.processus.mission',
+                    fn (Builder $mq) => $mq->visibleToUser($user)
+                );
+        });
     }
 
     public function calculerRisqueResiduel(): void

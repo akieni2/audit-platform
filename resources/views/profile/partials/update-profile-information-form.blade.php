@@ -13,14 +13,34 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+
+        @if ($user->profile_photo)
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('storage/'.$user->profile_photo) }}" alt="" class="h-14 w-14 rounded-full object-cover ring-1 ring-gray-200 dark:ring-gray-600" />
+                <p class="text-xs text-gray-500 dark:text-gray-400">Photo actuelle</p>
+            </div>
+        @endif
+
+        <div>
+            <x-input-label for="profile_photo" value="Photo de profil" />
+            <input id="profile_photo" name="profile_photo" type="file" accept="image/*"
+                   class="mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 dark:file:bg-gray-700" />
+            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        </div>
+
+        <div>
+            <x-input-label for="phone" value="Téléphone" />
+            <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone', $user->phone)" autocomplete="tel" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
         </div>
 
         <div>
