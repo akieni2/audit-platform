@@ -28,37 +28,37 @@ Missions
 
 <!-- Analyse -->
 <x-nav-link :href="route('cartographie.select')" :active="request()->routeIs('cartographie.*')">
-Analyse
+Cartographie
 </x-nav-link>
 
 <!-- Entretiens -->
-<x-nav-link href="/services/1/entretiens">
+<x-nav-link :href="route('module.entretiens')" :active="request()->routeIs('module.entretiens')">
 Entretiens
 </x-nav-link>
 
 <!-- Processus -->
-<x-nav-link href="/missions/1/processus">
+<x-nav-link :href="route('module.processus')" :active="request()->routeIs('module.processus')">
 Processus
 </x-nav-link>
 
 <!-- Actifs -->
-<x-nav-link href="/processus/1/actifs">
+<x-nav-link :href="route('module.actifs')" :active="request()->routeIs('module.actifs')">
 Actifs
 </x-nav-link>
 
 <!-- Risques -->
-<x-nav-link href="/actifs/1/risques">
+<x-nav-link :href="route('module.risques')" :active="request()->routeIs('module.risques')">
 Risques
 </x-nav-link>
 
 <!-- Suivi -->
-<x-nav-link href="/risques/1/actions">
+<x-nav-link :href="route('module.actions')" :active="request()->routeIs('module.actions')">
 Actions correctives
 </x-nav-link>
 
 <!-- Rapports -->
-<x-nav-link href="/missions/1/rapport">
-Rapport
+<x-nav-link :href="route('module.rapports')" :active="request()->routeIs('module.rapports')">
+Rapports
 </x-nav-link>
 
 </div>

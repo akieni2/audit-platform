@@ -16,6 +16,7 @@ use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\UserRoleController;
+use App\Http\Controllers\ModuleHubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -189,7 +190,22 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ADMINISTRATION (roles ó rÈservÈ aux admins)
+    | HUBS MODULES (menus Analyse / Suivi)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/module/entretiens', [ModuleHubController::class, 'entretiens'])->name('module.entretiens');
+    Route::get('/module/processus', [ModuleHubController::class, 'processus'])->name('module.processus');
+    Route::get('/module/actifs', [ModuleHubController::class, 'actifs'])->name('module.actifs');
+    Route::get('/module/risques', [ModuleHubController::class, 'risques'])->name('module.risques');
+    Route::get('/module/actions-correctives', [ModuleHubController::class, 'actionsCorrectives'])->name('module.actions');
+    Route::get('/module/rapports', [ModuleHubController::class, 'rapports'])->name('module.rapports');
+    Route::get('/module/questionnaires', [ModuleHubController::class, 'questionnaires'])->name('module.questionnaires');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRATION (roles ù rùservù aux admins)
     |--------------------------------------------------------------------------
     */
 

@@ -51,34 +51,34 @@ background:#f1f5f9;
 
 <h3>Audit Platform</h3>
 
-<a href="/dashboard">Dashboard</a>
+<a href="{{ route('dashboard') }}">Dashboard</a>
 
 <b>Missions</b>
-<a href="/missions">Liste missions</a>
-<a href="/missions/create">Nouvelle mission</a>
+<a href="{{ route('missions.index') }}">Liste missions</a>
+<a href="{{ route('missions.create') }}">Nouvelle mission</a>
 
 <br>
 
 <b>Audit</b>
 
-<a href="/missions">Services audités</a>
-<a href="/cartographie">Cartographie des risques</a>
+<a href="{{ route('missions.index') }}">Services audités</a>
+<a href="{{ route('cartographie.select') }}">Cartographie des risques</a>
 
 <br>
 
 <b>Analyse</b>
 
-<a href="#">Entretiens</a>
-<a href="#">Processus</a>
-<a href="#">Actifs</a>
-<a href="#">Risques</a>
+<a href="{{ route('module.entretiens') }}">Entretiens</a>
+<a href="{{ route('module.processus') }}">Processus</a>
+<a href="{{ route('module.actifs') }}">Actifs</a>
+<a href="{{ route('module.risques') }}">Risques</a>
 
 <br>
 
 <b>Suivi</b>
 
-<a href="#">Actions correctives</a>
-<a href="#">Rapports</a>
+<a href="{{ route('module.actions') }}">Actions correctives</a>
+<a href="{{ route('module.rapports') }}">Rapports</a>
 
 @if(auth()->check() && auth()->user()->isAdmin())
 <br><br>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Entretien;
+use App\Models\Question;
 use App\Models\Service;
 
 class EntretienController extends Controller
@@ -15,6 +16,8 @@ public function index($id)
 $service = Service::findOrFail($id);
 
 $entretiens = Entretien::where('service_id',$id)->get();
+
+$questions = Question::query()->orderBy('id')->get();
 
 return view('entretiens.index', compact('service','entretiens','questions'));
 
