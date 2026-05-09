@@ -47,6 +47,8 @@ class NewPasswordController extends Controller
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
                     'password_changed_at' => now(),
+                    'must_change_password' => false,
+                    'password_expires_at' => now()->addDays((int) config('dgcpt.password_rotation_days', 90)),
                 ])->save();
 
                 event(new PasswordReset($user));

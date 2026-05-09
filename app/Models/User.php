@@ -35,6 +35,8 @@ class User extends Authenticatable
         'locked_until',
         'mfa_enabled',
         'mfa_recovery_codes',
+        'must_change_password',
+        'password_expires_at',
     ];
 
     protected $hidden = [
@@ -52,6 +54,8 @@ class User extends Authenticatable
             'password_changed_at' => 'datetime',
             'locked_until' => 'datetime',
             'mfa_enabled' => 'boolean',
+            'must_change_password' => 'boolean',
+            'password_expires_at' => 'datetime',
         ];
     }
 
@@ -132,5 +136,18 @@ class User extends Authenticatable
     {
         return $this->role === 'risk_manager'
             || $this->institutionalRole?->slug === 'risk_manager';
+    }
+
+    /** Compte système configuré (email institutionnel Super Admin). */
+    public function isProtectedSystemAdministrator(): bool
+    {
+        $configured = strtolower((string) config('dgcpt.super_admin_email', 'admin@dgcpt.ga'));
+
+        return strtolower((string) $this->email) === $configured;
+    }
+
+    public function isInstitutionalSuperAdmin(): bool
+    {
+        return $this->institutionalRole?->slug === 'super_admin';
     }
 }

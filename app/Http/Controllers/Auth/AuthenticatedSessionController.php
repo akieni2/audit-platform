@@ -35,6 +35,12 @@ class AuthenticatedSessionController extends Controller
             app(SecurityAuditService::class)->loginSuccess($user, $request);
         }
 
+        if ($user !== null && $user->must_change_password) {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('password.force.edit');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

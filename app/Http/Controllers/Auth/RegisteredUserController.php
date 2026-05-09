@@ -40,6 +40,8 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'password_changed_at' => now(),
+            'must_change_password' => false,
+            'password_expires_at' => now()->addDays((int) config('dgcpt.password_rotation_days', 90)),
         ]);
 
         event(new Registered($user));

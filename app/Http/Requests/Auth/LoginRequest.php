@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Notifications\Iam\AccountLockedNotification;
+use App\Notifications\Iam\SuspiciousLoginAttemptNotification;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -66,6 +68,10 @@ class LoginRequest extends FormRequest
                 $user->increment('failed_login_attempts');
                 $user->refresh();
 
+                if ($user->failed_login_attempts === 3) {
+                    $user->notify(new SuspiciousLoginAttemptNotification(3));
+                }
+
                 if ($user->failed_login_attempts >= self::MAX_ATTEMPTS_BEFORE_LOCK) {
                     $user->forceFill([
                         'locked_until' => now()->addMinutes(self::LOCK_DURATION_MINUTES),
@@ -73,6 +79,7 @@ class LoginRequest extends FormRequest
                     ])->save();
 
                     app(SecurityAuditService::class)->accountLocked($user, $this);
+                    $user->notify(new AccountLockedNotification);
                 }
             }
 

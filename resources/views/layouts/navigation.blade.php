@@ -92,6 +92,10 @@ Rapports
 Mon profil
 </x-dropdown-link>
 
+<x-dropdown-link :href="route('profile.security')">
+Sécurité du compte
+</x-dropdown-link>
+
 <x-dropdown-link :href="route('account.password')">
 Changer le mot de passe
 </x-dropdown-link>
@@ -105,8 +109,14 @@ Paramètres
 </x-dropdown-link>
 
 @can('manageUsers')
+<x-dropdown-link :href="route('admin.home')">
+Administration centrale
+</x-dropdown-link>
 <x-dropdown-link :href="route('admin.users.index')">
-Administration utilisateurs
+Utilisateurs IAM
+</x-dropdown-link>
+<x-dropdown-link :href="route('admin.security.audit-logs')">
+Journal sécurité
 </x-dropdown-link>
 @endcan
 

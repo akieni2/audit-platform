@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Iam\SecurityAuditService;
+use App\Services\Iam\SuperAdminProtectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -98,6 +99,8 @@ class UserManagementController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'password_changed_at' => now(),
+            'must_change_password' => false,
+            'password_expires_at' => now()->addDays((int) config('dgcpt.password_rotation_days', 90)),
             'department_id' => $data['department_id'] ?? null,
             'role_id' => $data['role_id'] ?? null,
             'position' => $data['position'] ?? null,
@@ -129,6 +132,24 @@ class UserManagementController extends Controller
     {
         $data = $request->validated();
 
+        $protection = app(SuperAdminProtectionService::class);
+
+        $newRoleId = $data['role_id'] ?? null;
+        if ($user->institutionalRole?->slug === 'super_admin') {
+            $newRole = $newRoleId ? Role::query()->find((int) $newRoleId) : null;
+            if (($newRole === null || $newRole->slug !== 'super_admin') && ! $protection->mayRemoveSuperAdminRole($user)) {
+                return back()->withErrors([
+                    'role_id' => 'Impossible de retirer le rôle super administrateur pour ce compte.',
+                ]);
+            }
+        }
+
+        if ($user->active && ! $request->boolean('active') && ! $protection->mayDeactivate($user)) {
+            return back()->withErrors([
+                'active' => 'Ce compte ne peut pas être désactivé (protection institutionnelle).',
+            ]);
+        }
+
         $user->fill([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -156,6 +177,13 @@ class UserManagementController extends Controller
 
         if ($request->user()->id === $user->id) {
             return back()->withErrors(['active' => 'Vous ne pouvez pas désactiver votre propre compte.']);
+        }
+
+        $protection = app(SuperAdminProtectionService::class);
+        if (! $protection->mayDeactivate($user)) {
+            return back()->withErrors([
+                'active' => 'Ce compte ne peut pas être désactivé (protection institutionnelle).',
+            ]);
         }
 
         $user->update(['active' => false]);

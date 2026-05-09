@@ -8,11 +8,13 @@ use App\Observers\RisqueObserver;
 use App\Policies\RisquePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Repositories\EloquentRiskRepository;
+use App\Support\DgcptPasswordRules;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Password::defaults(fn () => DgcptPasswordRules::defaults());
+
         Gate::policy(Risque::class, RisquePolicy::class);
         Gate::policy(User::class, \App\Policies\UserPolicy::class);
 
@@ -35,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
                 || $user->institutionalRole?->slug === 'super_admin'
                 || $user->hasPermission('manage_users');
         });
+
+        Gate::define('viewAdminDashboard', fn (?User $user): bool => Gate::forUser($user)->allows('manageUsers'));
+
+        Gate::define('viewSecurityAuditLog', fn (?User $user): bool => Gate::forUser($user)->allows('manageUsers'));
 
         Gate::define('viewExecutiveDashboard', function (?User $user): bool {
             if (! $user) {

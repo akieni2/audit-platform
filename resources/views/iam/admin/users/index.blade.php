@@ -7,10 +7,15 @@
                     Création, affectation département / rôle institutionnel, désactivation et réinitialisation sécurisée.
                 </p>
             </div>
-            <a href="{{ route('admin.users.create') }}"
-               class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-                Nouvel utilisateur
-            </a>
+            <div class="flex flex-wrap gap-3 items-center">
+                <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    Administration centrale
+                </a>
+                <a href="{{ route('admin.users.create') }}"
+                   class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                    Nouvel utilisateur
+                </a>
+            </div>
         </div>
 
         @if (session('status'))

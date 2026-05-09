@@ -43,4 +43,11 @@ class UserPolicy
     {
         return $this->canManageAccounts($actor);
     }
+
+    /** Suppression du compte courant (profil) — interdit pour le Super Administrateur système. */
+    public function delete(User $actor, User $model): bool
+    {
+        return $actor->id === $model->id
+            && ! $model->isProtectedSystemAdministrator();
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,32 @@ class ProfileController extends Controller
     }
 
     /**
+     * Sécurité du compte et historique des événements récents (journal).
+     */
+    public function security(Request $request): View
+    {
+        $user = $request->user();
+
+        $loginHistory = AuditLog::query()
+            ->where('user_id', $user->id)
+            ->whereIn('action', [
+                'login_success',
+                'logout',
+                'password_changed',
+                'password_reset_completed',
+                'password_reset_requested',
+            ])
+            ->orderByDesc('id')
+            ->limit(40)
+            ->get();
+
+        return view('profile.security', [
+            'user' => $user->load(['department', 'institutionalRole']),
+            'loginHistory' => $loginHistory,
+        ]);
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
@@ -56,6 +83,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        $this->authorize('delete', $user);
 
         Auth::logout();
 

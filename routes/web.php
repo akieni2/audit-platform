@@ -16,7 +16,10 @@ use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AccountPasswordController;
+use App\Http\Controllers\Auth\ForcedPasswordChangeController;
 use App\Http\Controllers\ExecutiveDashboardController;
+use App\Http\Controllers\Iam\Admin\AdminDashboardController;
+use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
 
@@ -33,26 +36,23 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'active'])
-    ->name('dashboard');
-
-Route::get('/dashboard/executive', ExecutiveDashboardController::class)
-    ->middleware(['auth', 'active', 'can:viewExecutiveDashboard'])
-    ->name('dashboard.executive');
-
-
-/*
-|--------------------------------------------------------------------------
-| ZONE AUTHENTIFIE
+| ZONE AUTHENTIFIÉE (auth + compte actif)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'active'])->group(function () {
+
+    Route::get('/password/changement-obligatoire', [ForcedPasswordChangeController::class, 'edit'])
+        ->name('password.force.edit');
+    Route::post('/password/changement-obligatoire', [ForcedPasswordChangeController::class, 'update'])
+        ->name('password.force.update');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    Route::get('/dashboard/executive', ExecutiveDashboardController::class)
+        ->middleware(['can:viewExecutiveDashboard'])
+        ->name('dashboard.executive');
 
     /*
     |--------------------------------------------------------------------------
@@ -63,6 +63,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::get('/account/password', [AccountPasswordController::class, 'edit'])->name('account.password');
 
@@ -92,7 +94,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SERVICES AUDITS
+    | SERVICES AUDITÉS
     |--------------------------------------------------------------------------
     */
 
@@ -213,11 +215,14 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ADMINISTRATION (roles  rserv aux admins)
+    | ADMINISTRATION CENTRALE
     |--------------------------------------------------------------------------
     */
 
     Route::middleware(['can:manageUsers'])->prefix('admin')->name('admin.')->group(function (): void {
+        Route::get('/', AdminDashboardController::class)->name('home');
+        Route::get('/security/audit-logs', [SecurityAuditLogController::class, 'index'])->name('security.audit-logs');
+
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
