@@ -80,6 +80,12 @@ background:#f1f5f9;
 <a href="#">Actions correctives</a>
 <a href="#">Rapports</a>
 
+@if(auth()->check() && auth()->user()->isAdmin())
+<br><br>
+<b>Administration</b>
+<a href="{{ route('admin.users.index') }}">Rôles utilisateurs</a>
+@endif
+
 </div>
 
 <div class="content">

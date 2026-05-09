@@ -15,8 +15,7 @@ use App\Http\Controllers\ConstatController;
 use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
-
-use App\Models\Risque;
+use App\Http\Controllers\Admin\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +41,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| ZONE AUTHENTIFIÉE
+| ZONE AUTHENTIFIE
 |--------------------------------------------------------------------------
 */
 
@@ -84,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SERVICES AUDITÉS
+    | SERVICES AUDITS
     |--------------------------------------------------------------------------
     */
 
@@ -147,6 +146,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/risques', [RisqueController::class,'store'])->name('risques.store');
 
+    Route::patch('/risques/{risque}', [RisqueController::class, 'update'])
+        ->name('risques.update');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -184,23 +186,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/missions/{id}/cartographie', [CartographieController::class,'index'])
         ->name('cartographie.index');
 
-});
 
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRATION (roles — réservé aux admins)
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| API TEST (OPTIONNEL)
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/api/risk-map', function () {
-
-    return Risque::select(
-        'impact_inherent',
-        'probabilite_inherent',
-        'score_inherent',
-        'description'
-    )->get();
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function (): void {
+        Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/role', [UserRoleController::class, 'update'])->name('users.role.update');
+    });
 
 });
 

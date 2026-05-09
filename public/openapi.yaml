@@ -1,0 +1,312 @@
+openapi: 3.0.3
+info:
+  title: Audit Platform — API Risques (REST)
+  description: |
+    API REST pour la cartographie et la gestion des risques (Laravel Sanctum).
+
+    **Authentification** : header `Authorization: Bearer {token}`.
+
+    Créer un jeton (ex. Tinker) :
+    `$user->createToken('postman')->plainTextToken`
+
+    Préfixe des URLs : `/api/v1`
+
+    Documentation également disponible à l’URL `/openapi.yaml` (import Postman : Import → fichier ou lien).
+  version: 1.0.0
+
+servers:
+  - url: /
+    description: Origine du serveur (ajuster le host dans Postman)
+
+tags:
+  - name: Risques
+    description: Risques d'audit par mission et détail
+
+paths:
+  /api/v1/missions/{mission}/risques:
+    get:
+      tags: [Risques]
+      summary: Liste des risques d'une mission
+      security:
+        - sanctum: []
+      parameters:
+        - name: mission
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Risk'
+
+  /api/v1/missions/{mission}/risk-cartography:
+    get:
+      tags: [Risques]
+      summary: Heatmap et tableau de bord pour une mission
+      security:
+        - sanctum: []
+      parameters:
+        - name: mission
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mission_id:
+                    type: integer
+                  heatmap:
+                    type: array
+                    description: Lignes probabilité 5→1, chaque ligne est un tableau de cellules
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/HeatmapCell'
+                  dashboard:
+                    type: object
+                    properties:
+                      critical_count:
+                        type: integer
+                      top_risques:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Risk'
+                      monthly_creation:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      by_department:
+                        type: object
+                        additionalProperties:
+                          type: integer
+
+  /api/v1/risques:
+    post:
+      tags: [Risques]
+      summary: Créer un risque
+      security:
+        - sanctum: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskCreate'
+      responses:
+        '201':
+          description: Créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Risk'
+
+  /api/v1/risques/{risque}:
+    get:
+      tags: [Risques]
+      summary: Détail d'un risque
+      security:
+        - sanctum: []
+      parameters:
+        - name: risque
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Risk'
+
+    patch:
+      tags: [Risques]
+      summary: Mettre à jour un risque (RBAC sur risques critiques)
+      security:
+        - sanctum: []
+      parameters:
+        - name: risque
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskUpdate'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Interdit (risque critique, rôle insuffisant)
+
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum token
+
+  schemas:
+    Risk:
+      type: object
+      properties:
+        id:
+          type: integer
+        actif_id:
+          type: integer
+        description:
+          type: string
+        impact_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        probabilite_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        score_inherent:
+          type: integer
+        criticite_inherent:
+          type: string
+          enum: [faible, moyen, eleve, critique]
+        impact_residuel:
+          type: integer
+          nullable: true
+        probabilite_residuel:
+          type: integer
+          nullable: true
+        score_residuel:
+          type: integer
+          nullable: true
+        criticite_residuel:
+          type: string
+          nullable: true
+          enum: [faible, moyen, eleve, critique]
+        proprietaire:
+          type: string
+          nullable: true
+        departement:
+          type: string
+          nullable: true
+        date_revue:
+          type: string
+          format: date
+          nullable: true
+        plan_mitigation:
+          type: string
+          nullable: true
+        statut_risque:
+          type: string
+          enum:
+            - identifie
+            - en_analyse
+            - en_mitigation
+            - mitige
+            - accepte
+            - ferme
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    RiskCreate:
+      type: object
+      required:
+        - actif_id
+        - description
+        - impact_inherent
+        - probabilite_inherent
+      properties:
+        actif_id:
+          type: integer
+        description:
+          type: string
+          maxLength: 2000
+        impact_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        probabilite_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        proprietaire:
+          type: string
+          maxLength: 255
+        departement:
+          type: string
+          maxLength: 255
+        date_revue:
+          type: string
+          format: date
+        plan_mitigation:
+          type: string
+          maxLength: 10000
+        statut_risque:
+          type: string
+
+    RiskUpdate:
+      type: object
+      properties:
+        description:
+          type: string
+        impact_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        probabilite_inherent:
+          type: integer
+          minimum: 1
+          maximum: 5
+        proprietaire:
+          type: string
+        departement:
+          type: string
+        date_revue:
+          type: string
+          format: date
+        plan_mitigation:
+          type: string
+        statut_risque:
+          type: string
+
+    HeatmapCell:
+      type: object
+      properties:
+        impact:
+          type: integer
+        probabilite:
+          type: integer
+        score_cellule:
+          type: integer
+        criticite:
+          type: string
+        count:
+          type: integer
+        heatmap_color:
+          type: string
+          enum: [green, yellow, orange, red]

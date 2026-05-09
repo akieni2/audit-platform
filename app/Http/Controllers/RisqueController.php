@@ -2,41 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Risque;
+use App\Http\Requests\StoreRisqueRequest;
+use App\Http\Requests\UpdateRisqueRequest;
 use App\Models\Actif;
-use Illuminate\Http\Request;
+use App\Models\Risque;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class RisqueController extends Controller
 {
-
-    public function index($id)
+    public function index(int $id): View
     {
-
         $actif = Actif::findOrFail($id);
 
-        $risques = Risque::where('actif_id',$id)->get();
+        $risques = Risque::where('actif_id', $id)
+            ->with('controles')
+            ->orderByDesc('score_inherent')
+            ->get();
 
-        return view('risques.index', compact('actif','risques'));
-
+        return view('risques.index', compact('actif', 'risques'));
     }
 
-    public function store(Request $request)
-   {
+    public function store(StoreRisqueRequest $request): RedirectResponse
+    {
+        $data = $request->validated();
+        $data['statut_risque'] = $data['statut_risque'] ?? 'identifie';
 
-    $risque = Risque::create([
+        $risque = Risque::create($data);
+        $risque->calculerRisqueResiduel();
 
-        'actif_id'=>$request->actif_id,
-        'description'=>$request->description,
-        'impact_inherent'=>$request->impact_inherent,
-        'probabilite_inherent'=>$request->probabilite_inherent,
-        'score_inherent'=>$request->impact_inherent * $request->probabilite_inherent
+        return back()->with('status', 'Risque enregistré.');
+    }
 
-    ]);
+    public function update(UpdateRisqueRequest $request, Risque $risque): RedirectResponse
+    {
+        $risque->update($request->validated());
+        $risque->calculerRisqueResiduel();
 
-    $risque->calculerRisqueResiduel();
-
-    return back();
-
-   }
-
+        return back()->with('status', 'Risque mis à jour.');
+    }
 }

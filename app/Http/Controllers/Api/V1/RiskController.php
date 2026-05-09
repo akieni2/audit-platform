@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRisqueRequest;
+use App\Http\Requests\UpdateRisqueRequest;
+use App\Http\Resources\RiskResource;
+use App\Models\Mission;
+use App\Models\Risque;
+use App\Repositories\Contracts\RiskRepositoryInterface;
+use App\Services\Risk\CriticalityEvaluationService;
+use App\Services\Risk\RiskDashboardService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class RiskController extends Controller
+{
+    public function __construct(
+        private RiskRepositoryInterface $riskRepository,
+        private RiskDashboardService $dashboard,
+        private CriticalityEvaluationService $criticality,
+    ) {}
+
+    public function indexForMission(Request $request, Mission $mission): AnonymousResourceCollection
+    {
+        $risques = $this->riskRepository->forMission((int) $mission->id);
+
+        return RiskResource::collection($risques);
+    }
+
+    public function cartography(Request $request, Mission $mission): JsonResponse
+    {
+        $missionId = (int) $mission->id;
+        $heatmapCounts = $this->riskRepository->inherentHeatmapCounts($missionId);
+        $matrix = [];
+        for ($prob = 5; $prob >= 1; $prob--) {
+            $row = [];
+            for ($impact = 1; $impact <= 5; $impact++) {
+                $score = $impact * $prob;
+                $level = $this->criticality->levelFromScore($score);
+                $key = $impact.'-'.$prob;
+                $row[] = [
+                    'impact' => $impact,
+                    'probabilite' => $prob,
+                    'score_cellule' => $score,
+                    'criticite' => $level->value,
+                    'count' => $heatmapCounts[$key] ?? 0,
+                    'heatmap_color' => $this->criticality->heatmapTintForCoordinates($impact, $prob),
+                ];
+            }
+            $matrix[] = $row;
+        }
+
+        $snapshot = $this->dashboard->snapshot($missionId);
+
+        return response()->json([
+            'mission_id' => $missionId,
+            'heatmap' => $matrix,
+            'dashboard' => [
+                'critical_count' => $snapshot['critical_count'],
+                'top_risques' => RiskResource::collection($snapshot['top_risks'])
+                    ->toArray(request()),
+                'monthly_creation' => $snapshot['monthly'],
+                'by_department' => $snapshot['by_department'],
+            ],
+        ]);
+    }
+
+    public function show(Request $request, Risque $risque): RiskResource
+    {
+        $this->authorize('view', $risque);
+
+        return new RiskResource($risque->load('controles'));
+    }
+
+    public function store(StoreRisqueRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $data['statut_risque'] = $data['statut_risque'] ?? 'identifie';
+
+        $risque = Risque::create($data);
+        $risque->calculerRisqueResiduel();
+
+        return (new RiskResource($risque->fresh(['controles'])))
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    public function update(UpdateRisqueRequest $request, Risque $risque): RiskResource
+    {
+        $risque->update($request->validated());
+        $risque->calculerRisqueResiduel();
+
+        return new RiskResource($risque->fresh(['controles']));
+    }
+}
