@@ -109,11 +109,14 @@ Paramètres
 </x-dropdown-link>
 
 @can('manageUsers')
-<x-dropdown-link :href="route('admin.home')">
-Administration centrale
-</x-dropdown-link>
 <x-dropdown-link :href="route('admin.users.index')">
-Gestion des utilisateurs
+Utilisateurs
+</x-dropdown-link>
+<x-dropdown-link :href="route('admin.users.create')">
+Créer utilisateur
+</x-dropdown-link>
+<x-dropdown-link :href="route('admin.home')">
+Tableau de bord admin
 </x-dropdown-link>
 <x-dropdown-link :href="route('admin.security.audit-logs')">
 Journal sécurité

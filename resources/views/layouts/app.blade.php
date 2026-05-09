@@ -140,36 +140,52 @@
             text-align: center;
         }
 
-        .nav-card {
+        /* Bloc institutionnel ADMINISTRATION — distinct des modules métiers */
+        .nav-card--admin {
             border-radius: var(--radius);
-            padding: 0.65rem 0.5rem;
-            margin: 0.35rem 0 0.5rem;
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.5) 100%);
+            padding: 0.75rem 0.55rem 0.65rem;
+            margin: 0.5rem 0 0.85rem;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
-        .nav-card-title {
-            font-size: 0.68rem;
+        .nav-card--admin .nav-card-title {
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
-            color: #6ee7b7;
-            margin: 0 0.45rem 0.5rem;
+            letter-spacing: 0.14em;
+            color: #cbd5e1;
+            margin: 0 0.45rem 0.65rem;
+            padding-bottom: 0.45rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
         }
 
-        .nav-card .nav-link {
-            margin: 0.2rem 0;
-            font-size: 0.86rem;
+        .nav-card--admin .nav-link {
+            margin: 0.18rem 0;
+            font-size: 0.87rem;
+            font-weight: 500;
         }
 
-        .nav-card .nav-link.cta {
-            background: rgba(16, 185, 129, 0.22);
-            border-color: rgba(16, 185, 129, 0.4);
+        .nav-card--admin .nav-link:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(148, 163, 184, 0.12);
+        }
+
+        .nav-card--admin .nav-link.active {
+            background: rgba(99, 102, 241, 0.22);
+            border-color: rgba(129, 140, 248, 0.45);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+        }
+
+        .nav-card--admin .nav-link--emphasis {
             font-weight: 600;
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(30, 41, 59, 0.45);
         }
 
-        .nav-card .nav-link.cta:hover {
-            background: rgba(16, 185, 129, 0.32);
+        .nav-card--admin .nav-link--emphasis:hover {
+            background: rgba(51, 65, 85, 0.55);
         }
 
         .dept-pill {
@@ -242,7 +258,7 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                max-height: 55vh;
+                max-height: min(68vh, 28rem);
                 position: relative;
             }
         }
@@ -265,6 +281,33 @@
                     <span class="ni" aria-hidden="true">◆</span>
                     Tableau de bord
                 </a>
+
+                @if($canManageUsers === true)
+                    <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration">
+                        <p class="nav-card-title">Administration</p>
+                        <a class="nav-link {{ request()->routeIs('admin.users.index') || request()->routeIs('admin.users.edit') ? 'active' : '' }}"
+                           href="{{ route('admin.users.index') }}">
+                            <span class="ni" aria-hidden="true">▣</span>
+                            Utilisateurs
+                        </a>
+                        <a class="nav-link nav-link--emphasis {{ request()->routeIs('admin.users.create') ? 'active' : '' }}"
+                           href="{{ route('admin.users.create') }}">
+                            <span class="ni" aria-hidden="true">◇</span>
+                            Créer utilisateur
+                        </a>
+                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
+                           href="{{ route('admin.home') }}">
+                            <span class="ni" aria-hidden="true">◎</span>
+                            Tableau de bord admin
+                        </a>
+                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
+                           href="{{ route('admin.security.audit-logs') }}">
+                            <span class="ni" aria-hidden="true">▤</span>
+                            Journal sécurité
+                        </a>
+                    </div>
+                @endif
+
                 @can('viewExecutiveDashboard')
                     <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
                        href="{{ route('dashboard.executive') }}">
@@ -272,34 +315,6 @@
                         Tableau exécutif
                     </a>
                 @endcan
-
-                {{-- IAM en haut : visible sans défiler (profils autorisés uniquement) --}}
-                @if(! empty($canManageUsers))
-                    <div class="nav-card" role="region" aria-label="Gestion des utilisateurs">
-                        <p class="nav-card-title">Gestion des utilisateurs</p>
-                        <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}"
-                           href="{{ route('admin.users.index') }}">
-                            <span class="ni" aria-hidden="true">☷</span>
-                            Liste des utilisateurs
-                        </a>
-                        <a class="nav-link cta {{ request()->routeIs('admin.users.create') ? 'active' : '' }}"
-                           href="{{ route('admin.users.create') }}">
-                            <span class="ni" aria-hidden="true">＋</span>
-                            Créer un utilisateur
-                        </a>
-                        <p class="nav-section-title" style="margin-top:0.85rem;margin-bottom:0.35rem;">Administration</p>
-                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
-                           href="{{ route('admin.home') }}">
-                            <span class="ni" aria-hidden="true">⚙</span>
-                            Console admin
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
-                           href="{{ route('admin.security.audit-logs') }}">
-                            <span class="ni" aria-hidden="true">☰</span>
-                            Journal sécurité
-                        </a>
-                    </div>
-                @endif
 
                 <p class="nav-section-title">Missions</p>
                 <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
@@ -316,12 +331,12 @@
                 <p class="nav-section-title">Audit</p>
                 <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
                    href="{{ route('missions.index') }}">
-                    <span class="ni" aria-hidden="true">◇</span>
+                    <span class="ni" aria-hidden="true">◊</span>
                     Services audités
                 </a>
                 <a class="nav-link {{ request()->routeIs('cartographie.*') ? 'active' : '' }}"
                    href="{{ route('cartographie.select') }}">
-                    <span class="ni" aria-hidden="true">◎</span>
+                    <span class="ni" aria-hidden="true">◐</span>
                     Cartographie des risques
                 </a>
 
@@ -338,12 +353,12 @@
                 </a>
                 <a class="nav-link {{ request()->routeIs('module.actifs') ? 'active' : '' }}"
                    href="{{ route('module.actifs') }}">
-                    <span class="ni" aria-hidden="true">▣</span>
+                    <span class="ni" aria-hidden="true">▦</span>
                     Actifs
                 </a>
                 <a class="nav-link {{ request()->routeIs('module.risques') ? 'active' : '' }}"
                    href="{{ route('module.risques') }}">
-                    <span class="ni" aria-hidden="true">⚠</span>
+                    <span class="ni" aria-hidden="true">※</span>
                     Risques
                 </a>
 
@@ -383,7 +398,7 @@
                     </a>
                     <a class="nav-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
                        href="{{ route('profile.security') }}">
-                        <span class="ni" aria-hidden="true">◇</span>
+                        <span class="ni" aria-hidden="true">⌗</span>
                         Sécurité
                     </a>
                     <form method="POST" action="{{ route('logout') }}">

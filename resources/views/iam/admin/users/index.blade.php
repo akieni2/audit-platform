@@ -2,14 +2,14 @@
     <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Gestion des utilisateurs</h1>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Utilisateurs</h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Liste complète, création (nom, prénom, coordonnées, catégorie, département), désactivation et réinitialisation sécurisée.
+                    Administration · annuaire IAM, affectations département / catégorie, désactivation et réinitialisation sécurisée.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 items-center">
                 <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
-                    Administration centrale
+                    Tableau de bord admin
                 </a>
                 <a href="{{ route('admin.users.create') }}"
                    class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">

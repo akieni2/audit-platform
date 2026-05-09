@@ -2,12 +2,12 @@
     <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Administration centrale</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilotage des comptes, sécurité et activité récente.</p>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Tableau de bord admin</h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilotage institutionnel des comptes, sécurité et indicateurs d’activité.</p>
             </div>
             <div class="flex flex-wrap gap-2 text-sm">
-                <a href="{{ route('admin.users.create') }}" class="rounded-md bg-emerald-600 px-4 py-2 font-semibold text-white shadow hover:bg-emerald-500">Créer un utilisateur</a>
-                <a href="{{ route('admin.users.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:bg-indigo-500">Liste utilisateurs</a>
+                <a href="{{ route('admin.users.create') }}" class="rounded-md bg-slate-700 px-4 py-2 font-semibold text-white shadow hover:bg-slate-600">Créer utilisateur</a>
+                <a href="{{ route('admin.users.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:bg-indigo-500">Utilisateurs</a>
                 <a href="{{ route('admin.security.audit-logs') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">Journal sécurité</a>
             </div>
         </div>
