@@ -104,6 +104,19 @@ background:#f1f5f9;
 <a href="{{ route('admin.security.audit-logs') }}">Journal sécurité</a>
 @endcan
 
+@if(auth()->check())
+<br><br>
+<b>Compte</b>
+<a href="{{ route('profile.edit') }}">Mon profil</a>
+<a href="{{ route('profile.security') }}">Sécurité</a>
+<form method="POST" action="{{ route('logout') }}" style="margin-top:8px;">
+    @csrf
+    <button type="submit" style="width:100%;text-align:left;background:#b91c1c;color:white;border:none;padding:8px;border-radius:4px;cursor:pointer;font:inherit;">
+        Déconnexion
+    </button>
+</form>
+@endif
+
 </div>
 
 <div class="content">
