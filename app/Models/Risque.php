@@ -27,12 +27,23 @@ class Risque extends Model
         'statut_risque',
         'criticite_inherent',
         'criticite_residuel',
+        'source_department_id',
+        'target_department_id',
+        'owner_department_id',
+        'shared',
+        'cross_department',
+        'escalated',
+        'severity',
+        'treatment_plan',
     ];
 
     protected function casts(): array
     {
         return [
             'date_revue' => 'date',
+            'shared' => 'boolean',
+            'cross_department' => 'boolean',
+            'escalated' => 'boolean',
         ];
     }
 
@@ -58,6 +69,21 @@ class Risque extends Model
     public function actionsCorrectives(): HasMany
     {
         return $this->hasMany(ActionCorrective::class);
+    }
+
+    public function sourceDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'source_department_id');
+    }
+
+    public function targetDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'target_department_id');
+    }
+
+    public function ownerDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'owner_department_id');
     }
 
     public function calculerRisqueResiduel(): void
@@ -87,7 +113,7 @@ class Risque extends Model
             ActionCorrective::create([
                 'risque_id' => $this->id,
                 'description' => $rec->description,
-                'responsable' => 'À définir',
+                'responsable' => ' dfinir',
                 'date_echeance' => now()->addDays(
                     ($this->score_residuel ?? 0) >= 16 ? 7 : 30
                 ),

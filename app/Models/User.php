@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,11 +13,6 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -27,54 +22,77 @@ class User extends Authenticatable
         'matricule',
         'date_naissance',
         'fonction',
-        'role'
+        'role',
+        'department_id',
+        'role_id',
+        'active',
+        'position',
+        'phone',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'active' => 'boolean',
         ];
     }
 
     public function missions()
     {
-       return $this->hasMany(Mission::class,'auditeur_id');
+        return $this->hasMany(Mission::class, 'auditeur_id');
     }
 
-    public function isAdmin()
+    public function department(): BelongsTo
     {
-    return $this->role === 'admin';
+        return $this->belongsTo(Department::class);
     }
 
-    public function isAuditeur()
+    /** Rôle institutionnel DGCPT (table roles). */
+    public function institutionalRole(): BelongsTo
     {
-    return $this->role === 'auditeur';
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function isManager()
+    public function hasPermission(string $slug): bool
     {
-    return $this->role === 'manager';
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        $role = $this->institutionalRole;
+        if ($role === null) {
+            return false;
+        }
+
+        return $role->permissions->contains(fn (Permission $p) => $p->slug === $slug);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin'
+            || $this->institutionalRole?->slug === 'admin';
+    }
+
+    public function isAuditeur(): bool
+    {
+        return $this->role === 'auditeur';
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === 'manager';
     }
 
     public function isRiskManager(): bool
     {
-        return $this->role === 'risk_manager';
+        return $this->role === 'risk_manager'
+            || $this->institutionalRole?->slug === 'risk_manager';
     }
 }

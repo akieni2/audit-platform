@@ -16,6 +16,7 @@ use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\UserRoleController;
+use App\Http\Controllers\ExecutiveDashboardController;
 use App\Http\Controllers\ModuleHubController;
 
 /*
@@ -38,6 +39,10 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
+
+Route::get('/dashboard/executive', ExecutiveDashboardController::class)
+    ->middleware(['auth', 'can:viewExecutiveDashboard'])
+    ->name('dashboard.executive');
 
 
 /*

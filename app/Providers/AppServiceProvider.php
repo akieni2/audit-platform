@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Risque;
+use App\Models\User;
+use App\Observers\RisqueObserver;
 use App\Policies\RisquePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Repositories\EloquentRiskRepository;
@@ -22,6 +24,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Risque::class, RisquePolicy::class);
+
+        Gate::define('viewExecutiveDashboard', function (?User $user): bool {
+            if (! $user) {
+                return false;
+            }
+
+            return $user->isAdmin()
+                || $user->institutionalRole?->slug === 'inspecteur_services'
+                || $user->hasPermission('supervise');
+        });
+
+        Risque::observe(RisqueObserver::class);
 
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());

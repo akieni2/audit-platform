@@ -53,6 +53,10 @@ background:#f1f5f9;
 
 <a href="{{ route('dashboard') }}">Dashboard</a>
 
+@can('viewExecutiveDashboard')
+<a href="{{ route('dashboard.executive') }}">Tableau de bord exécutif</a>
+@endcan
+
 <b>Missions</b>
 <a href="{{ route('missions.index') }}">Liste missions</a>
 <a href="{{ route('missions.create') }}">Nouvelle mission</a>

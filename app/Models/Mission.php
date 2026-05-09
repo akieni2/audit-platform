@@ -11,7 +11,14 @@ class Mission extends Model
         'description',
         'date_debut',
         'date_fin',
-        'auditeur_id'
+        'auditeur_id',
+        'department_id',
+        'mission_type',
+        'mission_status',
+        'priority',
+        'sensitivity_level',
+        'confidentiality_level',
+        'supervising_department_id',
     ];
 
     /*
@@ -33,6 +40,16 @@ class Mission extends Model
     public function auditeur()
     {
         return $this->belongsTo(User::class,'auditeur_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function supervisingDepartment()
+    {
+        return $this->belongsTo(Department::class, 'supervising_department_id');
     }
 
     public function auditPlans()

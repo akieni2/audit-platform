@@ -3,7 +3,8 @@
 namespace App\Support;
 
 /**
- * Rôles applicatifs (colonne users.role).
+ * Valeurs autorisées pour la colonne legacy users.role (formulaires admin).
+ * Les rôles institutionnels sont aussi dans la table roles (role_id).
  */
 final class UserRoles
 {
@@ -15,14 +16,29 @@ final class UserRoles
 
     public const RISK_MANAGER = 'risk_manager';
 
+    public const INSPECTEUR_SERVICES = 'inspecteur_services';
+
+    public const INSPECTEUR_ADJOINT = 'inspecteur_adjoint';
+
+    public const INSPECTEUR_VERIFICATEUR = 'inspecteur_verificateur';
+
+    public const INSPECTEUR_VERIFICATEUR_ADJOINT = 'inspecteur_verificateur_adjoint';
+
+    public const CHARGE_VERIFICATION = 'charge_verification';
+
     /** @return list<string> */
     public static function all(): array
     {
         return [
-            self::AUDITEUR,
-            self::MANAGER,
-            self::RISK_MANAGER,
+            self::INSPECTEUR_SERVICES,
+            self::INSPECTEUR_ADJOINT,
+            self::INSPECTEUR_VERIFICATEUR,
+            self::INSPECTEUR_VERIFICATEUR_ADJOINT,
+            self::CHARGE_VERIFICATION,
             self::ADMIN,
+            self::RISK_MANAGER,
+            self::MANAGER,
+            self::AUDITEUR,
         ];
     }
 
@@ -32,7 +48,12 @@ final class UserRoles
             self::AUDITEUR => 'Auditeur',
             self::MANAGER => 'Manager',
             self::RISK_MANAGER => 'Risk Manager',
-            self::ADMIN => 'Administrateur',
+            self::ADMIN => 'Administrateur technique',
+            self::INSPECTEUR_SERVICES => 'Inspecteur des Services',
+            self::INSPECTEUR_ADJOINT => 'Inspecteur adjoint',
+            self::INSPECTEUR_VERIFICATEUR => 'Inspecteur vérificateur',
+            self::INSPECTEUR_VERIFICATEUR_ADJOINT => 'Inspecteur vérificateur adjoint',
+            self::CHARGE_VERIFICATION => 'Chargé de vérification',
             default => $role,
         };
     }
