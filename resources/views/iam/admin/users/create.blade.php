@@ -3,7 +3,8 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Nouvel utilisateur</h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                <a href="{{ route('admin.users.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Retour liste</a>
+                Affectez un <strong>département / pôle</strong> pour l’isolation des données et le tableau de bord.
+                <a href="{{ route('admin.users.index') }}" class="block mt-2 text-indigo-600 dark:text-indigo-400 hover:underline">← Retour liste</a>
             </p>
         </div>
 
@@ -43,9 +44,10 @@
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Département</label>
-                    <select name="department_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
-                        <option value="">—</option>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Département / pôle <span class="text-red-600">*</span></label>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Obligatoire pour que l’utilisateur voie les bonnes missions et le bon bandeau d’accueil.</p>
+                    <select name="department_id" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
+                        <option value="">— Choisir un département —</option>
                         @foreach ($departments as $d)
                             <option value="{{ $d->id }}" @selected(old('department_id') == $d->id)>{{ $d->code }} — {{ $d->name }}</option>
                         @endforeach

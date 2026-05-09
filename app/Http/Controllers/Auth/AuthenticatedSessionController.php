@@ -41,7 +41,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('password.force.edit');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $redirect = redirect()->intended(route('dashboard', absolute: false));
+        if ($user !== null) {
+            $redirect->with('welcome_once', 'Bienvenue, '.$user->name.' !');
+        }
+
+        return $redirect;
     }
 
     /**

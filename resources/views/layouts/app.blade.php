@@ -41,6 +41,29 @@ padding:20px;
 background:#f1f5f9;
 }
 
+.app-topbar{
+background:linear-gradient(90deg,#1e293b 0%,#334155 100%);
+color:#fff;
+padding:14px 18px;
+margin:-20px -20px 18px -20px;
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+flex-wrap:wrap;
+gap:12px;
+border-bottom:3px solid #2563eb;
+}
+
+.app-topbar .welcome-badge{
+display:inline-block;
+background:#059669;
+padding:5px 12px;
+border-radius:6px;
+font-size:13px;
+margin-right:10px;
+font-weight:600;
+}
+
 </style>
 
 </head>
@@ -100,7 +123,8 @@ background:#f1f5f9;
 <br><br>
 <b>Administration</b>
 <a href="{{ route('admin.home') }}">Tableau de bord admin</a>
-<a href="{{ route('admin.users.index') }}">Utilisateurs IAM</a>
+<a href="{{ route('admin.users.index') }}">Liste utilisateurs</a>
+<a href="{{ route('admin.users.create') }}" style="background:#2563eb;font-weight:bold;">+ Créer un utilisateur</a>
 <a href="{{ route('admin.security.audit-logs') }}">Journal sécurité</a>
 @endcan
 
@@ -120,6 +144,34 @@ background:#f1f5f9;
 </div>
 
 <div class="content">
+
+@auth
+@php
+    auth()->user()->loadMissing('department', 'institutionalRole');
+@endphp
+<div class="app-topbar">
+    <div>
+        @if(session('welcome_once'))
+            <span class="welcome-badge">{{ session('welcome_once') }}</span>
+        @endif
+        <span style="font-size:16px;"><strong>{{ auth()->user()->name }}</strong></span>
+        @if(auth()->user()->institutionalRole)
+            <span style="opacity:.88;font-size:13px;margin-left:10px;">{{ auth()->user()->institutionalRole->name }}</span>
+        @endif
+    </div>
+    <div style="text-align:right;max-width:520px;">
+        @if(auth()->user()->department)
+            <div style="font-size:12px;opacity:.85;text-transform:uppercase;letter-spacing:.04em;">Pôle / département</div>
+            <div style="font-size:15px;margin-top:4px;">
+                <strong>{{ auth()->user()->department->code }}</strong>
+                <span style="opacity:.9;"> — {{ auth()->user()->department->name }}</span>
+            </div>
+        @else
+            <div style="font-size:13px;opacity:.75;">Aucun département affecté — demandez une affectation à l’administration.</div>
+        @endif
+    </div>
+</div>
+@endauth
 
 {{ $slot }}
 

@@ -44,6 +44,7 @@ class ForcedPasswordChangeController extends Controller
 
         return redirect()
             ->route('dashboard')
-            ->with('status', 'Mot de passe mis à jour. Accès à la plateforme débloqué.');
+            ->with('status', 'Mot de passe mis à jour. Accès à la plateforme débloqué.')
+            ->with('welcome_once', 'Bienvenue, '.$user->name.' !');
     }
 }

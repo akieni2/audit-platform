@@ -6,7 +6,8 @@
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilotage des comptes, sécurité et activité récente.</p>
             </div>
             <div class="flex flex-wrap gap-2 text-sm">
-                <a href="{{ route('admin.users.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:bg-indigo-500">Utilisateurs</a>
+                <a href="{{ route('admin.users.create') }}" class="rounded-md bg-emerald-600 px-4 py-2 font-semibold text-white shadow hover:bg-emerald-500">Créer un utilisateur</a>
+                <a href="{{ route('admin.users.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:bg-indigo-500">Liste utilisateurs</a>
                 <a href="{{ route('admin.security.audit-logs') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">Journal sécurité</a>
             </div>
         </div>
