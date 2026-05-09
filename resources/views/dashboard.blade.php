@@ -1,24 +1,48 @@
 <x-app-layout>
 
-<h2>Dashboard Intelligent</h2>
+<h2>Tableau de bord audit</h2>
 
 @if(isset($departments) && $departments->isNotEmpty())
-<p style="color:#475569;font-size:14px;margin-bottom:12px;">
-    Pôles et départements actifs (données base). Votre rattachement :
+<p style="color:#475569;font-size:14px;margin-bottom:8px;">
+    Votre rattachement :
     @if(auth()->user()?->department)
         <strong>{{ auth()->user()->department->code }}</strong> — {{ auth()->user()->department->name }}
     @else
         <em>non défini</em>
     @endif
 </p>
+
+@if(!empty($focusedDepartment) && auth()->user()?->canViewAllInstitutionalData())
+<div style="background:#dbeafe;border:1px solid #3b82f6;color:#1e3a8a;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;">
+    <strong>Vue pôle :</strong> {{ $focusedDepartment->code }} — {{ $focusedDepartment->name }}.
+    Les indicateurs ci-dessous sont <em>limités à ce département</em> (comme pour un auditeur du pôle).
+    <a href="{{ route('dashboard', ['department' => 'all']) }}" style="margin-left:10px;color:#1d4ed8;font-weight:600;">Revenir à la vue globale</a>
+</div>
+@endif
+
+<p style="color:#475569;font-size:13px;margin-bottom:10px;">
+    @if(auth()->user()?->canViewAllInstitutionalData())
+        <strong>Choisir un pôle :</strong> cliquez pour appliquer le filtre sur <em>ce</em> tableau de bord (missions, risques, actions). Les liens du menu restent globaux ; pour lister les missions du pôle, utilisez aussi la section « Pôles / départements ».
+    @else
+        Raccourci : ouvrez le tableau de bord filtré sur votre pôle (équivalent à la navigation missions).
+    @endif
+</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
     @foreach($departments as $dept)
-        <a href="{{ route('missions.index', ['department' => $dept->id]) }}"
-           style="display:inline-block;background:#e2e8f0;color:#0f172a;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:13px;">
+        @php $isFocus = isset($dashboardDepartmentFocusId) && (int) $dashboardDepartmentFocusId === (int) $dept->id; @endphp
+        <a href="{{ route('dashboard', ['department' => $dept->id]) }}"
+           style="display:inline-block;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:13px;
+           {{ $isFocus ? 'background:#2563eb;color:white;font-weight:bold;' : 'background:#e2e8f0;color:#0f172a;' }}">
             <strong>{{ $dept->code }}</strong>
-            <span style="color:#475569;">{{ \Illuminate\Support\Str::limit($dept->name, 40) }}</span>
+            <span style="{{ $isFocus ? 'color:#e0e7ff;' : 'color:#475569;' }}">{{ \Illuminate\Support\Str::limit($dept->name, 40) }}</span>
         </a>
     @endforeach
+    @if(auth()->user()?->canViewAllInstitutionalData())
+        <a href="{{ route('dashboard', ['department' => 'all']) }}"
+           style="display:inline-block;background:#f1f5f9;color:#64748b;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:13px;border:1px solid #cbd5e1;">
+            Vue globale
+        </a>
+    @endif
 </div>
 @endif
 

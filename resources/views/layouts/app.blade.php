@@ -121,10 +121,12 @@ font-weight:600;
 
 @can('manageUsers')
 <br><br>
-<b>Administration</b>
+<b>Gestion des utilisateurs</b>
+<a href="{{ route('admin.users.index') }}">Liste des utilisateurs</a>
+<a href="{{ route('admin.users.create') }}" style="background:#059669;font-weight:bold;">+ Créer un utilisateur</a>
+<br><br>
+<b>Administration système</b>
 <a href="{{ route('admin.home') }}">Tableau de bord admin</a>
-<a href="{{ route('admin.users.index') }}">Liste utilisateurs</a>
-<a href="{{ route('admin.users.create') }}" style="background:#2563eb;font-weight:bold;">+ Créer un utilisateur</a>
 <a href="{{ route('admin.security.audit-logs') }}">Journal sécurité</a>
 @endcan
 
@@ -154,7 +156,7 @@ font-weight:600;
         @if(session('welcome_once'))
             <span class="welcome-badge">{{ session('welcome_once') }}</span>
         @endif
-        <span style="font-size:16px;"><strong>{{ auth()->user()->name }}</strong></span>
+        <span style="font-size:16px;"><strong>{{ auth()->user()->displayName() }}</strong></span>
         @if(auth()->user()->institutionalRole)
             <span style="opacity:.88;font-size:13px;margin-left:10px;">{{ auth()->user()->institutionalRole->name }}</span>
         @endif

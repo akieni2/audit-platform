@@ -113,7 +113,7 @@ Paramètres
 Administration centrale
 </x-dropdown-link>
 <x-dropdown-link :href="route('admin.users.index')">
-Utilisateurs IAM
+Gestion des utilisateurs
 </x-dropdown-link>
 <x-dropdown-link :href="route('admin.security.audit-logs')">
 Journal sécurité

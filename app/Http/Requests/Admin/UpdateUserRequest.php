@@ -19,6 +19,19 @@ class UpdateUserRequest extends FormRequest
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'department_id' => 'département',
+            'nom' => 'nom',
+            'prenom' => 'prénom',
+            'role_id' => 'catégorie',
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -27,7 +40,8 @@ class UpdateUserRequest extends FormRequest
         $id = $user instanceof User ? $user->id : 0;
 
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'department_id' => ['nullable', 'exists:departments,id'],
             'role_id' => ['nullable', 'exists:roles,id'],

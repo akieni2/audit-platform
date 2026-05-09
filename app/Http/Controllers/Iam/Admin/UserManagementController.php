@@ -30,6 +30,7 @@ class UserManagementController extends Controller
             $q = '%'.$request->string('q').'%';
             $query->where(function ($w) use ($q) {
                 $w->where('name', 'like', $q)
+                    ->orWhere('prenom', 'like', $q)
                     ->orWhere('email', 'like', $q)
                     ->orWhere('matricule', 'like', $q);
             });
@@ -56,7 +57,7 @@ class UserManagementController extends Controller
             ->whereNotNull('last_login_at')
             ->orderByDesc('last_login_at')
             ->limit(8)
-            ->get(['id', 'name', 'email', 'last_login_at']);
+            ->get(['id', 'name', 'prenom', 'email', 'last_login_at']);
 
         $byDepartment = Department::query()
             ->withCount(['users' => fn ($q) => $q->where('active', true)])
@@ -95,7 +96,8 @@ class UserManagementController extends Controller
         $data = $request->validated();
 
         $user = User::query()->create([
-            'name' => $data['name'],
+            'name' => $data['nom'],
+            'prenom' => $data['prenom'] ?? null,
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'password_changed_at' => now(),
@@ -151,7 +153,8 @@ class UserManagementController extends Controller
         }
 
         $user->fill([
-            'name' => $data['name'],
+            'name' => $data['nom'],
+            'prenom' => $data['prenom'] ?? null,
             'email' => $data['email'],
             'department_id' => $data['department_id'] ?? null,
             'role_id' => $data['role_id'] ?? null,

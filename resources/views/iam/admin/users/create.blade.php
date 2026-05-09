@@ -20,14 +20,26 @@
 
         <form method="post" action="{{ route('admin.users.store') }}" class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
             @csrf
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
+                    <input type="text" name="prenom" value="{{ old('prenom') }}" autocomplete="given-name"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom <span class="text-red-600">*</span></label>
+                    <input type="text" name="nom" value="{{ old('nom') }}" required autocomplete="family-name"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                </div>
+            </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom complet</label>
-                <input type="text" name="name" value="{{ old('name') }}" required
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email <span class="text-red-600">*</span></label>
+                <input type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
+                <input type="text" name="telephone" value="{{ old('telephone') }}" autocomplete="tel"
                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -54,9 +66,10 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rôle institutionnel</label>
-                    <select name="role_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
-                        <option value="">—</option>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie <span class="text-red-600">*</span></label>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Rôle institutionnel (droits et périmètre).</p>
+                    <select name="role_id" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
+                        <option value="">— Choisir une catégorie —</option>
                         @foreach ($roles as $r)
                             <option value="{{ $r->id }}" @selected(old('role_id') == $r->id)>{{ $r->name }}</option>
                         @endforeach
@@ -74,11 +87,6 @@
                     <input type="text" name="matricule" value="{{ old('matricule') }}"
                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
                 </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
-                <input type="text" name="telephone" value="{{ old('telephone') }}"
-                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
             <input type="hidden" name="active" value="0" />
             <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">

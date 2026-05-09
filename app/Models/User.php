@@ -74,6 +74,16 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
+    /** Affichage « Prénom Nom » lorsque les deux champs sont renseignés. */
+    public function displayName(): string
+    {
+        $parts = array_filter([$this->prenom, $this->name]);
+
+        return $parts !== []
+            ? implode(' ', $parts)
+            : (string) ($this->name ?? '');
+    }
+
     public function hasPermission(string $slug): bool
     {
         if ($this->role === 'admin') {

@@ -35,8 +35,14 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
 
-            return $user->role === 'admin'
-                || $user->institutionalRole?->slug === 'super_admin'
+            if ($user->role === 'admin') {
+                return true;
+            }
+
+            $slug = $user->institutionalRole?->slug;
+
+            return $slug === 'super_admin'
+                || $slug === 'admin'
                 || $user->hasPermission('manage_users');
         });
 

@@ -14,26 +14,30 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    /**
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
             'department_id' => 'département',
+            'nom' => 'nom',
+            'prenom' => 'prénom',
+            'role_id' => 'catégorie',
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', Password::defaults(), 'confirmed'],
             'department_id' => ['required', 'exists:departments,id'],
-            'role_id' => ['nullable', 'exists:roles,id'],
+            'role_id' => ['required', 'exists:roles,id'],
             'position' => ['nullable', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:64'],
             'telephone' => ['nullable', 'string', 'max:32'],

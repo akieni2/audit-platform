@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Modifier {{ $editUser->name }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Modifier {{ $editUser->displayName() }}</h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 <a href="{{ route('admin.users.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Retour liste</a>
             </p>
@@ -26,10 +26,17 @@
         <form method="post" action="{{ route('admin.users.update', $editUser) }}" class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
             @csrf
             @method('patch')
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom complet</label>
-                <input type="text" name="name" value="{{ old('name', $editUser->name) }}" required
-                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
+                    <input type="text" name="prenom" value="{{ old('prenom', $editUser->prenom) }}" autocomplete="given-name"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom <span class="text-red-600">*</span></label>
+                    <input type="text" name="nom" value="{{ old('nom', $editUser->name) }}" required autocomplete="family-name"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                </div>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
@@ -47,7 +54,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rôle institutionnel</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie (rôle institutionnel)</label>
                     <select name="role_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
                         <option value="">—</option>
                         @foreach ($roles as $r)

@@ -15,7 +15,10 @@ class UserPolicy
             return true;
         }
 
-        return $actor->institutionalRole?->slug === 'super_admin'
+        $slug = $actor->institutionalRole?->slug;
+
+        return $slug === 'super_admin'
+            || $slug === 'admin'
             || $actor->hasPermission('manage_users');
     }
 

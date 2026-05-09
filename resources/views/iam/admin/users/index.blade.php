@@ -2,9 +2,9 @@
     <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Administration — utilisateurs</h1>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Gestion des utilisateurs</h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Création, affectation département / rôle institutionnel, désactivation et réinitialisation sécurisée.
+                    Liste complète, création (nom, prénom, coordonnées, catégorie, département), désactivation et réinitialisation sécurisée.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 items-center">
@@ -48,7 +48,7 @@
                 <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                     @forelse ($recentLogins as $u)
                         <li class="flex justify-between gap-2">
-                            <span>{{ $u->name }}</span>
+                            <span>{{ $u->displayName() }}</span>
                             <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ optional($u->last_login_at)->diffForHumans() }}</span>
                         </li>
                     @empty
@@ -112,7 +112,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Utilisateur</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Département</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Rôle</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Catégorie</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Statut</th>
                         <th class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Actions</th>
                     </tr>
@@ -121,7 +121,7 @@
                     @foreach ($users as $u)
                         <tr>
                             <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900 dark:text-gray-100">{{ $u->name }}</div>
+                                <div class="font-medium text-gray-900 dark:text-gray-100">{{ $u->displayName() }}</div>
                                 <div class="text-xs text-gray-500">{{ $u->email }}</div>
                             </td>
                             <td class="px-4 py-3">

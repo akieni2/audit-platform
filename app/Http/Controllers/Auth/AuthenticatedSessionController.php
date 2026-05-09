@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
 
         $redirect = redirect()->intended(route('dashboard', absolute: false));
         if ($user !== null) {
-            $redirect->with('welcome_once', 'Bienvenue, '.$user->name.' !');
+            $redirect->with('welcome_once', 'Bienvenue, '.$user->displayName().' !');
         }
 
         return $redirect;
