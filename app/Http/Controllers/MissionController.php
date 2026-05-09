@@ -7,13 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class MissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $missions = Mission::query()
-            ->when($user, fn ($q) => $q->visibleToUser($user))
-            ->orderByDesc('id')
-            ->get();
+        $query = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user));
+
+        if ($request->filled('department')) {
+            $query->where('department_id', (int) $request->query('department'));
+        }
+
+        $missions = $query->orderByDesc('id')->get();
 
         return view('missions.index', compact('missions'));
     }

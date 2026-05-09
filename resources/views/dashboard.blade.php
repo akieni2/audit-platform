@@ -2,6 +2,26 @@
 
 <h2>Dashboard Intelligent</h2>
 
+@if(isset($departments) && $departments->isNotEmpty())
+<p style="color:#475569;font-size:14px;margin-bottom:12px;">
+    Pôles et départements actifs (données base). Votre rattachement :
+    @if(auth()->user()?->department)
+        <strong>{{ auth()->user()->department->code }}</strong> — {{ auth()->user()->department->name }}
+    @else
+        <em>non défini</em>
+    @endif
+</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    @foreach($departments as $dept)
+        <a href="{{ route('missions.index', ['department' => $dept->id]) }}"
+           style="display:inline-block;background:#e2e8f0;color:#0f172a;padding:8px 12px;border-radius:6px;text-decoration:none;font-size:13px;">
+            <strong>{{ $dept->code }}</strong>
+            <span style="color:#475569;">{{ \Illuminate\Support\Str::limit($dept->name, 40) }}</span>
+        </a>
+    @endforeach
+</div>
+@endif
+
 <br>
 
 <div style="display:flex;gap:20px;flex-wrap:wrap;">

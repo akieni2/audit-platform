@@ -84,11 +84,25 @@ background:#f1f5f9;
 <a href="{{ route('module.actions') }}">Actions correctives</a>
 <a href="{{ route('module.rapports') }}">Rapports</a>
 
-@if(auth()->check() && auth()->user()->isAdmin())
+@if(isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
+<br><br>
+<b>Pôles / départements</b>
+@foreach($sidebarDepartments as $dept)
+<a href="{{ route('missions.index', ['department' => $dept->id]) }}"
+   style="{{ (string) request()->query('department') === (string) $dept->id ? 'background:#334155;font-weight:bold;' : '' }}">
+    {{ $dept->code }} — {{ \Illuminate\Support\Str::limit($dept->name, 28) }}
+</a>
+@endforeach
+<a href="{{ route('missions.index') }}" style="opacity:.85;font-size:12px;">Toutes missions</a>
+@endif
+
+@can('manageUsers')
 <br><br>
 <b>Administration</b>
-<a href="{{ route('admin.users.index') }}">Rôles utilisateurs</a>
-@endif
+<a href="{{ route('admin.home') }}">Tableau de bord admin</a>
+<a href="{{ route('admin.users.index') }}">Utilisateurs IAM</a>
+<a href="{{ route('admin.security.audit-logs') }}">Journal sécurité</a>
+@endcan
 
 </div>
 

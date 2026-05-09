@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Models\Department;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -12,6 +13,11 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.app');
+        return view('layouts.app', [
+            'sidebarDepartments' => Department::query()
+                ->where('active', true)
+                ->orderBy('code')
+                ->get(),
+        ]);
     }
 }

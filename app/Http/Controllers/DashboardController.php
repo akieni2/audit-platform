@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActionCorrective;
+use App\Models\Department;
 use App\Models\Mission;
 use App\Models\Risque;
 use App\Models\Service;
@@ -50,13 +51,19 @@ class DashboardController extends Controller
                 ->count();
         }
 
+        $departments = Department::query()
+            ->where('active', true)
+            ->orderBy('code')
+            ->get();
+
         return view('dashboard', compact(
             'missions',
             'risques',
             'risquesCritiques',
             'actionsOuvertes',
             'actionsRetard',
-            'services'
+            'services',
+            'departments'
         ));
     }
 }
