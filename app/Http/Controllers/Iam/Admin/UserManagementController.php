@@ -105,7 +105,7 @@ class UserManagementController extends Controller
             'role_id' => $data['role_id'] ?? null,
             'position' => $data['position'] ?? null,
             'matricule' => $data['matricule'] ?? null,
-            'phone' => $data['phone'] ?? null,
+            'telephone' => $data['telephone'] ?? null,
             'active' => $request->boolean('active'),
             'role' => 'auditeur',
         ]);
@@ -157,7 +157,7 @@ class UserManagementController extends Controller
             'role_id' => $data['role_id'] ?? null,
             'position' => $data['position'] ?? null,
             'matricule' => $data['matricule'] ?? null,
-            'phone' => $data['phone'] ?? null,
+            'telephone' => $data['telephone'] ?? null,
         ]);
 
         $user->active = $request->boolean('active');

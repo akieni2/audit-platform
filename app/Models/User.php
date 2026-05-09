@@ -27,7 +27,6 @@ class User extends Authenticatable
         'role_id',
         'active',
         'position',
-        'phone',
         'profile_photo',
         'last_login_at',
         'password_changed_at',

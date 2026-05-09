@@ -33,7 +33,7 @@ class UpdateUserRequest extends FormRequest
             'role_id' => ['nullable', 'exists:roles,id'],
             'position' => ['nullable', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:64'],
-            'phone' => ['nullable', 'string', 'max:32'],
+            'telephone' => ['nullable', 'string', 'max:32'],
         ];
     }
 }

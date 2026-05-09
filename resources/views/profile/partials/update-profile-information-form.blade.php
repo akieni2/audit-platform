@@ -38,9 +38,9 @@
         </div>
 
         <div>
-            <x-input-label for="phone" value="Téléphone" />
-            <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone', $user->phone)" autocomplete="tel" />
-            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+            <x-input-label for="telephone" value="Téléphone" />
+            <x-text-input id="telephone" name="telephone" type="text" class="mt-1 block w-full" :value="old('telephone', $user->telephone)" autocomplete="tel" />
+            <x-input-error class="mt-2" :messages="$errors->get('telephone')" />
         </div>
 
         <div>

@@ -75,7 +75,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
-                <input type="text" name="phone" value="{{ old('phone') }}"
+                <input type="text" name="telephone" value="{{ old('telephone') }}"
                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
             <input type="hidden" name="active" value="0" />
