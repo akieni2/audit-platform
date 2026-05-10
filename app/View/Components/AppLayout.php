@@ -15,7 +15,7 @@ class AppLayout extends Component
     {
         $user = auth()->user();
         if ($user !== null) {
-            $user->loadMissing(['institutionalRole', 'institutionalRole.permissions']);
+            $user->loadIamRelations();
         }
 
         return view('layouts.app', [
@@ -24,6 +24,8 @@ class AppLayout extends Component
                 ->orderBy('code')
                 ->get(),
             'canManageUsers' => $user !== null && $user->canAccessAdministrationMenu(),
+            'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
+            'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),
         ]);
     }
 }

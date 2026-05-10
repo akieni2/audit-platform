@@ -19,6 +19,7 @@ use App\Http\Controllers\AccountPasswordController;
 use App\Http\Controllers\Auth\ForcedPasswordChangeController;
 use App\Http\Controllers\ExecutiveDashboardController;
 use App\Http\Controllers\Iam\Admin\AdminDashboardController;
+use App\Http\Controllers\Iam\Admin\DepartmentManagementController;
 use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
@@ -36,7 +37,7 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| ZONE AUTHENTIFIÉE (auth + compte actif)
+| ZONE AUTHENTIFIE (auth + compte actif)
 |--------------------------------------------------------------------------
 */
 
@@ -94,7 +95,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SERVICES AUDITÉS
+    | SERVICES AUDITS
     |--------------------------------------------------------------------------
     */
 
@@ -219,17 +220,23 @@ Route::middleware(['auth', 'active'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware(['can:manageUsers'])->prefix('admin')->name('admin.')->group(function (): void {
-        Route::get('/', AdminDashboardController::class)->name('home');
-        Route::get('/security/audit-logs', [SecurityAuditLogController::class, 'index'])->name('security.audit-logs');
+    Route::prefix('admin')->name('admin.')->group(function (): void {
+        Route::middleware(['can:manageUsers'])->group(function (): void {
+            Route::get('/', AdminDashboardController::class)->name('home');
+            Route::get('/security/audit-logs', [SecurityAuditLogController::class, 'index'])->name('security.audit-logs');
 
-        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-        Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
-        Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
-        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
-        Route::patch('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
-        Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
-        Route::post('/users/{user}/password-reset', [UserManagementController::class, 'sendPasswordReset'])->name('users.password-reset');
+            Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+            Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+            Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+            Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+            Route::patch('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+            Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
+            Route::post('/users/{user}/password-reset', [UserManagementController::class, 'sendPasswordReset'])->name('users.password-reset');
+        });
+
+        Route::middleware(['can:manageDepartments'])->group(function (): void {
+            Route::resource('departments', DepartmentManagementController::class)->except(['show']);
+        });
     });
 
 });

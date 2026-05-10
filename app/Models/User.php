@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Closure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -84,9 +85,47 @@ class User extends Authenticatable
             : (string) ($this->name ?? '');
     }
 
+    /** Précharge les relations nécessaires aux décisions IAM / RBAC. */
+    public function loadIamRelations(): static
+    {
+        return $this->loadMissing([
+            'department',
+            'institutionalRole',
+            'institutionalRole.permissions',
+        ]);
+    }
+
+    /**
+     * Cache booléen par cycle de requête (Request attributes) pour limiter les requêtes répétées.
+     */
+    protected function iamBool(string $key, Closure $resolver): bool
+    {
+        if (app()->runningInConsole() || ! app()->bound('request')) {
+            return $resolver();
+        }
+
+        $request = request();
+        $attrKey = '_iam_'.$this->getKey().'_'.$key;
+        if ($request->attributes->has($attrKey)) {
+            return (bool) $request->attributes->get($attrKey);
+        }
+
+        $value = (bool) $resolver();
+        $request->attributes->set($attrKey, $value);
+
+        return $value;
+    }
+
+    protected function isLegacyAdminRole(): bool
+    {
+        return strtolower((string) ($this->role ?? '')) === 'admin';
+    }
+
     public function hasPermission(string $slug): bool
     {
-        if ($this->role === 'admin') {
+        $this->loadIamRelations();
+
+        if ($this->isLegacyAdminRole()) {
             return true;
         }
 
@@ -102,33 +141,58 @@ class User extends Authenticatable
         return $role->permissions->contains(fn (Permission $p) => $p->slug === $slug);
     }
 
-    /** Visibilité nationale (tous départements / missions / risques). */
+    /** Supervision nationale : tous départements / missions / risques. */
+    public function canSuperviseAllDepartments(): bool
+    {
+        return $this->iamBool('supervise_all', function () {
+            $this->loadIamRelations();
+
+            if ($this->isLegacyAdminRole()) {
+                return true;
+            }
+
+            $slug = $this->institutionalRole?->slug;
+
+            return $slug === 'inspecteur_services'
+                || $slug === 'super_admin'
+                || $this->hasPermission('supervise_global');
+        });
+    }
+
+    /** @deprecated Utiliser {@see canSuperviseAllDepartments()} */
     public function canViewAllInstitutionalData(): bool
     {
-        if ($this->role === 'admin') {
-            return true;
-        }
-
-        return $this->institutionalRole?->slug === 'inspecteur_services'
-            || $this->institutionalRole?->slug === 'super_admin'
-            || $this->hasPermission('supervise_global');
+        return $this->canSuperviseAllDepartments();
     }
 
     /** Supervision de tout un pôle (missions du département). */
     public function canSuperviseEntirePole(): bool
     {
-        if ($this->canViewAllInstitutionalData()) {
+        if ($this->canSuperviseAllDepartments()) {
             return true;
         }
+
+        $this->loadIamRelations();
 
         return $this->institutionalRole?->slug === 'inspecteur_adjoint';
     }
 
+    protected function isAdminInstitutional(): bool
+    {
+        $this->loadIamRelations();
+
+        if ($this->isLegacyAdminRole()) {
+            return true;
+        }
+
+        $slug = $this->institutionalRole?->slug;
+
+        return $slug === 'admin' || $slug === 'super_admin';
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin'
-            || $this->institutionalRole?->slug === 'admin'
-            || $this->institutionalRole?->slug === 'super_admin';
+        return $this->iamBool('is_admin', fn () => $this->isAdminInstitutional());
     }
 
     public function isAuditeur(): bool
@@ -143,6 +207,8 @@ class User extends Authenticatable
 
     public function isRiskManager(): bool
     {
+        $this->loadIamRelations();
+
         return $this->role === 'risk_manager'
             || $this->institutionalRole?->slug === 'risk_manager';
     }
@@ -157,27 +223,117 @@ class User extends Authenticatable
 
     public function isInstitutionalSuperAdmin(): bool
     {
+        $this->loadIamRelations();
+
         return $this->institutionalRole?->slug === 'super_admin';
     }
 
-    /**
-     * Accès au menu latéral Administration (IAM) — aligné sur la Gate « manageUsers ».
-     */
+    /** Menu latéral Administration / IAM — Gate « manageUsers ». */
     public function canAccessAdministrationMenu(): bool
     {
-        if (strtolower((string) ($this->role ?? '')) === 'admin') {
-            return true;
-        }
+        return $this->iamBool('admin_menu', function () {
+            $this->loadIamRelations();
 
-        $this->loadMissing('institutionalRole');
+            if ($this->isLegacyAdminRole()) {
+                return true;
+            }
 
-        $slug = $this->institutionalRole?->slug;
-        if ($slug === 'super_admin' || $slug === 'admin') {
-            return true;
-        }
+            $slug = $this->institutionalRole?->slug;
+            if ($slug === 'super_admin' || $slug === 'admin') {
+                return true;
+            }
 
-        $this->institutionalRole?->loadMissing('permissions');
+            return $this->hasPermission('manage_users');
+        });
+    }
 
-        return $this->hasPermission('manage_users');
+    /** Tableau de bord exécutif — Gate « viewExecutiveDashboard ». */
+    public function canViewExecutiveDashboard(): bool
+    {
+        return $this->iamBool('exec_dashboard', function () {
+            $this->loadIamRelations();
+
+            return $this->isAdminInstitutional()
+                || $this->institutionalRole?->slug === 'inspecteur_services'
+                || $this->hasPermission('supervise')
+                || $this->hasPermission('supervise_global');
+        });
+    }
+
+    /** Gestion des comptes à l’échelle d’un pôle (superviseurs). */
+    public function canManageDepartmentUsers(): bool
+    {
+        return $this->iamBool('manage_dept_users', function () {
+            $this->loadIamRelations();
+
+            return $this->hasPermission('supervise_department')
+                || ($this->hasPermission('manage_users') && ! $this->canSuperviseAllDepartments());
+        });
+    }
+
+    /** Journal sécurité / audits IAM — Gate « viewSecurityAuditLog ». */
+    public function canAccessSecurityLogs(): bool
+    {
+        return $this->iamBool('security_logs', fn () => $this->canAccessAdministrationMenu());
+    }
+
+    /** Annuaire et structure des pôles — Gate « manageDepartments ». */
+    public function canManageDepartments(): bool
+    {
+        return $this->iamBool('manage_departments', function () {
+            $this->loadIamRelations();
+
+            if ($this->isLegacyAdminRole()) {
+                return true;
+            }
+
+            $slug = $this->institutionalRole?->slug;
+            if ($slug === 'super_admin' || $slug === 'admin') {
+                return true;
+            }
+
+            return $this->hasPermission('manage_departments');
+        });
+    }
+
+    /** Création / modification de missions selon permissions métier. */
+    public function canManageMissions(): bool
+    {
+        return $this->iamBool('manage_missions', function () {
+            $this->loadIamRelations();
+
+            if ($this->isLegacyAdminRole()) {
+                return true;
+            }
+
+            $slug = $this->institutionalRole?->slug;
+            if (in_array($slug, ['super_admin', 'inspecteur_services', 'admin'], true)) {
+                return true;
+            }
+
+            return $this->hasPermission('create_mission')
+                || $this->hasPermission('update_mission')
+                || $this->hasPermission('delete_mission')
+                || $this->hasPermission('validate_mission');
+        });
+    }
+
+    /** Risques institutionnels (création, transfert, criticité). */
+    public function canManageRisks(): bool
+    {
+        return $this->iamBool('manage_risks', function () {
+            $this->loadIamRelations();
+
+            if ($this->isLegacyAdminRole()) {
+                return true;
+            }
+
+            if ($this->institutionalRole?->slug === 'risk_manager') {
+                return true;
+            }
+
+            return $this->hasPermission('create_risk')
+                || $this->hasPermission('transfer_risk');
+        });
     }
 }

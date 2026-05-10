@@ -145,4 +145,43 @@ class SecurityAuditService
             array_merge(['target_user_id' => $target->id], $context),
         );
     }
+
+    /** Changement de rattachement IAM (rôle institutionnel, département). */
+    public function iamAttributesChanged(User $actor, User $target, Request $request, array $changes): AuditLog
+    {
+        return $this->log(
+            'iam_attributes_changed',
+            'iam',
+            'Modification rattachement IAM — '.$target->email,
+            $actor,
+            $request,
+            array_merge(['target_user_id' => $target->id], ['changes' => $changes]),
+        );
+    }
+
+    /** Refus d’accès (policy / gate) — traçabilité conformité. */
+    public function authorizationDenied(?User $user, Request $request, string $ability, array $metadata = []): AuditLog
+    {
+        return $this->log(
+            'authorization_denied',
+            'security',
+            'Accès refusé — '.$ability,
+            $user,
+            $request,
+            array_merge(['ability' => $ability], $metadata),
+        );
+    }
+
+    /** Tentative d’accès à une route d’administration sans droit suffisant. */
+    public function adminRouteDenied(?User $user, Request $request, string $routeName): AuditLog
+    {
+        return $this->log(
+            'admin_route_denied',
+            'security',
+            'Tentative accès administration — '.$routeName,
+            $user,
+            $request,
+            ['route' => $routeName],
+        );
+    }
 }

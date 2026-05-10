@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
@@ -13,6 +14,9 @@ class Department extends Model
         'description',
         'type',
         'active',
+        'supervisor_user_id',
+        'accent_color',
+        'logo_path',
     ];
 
     protected function casts(): array
@@ -20,6 +24,11 @@ class Department extends Model
         return [
             'active' => 'boolean',
         ];
+    }
+
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'supervisor_user_id');
     }
 
     public function users(): HasMany

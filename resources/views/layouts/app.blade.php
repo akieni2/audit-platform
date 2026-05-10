@@ -283,32 +283,38 @@
                 </a>
 
                 @auth
-                @php
-                    auth()->user()->loadMissing(['institutionalRole', 'institutionalRole.permissions']);
-                @endphp
-                @if(auth()->user()->canAccessAdministrationMenu())
+                @if(($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false))
                     <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration">
                         <p class="nav-card-title">Administration</p>
-                        <a class="nav-link {{ request()->routeIs('admin.users.index') || request()->routeIs('admin.users.edit') ? 'active' : '' }}"
-                           href="{{ route('admin.users.index') }}">
-                            <span class="ni" aria-hidden="true">▣</span>
-                            Utilisateurs
-                        </a>
-                        <a class="nav-link nav-link--emphasis {{ request()->routeIs('admin.users.create') ? 'active' : '' }}"
-                           href="{{ route('admin.users.create') }}">
-                            <span class="ni" aria-hidden="true">◇</span>
-                            Créer utilisateur
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
-                           href="{{ route('admin.home') }}">
-                            <span class="ni" aria-hidden="true">◎</span>
-                            Tableau de bord admin
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
-                           href="{{ route('admin.security.audit-logs') }}">
-                            <span class="ni" aria-hidden="true">▤</span>
-                            Journal sécurité
-                        </a>
+                        @if($canManageUsers ?? false)
+                            <a class="nav-link {{ request()->routeIs('admin.users.index') || request()->routeIs('admin.users.edit') ? 'active' : '' }}"
+                               href="{{ route('admin.users.index') }}">
+                                <span class="ni" aria-hidden="true">▣</span>
+                                Utilisateurs
+                            </a>
+                            <a class="nav-link nav-link--emphasis {{ request()->routeIs('admin.users.create') ? 'active' : '' }}"
+                               href="{{ route('admin.users.create') }}">
+                                <span class="ni" aria-hidden="true">◇</span>
+                                Créer utilisateur
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
+                               href="{{ route('admin.home') }}">
+                                <span class="ni" aria-hidden="true">◎</span>
+                                Tableau de bord admin
+                            </a>
+                            <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
+                               href="{{ route('admin.security.audit-logs') }}">
+                                <span class="ni" aria-hidden="true">▤</span>
+                                Journal sécurité
+                            </a>
+                        @endif
+                        @if($canManageDepartmentsNav ?? false)
+                            <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
+                               href="{{ route('admin.departments.index') }}">
+                                <span class="ni" aria-hidden="true">◫</span>
+                                Pôles / départements
+                            </a>
+                        @endif
                     </div>
                 @endif
                 @endauth

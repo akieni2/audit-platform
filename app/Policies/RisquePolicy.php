@@ -29,7 +29,7 @@ class RisquePolicy
     public function update(User $user, Risque $risque): bool
     {
         if ($this->isCritical($risque)) {
-            return $user->isAdmin() || $user->isRiskManager();
+            return $user->canManageRisks();
         }
 
         return true;

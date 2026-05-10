@@ -152,6 +152,9 @@ class UserManagementController extends Controller
             ]);
         }
 
+        $beforeRoleId = $user->role_id;
+        $beforeDepartmentId = $user->department_id;
+
         $user->fill([
             'name' => $data['nom'],
             'prenom' => $data['prenom'] ?? null,
@@ -166,6 +169,17 @@ class UserManagementController extends Controller
         $user->active = $request->boolean('active');
 
         $user->save();
+
+        $iamChanges = [];
+        if ($beforeRoleId !== $user->role_id) {
+            $iamChanges['role_id'] = ['from' => $beforeRoleId, 'to' => $user->role_id];
+        }
+        if ($beforeDepartmentId !== $user->department_id) {
+            $iamChanges['department_id'] = ['from' => $beforeDepartmentId, 'to' => $user->department_id];
+        }
+        if ($iamChanges !== []) {
+            app(SecurityAuditService::class)->iamAttributesChanged($request->user(), $user, $request, $iamChanges);
+        }
 
         app(SecurityAuditService::class)->userUpdated($request->user(), $user, $request);
 
