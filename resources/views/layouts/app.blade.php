@@ -36,10 +36,12 @@
             background: var(--main-bg);
         }
 
+        /* flex-start : évite que la colonne latérale s’étire sur toute la hauteur du document (effets de superposition / hit-area avec sticky) */
         .app-shell {
             display: flex;
             min-height: 100vh;
-            align-items: stretch;
+            align-items: flex-start;
+            position: relative;
         }
 
         /* Sidebar : défilante — la section IAM reste accessible même avec beaucoup de pôles */
@@ -48,7 +50,9 @@
             flex-shrink: 0;
             background: var(--sidebar-bg);
             color: var(--sidebar-text);
+            align-self: flex-start;
             height: 100vh;
+            max-height: 100vh;
             position: sticky;
             top: 0;
             overflow-y: auto;
@@ -57,6 +61,7 @@
             box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
             scrollbar-width: thin;
             scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+            z-index: 1;
         }
 
         .sidebar::-webkit-scrollbar { width: 6px; }
@@ -195,17 +200,23 @@
         }
 
         .main-wrap {
-            flex: 1;
+            flex: 1 1 0;
             min-width: 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             background: var(--main-bg);
+            position: relative;
+            z-index: 2;
+            isolation: isolate;
         }
 
         .content {
             flex: 1;
             padding: 1.35rem 1.75rem 2.5rem;
             max-width: 100%;
+            position: relative;
+            pointer-events: auto;
         }
 
         .app-topbar {
@@ -455,7 +466,7 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 @stack('scripts')
 </body>
 </html>
