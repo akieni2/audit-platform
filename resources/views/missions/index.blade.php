@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Missions</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Workflow ascendant ? rattachement d?partemental.</p>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Workflow ascendant — rattachement départemental.</p>
             </div>
             @if (auth()->user()?->can('create', \App\Models\Mission::class))
                 <a href="{{ route('missions.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
@@ -18,7 +18,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Organisation</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Statut</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">D?but</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Début</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Fin</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Actions</th>
                     </tr>
@@ -31,7 +31,9 @@
                                     {{ $mission->organisation }}
                                 </a>
                             </td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $mission->mission_status }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                                <x-mission-status-badge :status="$mission->mission_status" />
+                            </td>
                             <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $mission->date_debut }}</td>
                             <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $mission->date_fin ?? '?' }}</td>
                             <td class="px-4 py-3">
@@ -45,11 +47,17 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Aucune mission visible pour votre p?rim?tre.</td>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Aucune mission visible pour votre périmètre.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        @if ($missions->hasPages())
+            <div class="mt-6">
+                {{ $missions->links() }}
+            </div>
+        @endif
     </div>
 </x-app-layout>

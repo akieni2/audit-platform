@@ -26,7 +26,7 @@ class MissionController extends Controller
             $query->where('department_id', (int) $request->query('department'));
         }
 
-        $missions = $query->orderByDesc('id')->get();
+        $missions = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
         return view('missions.index', compact('missions'));
     }

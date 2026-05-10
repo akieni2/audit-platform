@@ -180,6 +180,14 @@
     @endif
 
     <p class="nav-section-title">Compte</p>
+    <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
+       href="{{ route('notifications.index') }}">
+        <span class="ni" aria-hidden="true">◉</span>
+        Notifications
+        @if (($unreadNotificationsCount ?? 0) > 0)
+            <span class="nav-badge">{{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}</span>
+        @endif
+    </a>
     <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
        href="{{ route('profile.edit') }}">
         <span class="ni" aria-hidden="true">●</span>

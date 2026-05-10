@@ -5,6 +5,7 @@ namespace App\Services\Missions;
 use App\Models\Mission;
 use App\Models\MissionWorkflowEvent;
 use App\Models\User;
+use App\Notifications\MissionWorkflowNotification;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -85,8 +86,19 @@ class MissionWorkflowService
                 'comment' => $comment,
             ]);
 
-            return $mission->fresh();
+            $fresh = $mission->fresh(['auditeur']);
+            $this->notifyParticipants($fresh, $actor, $action, $comment);
+
+            return $fresh;
         });
+    }
+
+    private function notifyParticipants(Mission $mission, User $actor, string $action, ?string $comment): void
+    {
+        $mission->loadMissing('auditeur');
+        if ($mission->auditeur !== null && ! $mission->auditeur->is($actor)) {
+            $mission->auditeur->notify(new MissionWorkflowNotification($mission, $action, $comment, $actor));
+        }
     }
 
     private function targetStatus(string $from, string $action): string

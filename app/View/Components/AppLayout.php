@@ -34,6 +34,7 @@ class AppLayout extends Component
             'canManageUsers' => $user !== null && $user->canAccessAdministrationMenu(),
             'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
             'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),
+            'unreadNotificationsCount' => $user !== null ? $user->unreadNotifications()->count() : 0,
         ]);
     }
 }

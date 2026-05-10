@@ -11,7 +11,13 @@ class ReportController extends Controller
     {
         $this->authorize('view', $mission);
 
-        $mission->load(['processus.actifs.risques.actionsCorrectives', 'services']);
+        $mission->load([
+            'workflowEvents.user',
+            'processus.actifs.risques.actionsCorrectives',
+            'services',
+            'department',
+            'auditeur',
+        ]);
 
         $pdf = Pdf::loadView('reports.mission', compact('mission'));
 

@@ -20,9 +20,9 @@
         <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Fiche mission</p>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $mission->organisation }}</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-                État workflow :
-                <span class="font-semibold text-indigo-700 dark:text-indigo-300">{{ $mission->mission_status }}</span>
+            <p class="text-sm text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-2">
+                <span>État workflow :</span>
+                <x-mission-status-badge :status="$mission->mission_status" />
             </p>
             @if ($mission->department)
                 <p class="text-sm text-gray-700 dark:text-gray-200">

@@ -116,6 +116,7 @@
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            width: 100%;
             padding: 0.55rem 0.65rem;
             margin: 0.15rem 0;
             border-radius: var(--radius);
@@ -197,6 +198,57 @@
             font-size: 0.78rem;
             font-weight: 500;
             line-height: 1.35;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            min-width: 1.35rem;
+            height: 1.35rem;
+            padding: 0 0.4rem;
+            border-radius: 999px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .topbar-notif {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-right: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: background 0.15s ease;
+        }
+
+        .topbar-notif:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .topbar-notif-count {
+            background: var(--danger);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            min-width: 1.25rem;
+            height: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.35rem;
+            font-weight: 700;
         }
 
         .main-wrap {
@@ -298,10 +350,16 @@
                     auth()->user()->loadMissing('department', 'institutionalRole');
                 @endphp
                 <div class="app-topbar">
-                    <div>
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
                         @if(session('welcome_once'))
                             <span class="welcome-badge">{{ session('welcome_once') }}</span>
                         @endif
+                        <a href="{{ route('notifications.index') }}" class="topbar-notif" aria-label="Centre de notifications">
+                            Notifications
+                            @if (($unreadNotificationsCount ?? 0) > 0)
+                                <span class="topbar-notif-count" aria-hidden="true">{{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}</span>
+                            @endif
+                        </a>
                         <span style="font-size:1.02rem;"><strong>{{ auth()->user()->displayName() }}</strong></span>
                         @if(auth()->user()->institutionalRole)
                             <span style="opacity:.88;font-size:0.82rem;margin-left:0.5rem;">{{ auth()->user()->institutionalRole->name }}</span>

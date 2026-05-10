@@ -43,7 +43,7 @@ class MissionWorkflowRequest extends FormRequest
 
             if (in_array($action, [
                 MissionWorkflowService::ACTION_DEMANDER_CORRECTIONS,
-                MissionWorkflowService::ACTION_RENVoyer_COPRI,
+                MissionWorkflowService::ACTION_RENVOYER_COPRI,
             ], true) && $comment === '') {
                 $validator->errors()->add('comment', 'Un commentaire est obligatoire pour cette décision.');
             }

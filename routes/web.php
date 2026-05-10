@@ -23,6 +23,7 @@ use App\Http\Controllers\Iam\Admin\DepartmentManagementController;
 use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
+use App\Http\Controllers\NotificationCenterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::get('/account/password', [AccountPasswordController::class, 'edit'])->name('account.password');
+
+    Route::get('/notifications', [NotificationCenterController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationCenterController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationCenterController::class, 'markRead'])->name('notifications.read');
 
 
     /*
