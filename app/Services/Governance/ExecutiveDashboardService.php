@@ -6,13 +6,34 @@ use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Models\Mission;
 use App\Models\Risque;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 final class ExecutiveDashboardService
 {
+    public const NATIONAL_KPIS_CACHE_KEY = 'audit:governance:national_kpis:v1';
+
     /**
      * @return array<string, int|float>
      */
     public function nationalKpis(): array
+    {
+        $ttl = max(30, (int) config('audit.kpi_cache_ttl', 120));
+
+        return Cache::remember(self::NATIONAL_KPIS_CACHE_KEY, $ttl, fn (): array => $this->computeNationalKpis());
+    }
+
+    /**
+     * Invalidation explicite (workflow mission, risques, missions).
+     */
+    public static function flushNationalKpisCache(): void
+    {
+        Cache::forget(self::NATIONAL_KPIS_CACHE_KEY);
+    }
+
+    /**
+     * @return array<string, int|float>
+     */
+    private function computeNationalKpis(): array
     {
         $missionsOuvertes = Mission::query()
             ->whereIn('mission_status', [

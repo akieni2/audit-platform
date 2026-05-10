@@ -517,28 +517,27 @@
 </div>
 @auth
     <script>
+        window.__auditUserId = {{ auth()->id() }};
         window.toggleInstitutionalTheme = function () {
             document.documentElement.classList.toggle('dark');
             try {
                 localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             } catch (e) {}
         };
-        (function () {
+        window.refreshAuditNotifications = function () {
             var url = @json(route('notifications.unread-count'));
-            function refreshNotif() {
-                fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-                    .then(function (r) { return r.json(); })
-                    .then(function (d) {
-                        var n = typeof d.count === 'number' ? d.count : 0;
-                        document.querySelectorAll('[data-notif-count]').forEach(function (el) {
-                            el.textContent = n > 99 ? '99+' : String(n);
-                            el.style.display = n > 0 ? '' : 'none';
-                        });
-                    })
-                    .catch(function () {});
-            }
-            setInterval(refreshNotif, 45000);
-        })();
+            fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    var n = typeof d.count === 'number' ? d.count : 0;
+                    document.querySelectorAll('[data-notif-count]').forEach(function (el) {
+                        el.textContent = n > 99 ? '99+' : String(n);
+                        el.style.display = n > 0 ? '' : 'none';
+                    });
+                })
+                .catch(function () {});
+        };
+        setInterval(window.refreshAuditNotifications, 45000);
     </script>
 @endauth
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>

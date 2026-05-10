@@ -4,8 +4,10 @@ namespace App\Notifications;
 
 use App\Models\Mission;
 use App\Models\User;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
@@ -26,7 +28,45 @@ class MissionWorkflowNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database', 'mail'];
+
+        if (config('broadcasting.default') !== 'null') {
+            $channels[] = 'broadcast';
+        }
+
+        return $channels;
+    }
+
+    /**
+     * @return array<int, \Illuminate\Broadcasting\PrivateChannel>
+     */
+    public function broadcastOn(): array
+    {
+        $auditeurId = $this->mission->auditeur_id;
+        if ($auditeurId === null) {
+            return [];
+        }
+
+        return [
+            new PrivateChannel('App.Models.User.'.$auditeurId),
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'mission.workflow';
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'mission_id' => $this->mission->id,
+            'organisation' => $this->mission->organisation,
+            'mission_status' => $this->mission->mission_status,
+            'action' => $this->action,
+            'title' => 'Mission — '.$this->label(),
+            'body' => $this->bodyLine(),
+        ]);
     }
 
     public function toMail(object $notifiable): MailMessage

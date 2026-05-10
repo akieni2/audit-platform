@@ -26,6 +26,7 @@ use App\Http\Controllers\ModuleHubController;
 use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\NotificationUnreadController;
 use App\Http\Controllers\GlobalSearchController;
+use App\Http\Controllers\HealthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,10 @@ use App\Http\Controllers\GlobalSearchController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/health/ready', [HealthController::class, 'ready'])
+    ->middleware('throttle:120,1')
+    ->name('health.ready');
 
 
 /*

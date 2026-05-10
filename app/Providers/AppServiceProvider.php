@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\Mission;
 use App\Models\Risque;
 use App\Models\User;
+use App\Services\Governance\ExecutiveDashboardService;
 use App\Observers\RisqueObserver;
 use App\Policies\RisquePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
@@ -57,5 +58,21 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
         });
+
+        Mission::saved(function (): void {
+            ExecutiveDashboardService::flushNationalKpisCache();
+        });
+
+        Mission::deleted(function (): void {
+            ExecutiveDashboardService::flushNationalKpisCache();
+        });
+
+        if (class_exists(\Laravel\Horizon\Horizon::class)) {
+            \Laravel\Horizon\Horizon::auth(function ($request) {
+                $user = $request->user();
+
+                return $user !== null && $user->canAccessAdministrationMenu();
+            });
+        }
     }
 }
