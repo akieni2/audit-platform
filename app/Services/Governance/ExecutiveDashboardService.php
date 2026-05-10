@@ -5,6 +5,7 @@ namespace App\Services\Governance;
 use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Models\Mission;
 use App\Models\Risque;
+use Illuminate\Support\Collection;
 
 final class ExecutiveDashboardService
 {
@@ -43,5 +44,35 @@ final class ExecutiveDashboardService
             'risques_critiques' => $risquesCritiques,
             'risques_transversaux' => $risquesTransversaux,
         ];
+    }
+
+    /**
+     * Missions clôturées en attente de validation Inspection des Services.
+     *
+     * @return Collection<int, Mission>
+     */
+    public function missionsAwaitingInspection(): Collection
+    {
+        return Mission::query()
+            ->with(['department:id,code,name'])
+            ->where('mission_status', Mission::STATUS_CLOTUREE)
+            ->orderByDesc('updated_at')
+            ->limit(60)
+            ->get();
+    }
+
+    /**
+     * Missions validées IS en attente de validation COPRI.
+     *
+     * @return Collection<int, Mission>
+     */
+    public function missionsAwaitingCopri(): Collection
+    {
+        return Mission::query()
+            ->with(['department:id,code,name'])
+            ->where('mission_status', Mission::STATUS_VALIDEE_IS)
+            ->orderByDesc('updated_at')
+            ->limit(60)
+            ->get();
     }
 }

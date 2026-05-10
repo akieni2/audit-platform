@@ -6,25 +6,25 @@
 <p style="color:#475569;font-size:14px;margin-bottom:8px;">
     Votre rattachement :
     @if(auth()->user()?->department)
-        <strong>{{ auth()->user()->department->code }}</strong> — {{ auth()->user()->department->name }}
+        <strong>{{ auth()->user()->department->code }}</strong>  {{ auth()->user()->department->name }}
     @else
-        <em>non défini</em>
+        <em>non dfini</em>
     @endif
 </p>
 
 @if(!empty($focusedDepartment) && auth()->user()?->canViewAllInstitutionalData())
 <div style="background:#dbeafe;border:1px solid #3b82f6;color:#1e3a8a;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px;">
-    <strong>Vue pôle :</strong> {{ $focusedDepartment->code }} — {{ $focusedDepartment->name }}.
-    Les indicateurs ci-dessous sont <em>limités à ce département</em> (comme pour un auditeur du pôle).
-    <a href="{{ route('dashboard', ['department' => 'all']) }}" style="margin-left:10px;color:#1d4ed8;font-weight:600;">Revenir à la vue globale</a>
+    <strong>Vue ple :</strong> {{ $focusedDepartment->code }}  {{ $focusedDepartment->name }}.
+    Les indicateurs ci-dessous sont <em>limits  ce dpartement</em> (comme pour un auditeur du ple).
+    <a href="{{ route('dashboard', ['department' => 'all']) }}" style="margin-left:10px;color:#1d4ed8;font-weight:600;">Revenir  la vue globale</a>
 </div>
 @endif
 
 <p style="color:#475569;font-size:13px;margin-bottom:10px;">
     @if(auth()->user()?->canViewAllInstitutionalData())
-        <strong>Choisir un pôle :</strong> cliquez pour appliquer le filtre sur <em>ce</em> tableau de bord (missions, risques, actions). Les liens du menu restent globaux ; pour lister les missions du pôle, utilisez aussi la section « Pôles / départements ».
+        <strong>Choisir un ple :</strong> cliquez pour appliquer le filtre sur <em>ce</em> tableau de bord (missions, risques, actions). Les liens du menu restent globaux ; pour lister les missions du ple, utilisez aussi la section  Ples / dpartements .
     @else
-        Raccourci : ouvrez le tableau de bord filtré sur votre pôle (équivalent à la navigation missions).
+        Raccourci : ouvrez le tableau de bord filtr sur votre ple (quivalent  la navigation missions).
     @endif
 </p>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
@@ -77,9 +77,31 @@
 
 </div>
 
+@if(isset($missionsEnCours))
+<br>
+<div style="display:flex;gap:16px;flex-wrap:wrap;">
+<div style="background:#0ea5e9;color:white;padding:16px;width:180px;border-radius:8px;">
+<h3 style="margin:0;font-size:13px;opacity:.9;">Missions en cours</h3>
+<h1 style="margin:4px 0 0;font-size:28px;">{{ $missionsEnCours }}</h1>
+</div>
+<div style="background:#64748b;color:white;padding:16px;width:180px;border-radius:8px;">
+<h3 style="margin:0;font-size:13px;opacity:.9;">Brouillons</h3>
+<h1 style="margin:4px 0 0;font-size:28px;">{{ $missionsBrouillon }}</h1>
+</div>
+<div style="background:#059669;color:white;padding:16px;width:180px;border-radius:8px;">
+<h3 style="margin:0;font-size:13px;opacity:.9;">Valides IS / COPRI</h3>
+<h1 style="margin:4px 0 0;font-size:28px;">{{ $missionsValideesNationales }}</h1>
+</div>
+<div style="background:#7c3aed;color:white;padding:16px;width:180px;border-radius:8px;">
+<h3 style="margin:0;font-size:13px;opacity:.9;">Entretiens (terrain)</h3>
+<h1 style="margin:4px 0 0;font-size:28px;">{{ $entretiensTerrain }}</h1>
+</div>
+</div>
+@endif
+
 <br><br>
 
-<h3>Répartition des risques par service</h3>
+<h3>Rpartition des risques par service</h3>
 
 <canvas id="riskChart" height="100"></canvas>
 
@@ -150,13 +172,13 @@ new Chart(ctx, {
 @if($risquesCritiques > 0)
 
 <div style="background:#b91c1c;color:white;padding:15px;">
-? Alerte : Risques critiques détectés
+Alerte : risques critiques détectés
 </div>
 
 @else
 
 <div style="background:green;color:white;padding:15px;">
-? Situation maîtrisée
+Situation maîtrisée
 </div>
 
 @endif

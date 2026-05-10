@@ -25,6 +25,8 @@ class RiskController extends Controller
 
     public function indexForMission(Request $request, Mission $mission): AnonymousResourceCollection
     {
+        $this->authorize('view', $mission);
+
         $risques = $this->riskRepository->forMission((int) $mission->id);
 
         return RiskResource::collection($risques);
@@ -32,6 +34,8 @@ class RiskController extends Controller
 
     public function cartography(Request $request, Mission $mission): JsonResponse
     {
+        $this->authorize('view', $mission);
+
         $missionId = (int) $mission->id;
         $heatmapCounts = $this->riskRepository->inherentHeatmapCounts($missionId);
         $matrix = [];

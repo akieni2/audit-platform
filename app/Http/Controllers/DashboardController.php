@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActionCorrective;
 use App\Models\Department;
+use App\Models\Entretien;
 use App\Models\Mission;
 use App\Models\Risque;
 use App\Models\Service;
@@ -41,6 +42,17 @@ class DashboardController extends Controller
         $missionsVisible = $this->missionsForDashboard($user, $focusDepartmentId);
         $missions = (clone $missionsVisible)->count();
 
+        $missionsEnCours = (clone $missionsVisible)->where('mission_status', Mission::STATUS_EN_COURS)->count();
+        $missionsBrouillon = (clone $missionsVisible)->where('mission_status', Mission::STATUS_BROUILLON)->count();
+        $missionsValideesNationales = (clone $missionsVisible)->whereIn('mission_status', [
+            Mission::STATUS_VALIDEE_IS,
+            Mission::STATUS_VALIDEE_COPRI,
+        ])->count();
+
+        $entretiensTerrain = Entretien::query()
+            ->whereHas('mission', fn ($q) => $this->applyMissionDashboardScope($q, $user, $focusDepartmentId))
+            ->count();
+
         $risquesVisible = $this->risquesForDashboard($user, $focusDepartmentId);
         $risques = (clone $risquesVisible)->count();
 
@@ -77,6 +89,10 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'missions' => $missions,
+            'missionsEnCours' => $missionsEnCours,
+            'missionsBrouillon' => $missionsBrouillon,
+            'missionsValideesNationales' => $missionsValideesNationales,
+            'entretiensTerrain' => $entretiensTerrain,
             'risques' => $risques,
             'risquesCritiques' => $risquesCritiques,
             'actionsOuvertes' => $actionsOuvertes,

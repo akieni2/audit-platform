@@ -18,7 +18,7 @@ class RisquePolicy
 
     public function view(User $user, Risque $risque): bool
     {
-        return true;
+        return Risque::query()->whereKey($risque->id)->visibleToUser($user)->exists();
     }
 
     public function create(User $user): bool

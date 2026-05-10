@@ -73,6 +73,11 @@ class Mission extends Model
         return $this->hasMany(AuditPlan::class);
     }
 
+    public function workflowEvents()
+    {
+        return $this->hasMany(MissionWorkflowEvent::class)->orderByDesc('created_at');
+    }
+
     /**
      * Isolation des données : missions du pôle, supervision ou visibilité nationale.
      *
@@ -84,7 +89,7 @@ class Mission extends Model
         $user->loadMissing('institutionalRole');
 
         if ($user->institutionalRole?->slug === 'copri') {
-            return $query->whereRaw('1 = 0');
+            return $query->where('mission_status', self::STATUS_VALIDEE_IS);
         }
 
         if ($user->canViewAllInstitutionalData()) {

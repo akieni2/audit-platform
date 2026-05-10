@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\Controle;
 use App\Models\Risque;
 use Illuminate\Http\RedirectResponse;
@@ -10,9 +11,11 @@ use Illuminate\View\View;
 
 class ControleController extends Controller
 {
+    use ResolvesVisibleResources;
+
     public function index(int $id): View
     {
-        $risque = Risque::with('controles')->findOrFail($id);
+        $risque = $this->visibleRisque($id)->load('controles');
 
         return view('controles.index', [
             'risque' => $risque,
@@ -30,8 +33,10 @@ class ControleController extends Controller
             'commentaire' => ['nullable', 'string', 'max:5000'],
         ]);
 
+        $risque = $this->visibleRisque((int) $validated['risque_id']);
+
         Controle::create([
-            'risque_id' => $validated['risque_id'],
+            'risque_id' => $risque->id,
             'description' => strip_tags($validated['description']),
             'type' => $validated['type'],
             'efficacite' => $validated['efficacite'],
@@ -40,8 +45,7 @@ class ControleController extends Controller
                 : null,
         ]);
 
-        $risque = Risque::findOrFail($validated['risque_id']);
-        $risque->calculerRisqueResiduel();
+        $risque->refresh()->calculerRisqueResiduel();
 
         return back()->with('status', 'Contrôle enregistré et risque résiduel recalculé.');
     }

@@ -6,6 +6,7 @@ use App\Models\Mission;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Services\Risk\CriticalityEvaluationService;
 use App\Services\Risk\RiskDashboardService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CartographieController extends Controller
@@ -18,14 +19,20 @@ class CartographieController extends Controller
 
     public function select(): View
     {
-        $missions = Mission::orderByDesc('date_debut')->get();
+        $user = Auth::user();
+        $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
+            ->orderByDesc('date_debut')
+            ->get();
 
         return view('cartographie.select', compact('missions'));
     }
 
-    public function index(int $id): View
+    public function index(Mission $mission): View
     {
-        $mission = Mission::findOrFail($id);
+        $this->authorize('view', $mission);
+
+        $id = $mission->id;
 
         $risques = $this->riskRepository->forMission($id);
         $heatmapCounts = $this->riskRepository->inherentHeatmapCounts($id);

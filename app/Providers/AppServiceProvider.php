@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Department;
+use App\Models\Mission;
 use App\Models\Risque;
 use App\Models\User;
 use App\Observers\RisqueObserver;
@@ -14,6 +15,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -29,8 +31,16 @@ class AppServiceProvider extends ServiceProvider
         Password::defaults(fn () => DgcptPasswordRules::defaults());
 
         Gate::policy(Risque::class, RisquePolicy::class);
+        Gate::policy(Mission::class, \App\Policies\MissionPolicy::class);
         Gate::policy(User::class, \App\Policies\UserPolicy::class);
         Gate::policy(Department::class, \App\Policies\DepartmentPolicy::class);
+
+        Route::bind('mission', function (string $value) {
+            $user = auth()->user();
+            abort_unless($user, 403);
+
+            return Mission::query()->whereKey($value)->visibleToUser($user)->firstOrFail();
+        });
 
         Gate::define('manageUsers', fn (?User $user): bool => $user?->canAccessAdministrationMenu() ?? false);
 

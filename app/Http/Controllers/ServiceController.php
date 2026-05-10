@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service;
 use App\Models\Mission;
+use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ServiceController extends Controller
 {
+    public function index(Mission $mission): View
+    {
+        $this->authorize('view', $mission);
 
-public function index($id)
-{
+        $services = Service::where('mission_id', $mission->id)->get();
 
-$mission = Mission::findOrFail($id);
+        return view('services.index', compact('mission', 'services'));
+    }
 
-$services = Service::where('mission_id',$id)->get();
+    public function store(Request $request)
+    {
+        $mission = Mission::query()
+            ->whereKey((int) $request->mission_id)
+            ->visibleToUser(auth()->user())
+            ->firstOrFail();
 
-return view('services.index', compact('mission','services'));
+        $this->authorize('view', $mission);
 
-}
+        Service::create([
+            'mission_id' => $request->mission_id,
+            'nom' => $request->nom,
+            'responsable' => $request->responsable,
+            'description' => $request->description,
+        ]);
 
-public function store(Request $request)
-{
-
-Service::create([
-
-'mission_id'=>$request->mission_id,
-'nom'=>$request->nom,
-'responsable'=>$request->responsable,
-'description'=>$request->description
-
-]);
-
-return back();
-
-}
-
+        return back();
+    }
 }

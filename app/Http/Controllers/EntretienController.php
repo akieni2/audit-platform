@@ -2,46 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\Entretien;
 use App\Models\Question;
-use App\Models\Service;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class EntretienController extends Controller
 {
+    use ResolvesVisibleResources;
 
-public function index($id)
-{
+    public function index(int $id): View
+    {
+        $service = $this->visibleService($id);
 
-$service = Service::findOrFail($id);
+        $entretiens = Entretien::where('service_id', $service->id)->get();
 
-$entretiens = Entretien::where('service_id',$id)->get();
+        $questions = Question::query()->orderBy('id')->get();
 
-$questions = Question::query()->orderBy('id')->get();
+        return view('entretiens.index', compact('service', 'entretiens', 'questions'));
+    }
 
-return view('entretiens.index', compact('service','entretiens','questions'));
+    public function store(Request $request)
+    {
+        $service = $this->visibleService((int) $request->service_id);
 
-}
+        Entretien::create([
+            'mission_id' => $service->mission_id,
+            'service_id' => $service->id,
+            'responsable_nom' => $request->responsable_nom,
+            'role' => $request->role,
+            'chef_hierarchique' => $request->chef_hierarchique,
+            'auditeur' => $request->auditeur,
+            'date_entretien' => $request->date_entretien,
+            'notes' => $request->notes,
+        ]);
 
-
-public function store(Request $request)
-{
-
-Entretien::create([
-
-'mission_id'=>$request->mission_id,
-'service_id'=>$request->service_id,
-'responsable_nom'=>$request->responsable_nom,
-'role'=>$request->role,
-'chef_hierarchique'=>$request->chef_hierarchique,
-'auditeur'=>$request->auditeur,
-'date_entretien'=>$request->date_entretien,
-'notes'=>$request->notes
-
-]);
-
-return back();
-
-}
-
+        return back();
+    }
 }

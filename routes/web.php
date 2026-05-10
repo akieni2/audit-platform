@@ -82,6 +82,11 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::post('/missions', [MissionController::class, 'store'])->name('missions.store');
 
+    Route::get('/missions/{mission}', [MissionController::class, 'show'])->name('missions.show');
+    Route::get('/missions/{mission}/edit', [MissionController::class, 'edit'])->name('missions.edit');
+    Route::put('/missions/{mission}', [MissionController::class, 'update'])->name('missions.update');
+    Route::post('/missions/{mission}/workflow', [MissionController::class, 'workflow'])->name('missions.workflow');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -89,7 +94,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/missions/{id}/rapport',[ReportController::class,'generate'])
+    Route::get('/missions/{mission}/rapport', [ReportController::class, 'generate'])
         ->name('missions.rapport');
 
 
@@ -99,7 +104,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/missions/{id}/services', [ServiceController::class,'index'])->name('services.index');
+    Route::get('/missions/{mission}/services', [ServiceController::class, 'index'])->name('services.index');
 
     Route::post('/services', [ServiceController::class,'store'])->name('services.store');
 
@@ -121,7 +126,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/missions/{id}/constats', [ConstatController::class,'index'])->name('constats.index');
+    Route::get('/missions/{mission}/constats', [ConstatController::class, 'index'])->name('constats.index');
 
     Route::post('/constats', [ConstatController::class,'store'])->name('constats.store');
 
@@ -132,7 +137,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/missions/{id}/processus', [ProcessusController::class,'index'])->name('processus.index');
+    Route::get('/missions/{mission}/processus', [ProcessusController::class, 'index'])->name('processus.index');
 
     Route::post('/processus', [ProcessusController::class,'store'])->name('processus.store');
 
@@ -195,7 +200,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/cartographie', [CartographieController::class,'select'])
         ->name('cartographie.select');
 
-    Route::get('/missions/{id}/cartographie', [CartographieController::class,'index'])
+    Route::get('/missions/{mission}/cartographie', [CartographieController::class, 'index'])
         ->name('cartographie.index');
 
 

@@ -2,39 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\ActionCorrective;
-use App\Models\Risque;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ActionCorrectiveController extends Controller
 {
+    use ResolvesVisibleResources;
 
-    public function index($id)
+    public function index(int $id): View
     {
+        $risque = $this->visibleRisque($id);
 
-        $risque = Risque::findOrFail($id);
+        $actions = ActionCorrective::where('risque_id', $risque->id)->get();
 
-        $actions = ActionCorrective::where('risque_id',$id)->get();
-
-        return view('actions.index', compact('risque','actions'));
-
+        return view('actions.index', compact('risque', 'actions'));
     }
 
     public function store(Request $request)
     {
+        $risque = $this->visibleRisque((int) $request->risque_id);
 
         ActionCorrective::create([
-
-            'risque_id' => $request->risque_id,
+            'risque_id' => $risque->id,
             'description' => $request->description,
             'responsable' => $request->responsable,
             'date_echeance' => $request->date_echeance,
-            'statut' => 'ouvert'
-
+            'statut' => 'ouvert',
         ]);
 
         return back();
-
     }
-
 }
