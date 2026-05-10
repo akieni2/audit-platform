@@ -12,7 +12,6 @@ use App\Services\Iam\SecurityAuditService;
 use App\Services\Iam\SuperAdminProtectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
@@ -99,7 +98,7 @@ class UserManagementController extends Controller
             'name' => $data['nom'],
             'prenom' => $data['prenom'] ?? null,
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
             'password_changed_at' => now(),
             'must_change_password' => false,
             'password_expires_at' => now()->addDays((int) config('dgcpt.password_rotation_days', 90)),

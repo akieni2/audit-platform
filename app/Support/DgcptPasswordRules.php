@@ -16,7 +16,7 @@ class DgcptPasswordRules
             ->numbers()
             ->symbols();
 
-        if (! app()->environment('testing')) {
+        if (! app()->environment('testing') && config('dgcpt.password_uncompromised', false)) {
             $rule = $rule->uncompromised();
         }
 
