@@ -31,19 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, \App\Policies\UserPolicy::class);
 
         Gate::define('manageUsers', function (?User $user): bool {
-            if (! $user) {
-                return false;
-            }
-
-            if ($user->role === 'admin') {
-                return true;
-            }
-
-            $slug = $user->institutionalRole?->slug;
-
-            return $slug === 'super_admin'
-                || $slug === 'admin'
-                || $user->hasPermission('manage_users');
+            return $user !== null && $user->canAccessAdministrationMenu();
         });
 
         Gate::define('viewAdminDashboard', fn (?User $user): bool => Gate::forUser($user)->allows('manageUsers'));

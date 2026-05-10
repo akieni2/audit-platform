@@ -159,4 +159,25 @@ class User extends Authenticatable
     {
         return $this->institutionalRole?->slug === 'super_admin';
     }
+
+    /**
+     * Accès au menu latéral Administration (IAM) — aligné sur la Gate « manageUsers ».
+     */
+    public function canAccessAdministrationMenu(): bool
+    {
+        if (strtolower((string) ($this->role ?? '')) === 'admin') {
+            return true;
+        }
+
+        $this->loadMissing('institutionalRole');
+
+        $slug = $this->institutionalRole?->slug;
+        if ($slug === 'super_admin' || $slug === 'admin') {
+            return true;
+        }
+
+        $this->institutionalRole?->loadMissing('permissions');
+
+        return $this->hasPermission('manage_users');
+    }
 }

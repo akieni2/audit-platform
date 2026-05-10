@@ -282,7 +282,11 @@
                     Tableau de bord
                 </a>
 
-                @if($canManageUsers === true)
+                @auth
+                @php
+                    auth()->user()->loadMissing(['institutionalRole', 'institutionalRole.permissions']);
+                @endphp
+                @if(auth()->user()->canAccessAdministrationMenu())
                     <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration">
                         <p class="nav-card-title">Administration</p>
                         <a class="nav-link {{ request()->routeIs('admin.users.index') || request()->routeIs('admin.users.edit') ? 'active' : '' }}"
@@ -307,6 +311,7 @@
                         </a>
                     </div>
                 @endif
+                @endauth
 
                 @can('viewExecutiveDashboard')
                     <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"

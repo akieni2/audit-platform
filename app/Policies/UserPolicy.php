@@ -11,15 +11,7 @@ class UserPolicy
 {
     private function canManageAccounts(User $actor): bool
     {
-        if ($actor->role === 'admin') {
-            return true;
-        }
-
-        $slug = $actor->institutionalRole?->slug;
-
-        return $slug === 'super_admin'
-            || $slug === 'admin'
-            || $actor->hasPermission('manage_users');
+        return $actor->canAccessAdministrationMenu();
     }
 
     public function viewAny(User $actor): bool
