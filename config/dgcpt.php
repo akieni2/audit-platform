@@ -20,6 +20,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Règles de validation des mots de passe (inscription, admin, profil…)
+    |--------------------------------------------------------------------------
+    |
+    | Par défaut : longueur minimale seulement (8), sans complexité obligatoire,
+    | pour ne pas bloquer la création de comptes. Renforcer via .env si besoin.
+    |
+    */
+
+    'password_min_length' => max(1, min(255, (int) env('DGCPT_PASSWORD_MIN_LENGTH', 8))),
+
+    'password_require_mixed_case' => filter_var(
+        env('DGCPT_PASSWORD_MIXED_CASE', false),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+
+    'password_require_numbers' => filter_var(
+        env('DGCPT_PASSWORD_NUMBERS', false),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+
+    'password_require_symbols' => filter_var(
+        env('DGCPT_PASSWORD_SYMBOLS', false),
+        FILTER_VALIDATE_BOOLEAN
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
     | Vérification « mot de passe compromis » (Have I Been Pwned)
     |--------------------------------------------------------------------------
     |

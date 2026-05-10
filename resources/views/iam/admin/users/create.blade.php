@@ -120,12 +120,18 @@
             </div>
 
             <div class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-600 dark:bg-gray-900/40 dark:text-gray-400">
-                <p class="font-medium text-gray-800 dark:text-gray-200">Exigences du mot de passe (politique DGCPT)</p>
+                <p class="font-medium text-gray-800 dark:text-gray-200">Exigences du mot de passe</p>
                 <ul class="mt-1.5 list-disc ps-4 space-y-0.5">
-                    <li>Au moins <strong>12 caractères</strong></li>
-                    <li>Au moins une <strong>majuscule</strong> et une <strong>minuscule</strong></li>
-                    <li>Au moins un <strong>chiffre</strong></li>
-                    <li>Au moins un <strong>caractère spécial</strong> (symbole ou ponctuation)</li>
+                    <li>Au moins <strong>{{ config('dgcpt.password_min_length', 8) }} caractères</strong></li>
+                    @if (config('dgcpt.password_require_mixed_case'))
+                        <li>Au moins une <strong>majuscule</strong> et une <strong>minuscule</strong></li>
+                    @endif
+                    @if (config('dgcpt.password_require_numbers'))
+                        <li>Au moins un <strong>chiffre</strong></li>
+                    @endif
+                    @if (config('dgcpt.password_require_symbols'))
+                        <li>Au moins un <strong>caractère spécial</strong> (symbole ou ponctuation)</li>
+                    @endif
                     @if (config('dgcpt.password_uncompromised'))
                         <li>Ne doit pas figurer dans les bases de mots de passe compromis (vérification en ligne)</li>
                     @endif
@@ -141,7 +147,6 @@
                         id="user-password"
                         type="password"
                         name="password"
-                        value="{{ old('password') }}"
                         autocomplete="new-password"
                         required
                         aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
@@ -159,7 +164,6 @@
                         id="user-password-confirmation"
                         type="password"
                         name="password_confirmation"
-                        value="{{ old('password_confirmation') }}"
                         autocomplete="new-password"
                         required
                         aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}"
