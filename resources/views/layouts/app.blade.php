@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Audit Platform') }}</title>
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
@@ -26,6 +36,17 @@
         }
 
         * { box-sizing: border-box; }
+
+        [x-cloak] { display: none !important; }
+
+        html.dark body {
+            background: #020617;
+            color: #e2e8f0;
+        }
+
+        html.dark .main-wrap {
+            background: #020617;
+        }
 
         body {
             margin: 0;
@@ -316,21 +337,125 @@
             color: #fff;
         }
 
+        .mobile-nav-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 2.35rem;
+            height: 2.35rem;
+            margin-right: 0.35rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 1.15rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .mobile-nav-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.35rem;
+            height: 2.35rem;
+            margin-left: 0.35rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .topbar-search {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex: 1;
+            min-width: 0;
+            max-width: 22rem;
+        }
+
+        .topbar-search input {
+            flex: 1;
+            min-width: 0;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(15, 23, 42, 0.35);
+            color: #fff;
+            padding: 0.45rem 0.65rem;
+            font-family: inherit;
+            font-size: 0.82rem;
+        }
+
+        .topbar-search input::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+        }
+
         @media (max-width: 960px) {
-            .app-shell { flex-direction: column; }
+            .mobile-nav-toggle {
+                display: inline-flex;
+            }
+
+            .topbar-search {
+                display: none;
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.55);
+                z-index: 38;
+            }
+
+            .app-shell {
+                flex-direction: row;
+            }
+
             .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                z-index: 40;
+                transform: translateX(-100%);
+                transition: transform 0.28s ease;
+                height: 100vh;
+                max-height: 100vh;
+                width: min(var(--sidebar-width), 92vw);
+            }
+
+            .sidebar.sidebar--open {
+                transform: translateX(0);
+            }
+
+            .main-wrap {
                 width: 100%;
-                height: auto;
-                max-height: min(68vh, 28rem);
-                position: relative;
             }
         }
     </style>
     @stack('styles')
 </head>
-<body>
-<div class="app-shell">
-    <aside class="sidebar" aria-label="Navigation principale">
+<body class="antialiased">
+<div class="app-shell" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
+    <div class="sidebar-backdrop"
+         x-show="sidebarOpen"
+         x-transition.opacity
+         @click="sidebarOpen = false"
+         x-cloak></div>
+
+    <aside class="sidebar"
+           aria-label="Navigation principale"
+           x-bind:class="{ 'sidebar--open': sidebarOpen }">
         <div class="sidebar-inner">
             <div class="brand">
                 <p class="brand-title">Audit Platform</p>
@@ -350,16 +475,23 @@
                     auth()->user()->loadMissing('department', 'institutionalRole');
                 @endphp
                 <div class="app-topbar">
-                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;flex:1;min-width:0;">
+                        <button type="button" class="mobile-nav-toggle" @click="sidebarOpen = true" aria-label="Ouvrir le menu">☰</button>
                         @if(session('welcome_once'))
                             <span class="welcome-badge">{{ session('welcome_once') }}</span>
                         @endif
+                        <form method="get" action="{{ route('search') }}" class="topbar-search" role="search">
+                            <label class="sr-only" for="topbar-search-q">Recherche globale</label>
+                            <input id="topbar-search-q" type="search" name="q" value="{{ request()->routeIs('search') ? request('q') : '' }}" placeholder="Recherche missions…" autocomplete="off" />
+                            <button type="submit" class="theme-toggle" style="width:auto;padding:0 0.65rem;font-size:0.78rem;font-weight:600;">OK</button>
+                        </form>
                         <a href="{{ route('notifications.index') }}" class="topbar-notif" aria-label="Centre de notifications">
                             Notifications
-                            @if (($unreadNotificationsCount ?? 0) > 0)
-                                <span class="topbar-notif-count" aria-hidden="true">{{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}</span>
-                            @endif
+                            <span data-notif-count class="topbar-notif-count"
+                                  style="{{ ($unreadNotificationsCount ?? 0) > 0 ? '' : 'display:none;' }}"
+                                  aria-hidden="true">{{ ($unreadNotificationsCount ?? 0) > 99 ? '99+' : ($unreadNotificationsCount ?? 0) }}</span>
                         </a>
+                        <button type="button" class="theme-toggle" onclick="window.toggleInstitutionalTheme()" title="Thème clair / sombre">◐</button>
                         <span style="font-size:1.02rem;"><strong>{{ auth()->user()->displayName() }}</strong></span>
                         @if(auth()->user()->institutionalRole)
                             <span style="opacity:.88;font-size:0.82rem;margin-left:0.5rem;">{{ auth()->user()->institutionalRole->name }}</span>
@@ -383,6 +515,32 @@
         </div>
     </div>
 </div>
+@auth
+    <script>
+        window.toggleInstitutionalTheme = function () {
+            document.documentElement.classList.toggle('dark');
+            try {
+                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            } catch (e) {}
+        };
+        (function () {
+            var url = @json(route('notifications.unread-count'));
+            function refreshNotif() {
+                fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        var n = typeof d.count === 'number' ? d.count : 0;
+                        document.querySelectorAll('[data-notif-count]').forEach(function (el) {
+                            el.textContent = n > 99 ? '99+' : String(n);
+                            el.style.display = n > 0 ? '' : 'none';
+                        });
+                    })
+                    .catch(function () {});
+            }
+            setInterval(refreshNotif, 45000);
+        })();
+    </script>
+@endauth
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 @stack('scripts')
 </body>

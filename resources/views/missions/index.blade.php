@@ -12,6 +12,38 @@
             @endif
         </div>
 
+        <form method="get" action="{{ route('missions.index') }}" class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+            @if(request()->filled('department'))
+                <input type="hidden" name="department" value="{{ request('department') }}" />
+            @endif
+            <div class="min-w-[10rem] flex-1">
+                <label for="filter-q" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Recherche</label>
+                <input id="filter-q" name="q" type="search" value="{{ request('q') }}"
+                       placeholder="Organisation, description…"
+                       class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100" />
+            </div>
+            <div class="w-full sm:w-52">
+                <label for="filter-status" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Statut workflow</label>
+                <select id="filter-status" name="status"
+                        class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">
+                    <option value="">Tous</option>
+                    <option value="{{ \App\Models\Mission::STATUS_BROUILLON }}" @selected(request('status') === \App\Models\Mission::STATUS_BROUILLON)>Brouillon</option>
+                    <option value="{{ \App\Models\Mission::STATUS_EN_COURS }}" @selected(request('status') === \App\Models\Mission::STATUS_EN_COURS)>En cours</option>
+                    <option value="{{ \App\Models\Mission::STATUS_CLOTUREE }}" @selected(request('status') === \App\Models\Mission::STATUS_CLOTUREE)>Clôturée</option>
+                    <option value="{{ \App\Models\Mission::STATUS_VALIDEE_IS }}" @selected(request('status') === \App\Models\Mission::STATUS_VALIDEE_IS)>Validée IS</option>
+                    <option value="{{ \App\Models\Mission::STATUS_VALIDEE_COPRI }}" @selected(request('status') === \App\Models\Mission::STATUS_VALIDEE_COPRI)>Validée COPRI</option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                    Filtrer
+                </button>
+                <a href="{{ route('missions.index', array_filter(request()->only(['department']))) }}" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                    Réinitialiser
+                </a>
+            </div>
+        </form>
+
         <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900/50">

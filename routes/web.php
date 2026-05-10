@@ -24,6 +24,8 @@ use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
 use App\Http\Controllers\NotificationCenterController;
+use App\Http\Controllers\NotificationUnreadController;
+use App\Http\Controllers\GlobalSearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +75,12 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationCenterController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationCenterController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationCenterController::class, 'markRead'])->name('notifications.read');
+
+    Route::get('/notifications/unread-count', NotificationUnreadController::class)
+        ->middleware('throttle:120,1')
+        ->name('notifications.unread-count');
+
+    Route::get('/search', GlobalSearchController::class)->name('search');
 
 
     /*

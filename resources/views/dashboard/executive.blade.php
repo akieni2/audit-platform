@@ -1,25 +1,63 @@
 <x-app-layout>
+    <div class="max-w-6xl mx-auto px-4 py-10 space-y-8">
+        <header class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Vue exécutive</p>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Tableau de bord exécutif — Inspection des Services</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Indicateurs nationaux agrégés (missions, risques critiques, risques transversaux).
+            </p>
+        </header>
 
-<div style="max-width:960px;">
-    <h2 style="margin-bottom:8px;">Tableau de bord exécutif — Inspection des Services</h2>
-    <p style="color:#475569;margin-bottom:24px;font-size:14px;">
-        Vue consolidée (missions, risques critiques et risques transversaux). Les filtres par pôle et exports seront étendus dans les prochaines itérations.
-    </p>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
-        @foreach($kpis as $label => $value)
-            <div style="background:white;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);">
-                <div style="font-size:13px;color:#64748b;text-transform:capitalize;">
-                    {{ str_replace('_', ' ', $label) }}
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach ($kpis as $label => $value)
+                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        {{ str_replace('_', ' ', $label) }}
+                    </div>
+                    <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-50">{{ $value }}</div>
                 </div>
-                <div style="font-size:28px;font-weight:700;color:#0f172a;">{{ $value }}</div>
+            @endforeach
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Synthèse KPI (national)</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Répartition relative — lecture stratégique.</p>
+            <div class="mt-6 h-72 max-w-xl mx-auto">
+                <canvas id="executiveKpiDonut"></canvas>
             </div>
-        @endforeach
+        </div>
+
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            <a href="{{ route('dashboard') }}" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">← Tableau de bord utilisateur</a>
+        </p>
     </div>
 
-    <p style="margin-top:24px;font-size:13px;color:#64748b;">
-        <a href="{{ route('dashboard') }}" style="color:#2563eb;">← Tableau de bord utilisateur</a>
-    </p>
-</div>
-
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                if (typeof Chart === 'undefined') return;
+                const labels = @json(array_keys($kpis ?? []));
+                const values = @json(array_values($kpis ?? []));
+                const palette = ['#6366f1', '#0ea5e9', '#ef4444', '#f97316', '#10b981'];
+                new Chart(document.getElementById('executiveKpiDonut'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels.map(function (l) { return l.replace(/_/g, ' '); }),
+                        datasets: [{
+                            data: values,
+                            backgroundColor: labels.map(function (_, i) { return palette[i % palette.length]; }),
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                        },
+                    },
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

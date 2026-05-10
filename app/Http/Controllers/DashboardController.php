@@ -40,6 +40,7 @@ class DashboardController extends Controller
             : null;
 
         $missionsVisible = $this->missionsForDashboard($user, $focusDepartmentId);
+        $missionTrend = $this->missionCreationTrend(clone $missionsVisible);
         $missions = (clone $missionsVisible)->count();
 
         $missionsEnCours = (clone $missionsVisible)->where('mission_status', Mission::STATUS_EN_COURS)->count();
@@ -101,6 +102,8 @@ class DashboardController extends Controller
             'departments' => $departments,
             'dashboardDepartmentFocusId' => $focusDepartmentId,
             'focusedDepartment' => $focusedDepartment,
+            'missionTrendLabels' => $missionTrend['labels'],
+            'missionTrendCounts' => $missionTrend['counts'],
         ]);
     }
 
@@ -197,6 +200,25 @@ class DashboardController extends Controller
         $q = Mission::query();
 
         return $this->applyMissionDashboardScope($q, $user, $focusDepartmentId);
+    }
+
+    /**
+     * @param  Builder<Mission>  $missionsVisible
+     * @return array{labels: list<string>, counts: list<int>}
+     */
+    private function missionCreationTrend(Builder $missionsVisible): array
+    {
+        $labels = [];
+        $counts = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $start = now()->subWeeks($i)->startOfWeek();
+            $end = now()->subWeeks($i)->endOfWeek();
+            $labels[] = $start->format('d/m');
+            $counts[] = (clone $missionsVisible)->whereBetween('created_at', [$start, $end])->count();
+        }
+
+        return ['labels' => $labels, 'counts' => $counts];
     }
 
     /**

@@ -184,9 +184,8 @@
        href="{{ route('notifications.index') }}">
         <span class="ni" aria-hidden="true">◉</span>
         Notifications
-        @if (($unreadNotificationsCount ?? 0) > 0)
-            <span class="nav-badge">{{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}</span>
-        @endif
+        <span class="nav-badge" data-notif-count
+              style="{{ ($unreadNotificationsCount ?? 0) > 0 ? '' : 'display:none;' }}">{{ ($unreadNotificationsCount ?? 0) > 99 ? '99+' : ($unreadNotificationsCount ?? 0) }}</span>
     </a>
     <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
        href="{{ route('profile.edit') }}">

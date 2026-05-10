@@ -4,10 +4,16 @@ namespace App\Notifications;
 
 use App\Models\Mission;
 use App\Models\User;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\SerializesModels;
 
-class MissionWorkflowNotification extends Notification
+class MissionWorkflowNotification extends Notification implements ShouldQueue
 {
+    use Queueable, SerializesModels;
+
     public function __construct(
         protected Mission $mission,
         protected string $action,
@@ -20,7 +26,16 @@ class MissionWorkflowNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('[Audit DGCPT] '.$this->label().' — '.$this->mission->organisation)
+            ->greeting('Bonjour '.$notifiable->displayName().',')
+            ->line($this->bodyLine())
+            ->action('Ouvrir la mission', route('missions.show', $this->mission, true));
     }
 
     /**

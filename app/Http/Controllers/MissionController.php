@@ -26,6 +26,19 @@ class MissionController extends Controller
             $query->where('department_id', (int) $request->query('department'));
         }
 
+        if ($request->filled('status')) {
+            $query->where('mission_status', (string) $request->query('status'));
+        }
+
+        $qTerm = trim((string) $request->query('q', ''));
+        if ($qTerm !== '') {
+            $query->where(function ($q) use ($qTerm) {
+                $like = '%'.$qTerm.'%';
+                $q->where('organisation', 'like', $like)
+                    ->orWhere('description', 'like', $like);
+            });
+        }
+
         $missions = $query->orderByDesc('id')->paginate(20)->withQueryString();
 
         return view('missions.index', compact('missions'));
