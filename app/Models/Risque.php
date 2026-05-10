@@ -88,13 +88,19 @@ class Risque extends Model
     }
 
     /**
-     * Risques du département, partagés/transverses, ou rattachés à une mission visible.
+     * Risques du dpartement, partags/transverses, ou rattachs  une mission visible.
      *
      * @param  Builder<Risque>  $query
      * @return Builder<Risque>
      */
     public function scopeVisibleToUser(Builder $query, User $user): Builder
     {
+        $user->loadMissing('institutionalRole');
+
+        if ($user->institutionalRole?->slug === 'copri') {
+            return $query->whereRaw('1 = 0');
+        }
+
         if ($user->canViewAllInstitutionalData()) {
             return $query;
         }
@@ -149,7 +155,7 @@ class Risque extends Model
             ActionCorrective::create([
                 'risque_id' => $this->id,
                 'description' => $rec->description,
-                'responsable' => ' dfinir',
+                'responsable' => 'À définir',
                 'date_echeance' => now()->addDays(
                     ($this->score_residuel ?? 0) >= 16 ? 7 : 30
                 ),

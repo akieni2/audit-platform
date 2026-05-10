@@ -29,12 +29,16 @@ class MissionController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
         Mission::create([
             'organisation' => $request->organisation,
             'description' => $request->description,
             'date_debut' => $request->date_debut,
             'date_fin' => $request->date_fin,
-            'auditeur_id' => Auth::id()
+            'auditeur_id' => Auth::id(),
+            'department_id' => $user?->department_id,
+            'mission_status' => Mission::STATUS_BROUILLON,
         ]);
 
         return redirect()->route('missions.index');

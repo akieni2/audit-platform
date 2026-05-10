@@ -116,6 +116,31 @@ class User extends Authenticatable
         return $value;
     }
 
+    /**
+     * @template T of string
+     *
+     * @param  Closure():T  $resolver
+     * @return T
+     */
+    protected function iamString(string $key, Closure $resolver): string
+    {
+        if (app()->runningInConsole() || ! app()->bound('request')) {
+            return $resolver();
+        }
+
+        $request = request();
+        $attrKey = '_iam_str_'.$this->getKey().'_'.$key;
+        if ($request->attributes->has($attrKey)) {
+            /** @var T */
+            return $request->attributes->get($attrKey);
+        }
+
+        $value = $resolver();
+        $request->attributes->set($attrKey, $value);
+
+        return $value;
+    }
+
     protected function isLegacyAdminRole(): bool
     {
         return strtolower((string) ($this->role ?? '')) === 'admin';
@@ -247,7 +272,7 @@ class User extends Authenticatable
         });
     }
 
-    /** Tableau de bord exécutif — Gate « viewExecutiveDashboard ». */
+    /** Tableau de bord exécutif / stratégique — Gate « viewExecutiveDashboard ». */
     public function canViewExecutiveDashboard(): bool
     {
         return $this->iamBool('exec_dashboard', function () {
@@ -255,8 +280,40 @@ class User extends Authenticatable
 
             return $this->isAdminInstitutional()
                 || $this->institutionalRole?->slug === 'inspecteur_services'
+                || $this->institutionalRole?->slug === 'copri'
                 || $this->hasPermission('supervise')
                 || $this->hasPermission('supervise_global');
+        });
+    }
+
+    /**
+     * Mode de navigation latéral : gouvernance DGCPT / COPRI (parallèle hiérarchie / workflow).
+     *
+     * @return 'technical_admin'|'copri'|'inspection'|'department'
+     */
+    public function institutionalNavMode(): string
+    {
+        return $this->iamString('nav_mode', function (): string {
+            $this->loadIamRelations();
+
+            if ($this->isLegacyAdminRole()) {
+                return 'technical_admin';
+            }
+
+            $slug = $this->institutionalRole?->slug;
+            if ($slug === 'super_admin' || $slug === 'admin') {
+                return 'technical_admin';
+            }
+
+            if ($slug === 'copri') {
+                return 'copri';
+            }
+
+            if ($slug === 'inspecteur_services' || $slug === 'inspecteur_adjoint' || $this->hasPermission('supervise_global')) {
+                return 'inspection';
+            }
+
+            return 'department';
         });
     }
 

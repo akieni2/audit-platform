@@ -7,6 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Mission extends Model
 {
+    /** Workflow métier ascendant — étapes institutionnelles */
+    public const STATUS_BROUILLON = 'brouillon';
+
+    public const STATUS_EN_COURS = 'en_cours';
+
+    public const STATUS_CLOTUREE = 'clôturée';
+
+    public const STATUS_VALIDEE_IS = 'validée_IS';
+
+    public const STATUS_VALIDEE_COPRI = 'validée_COPRI';
+
+    protected $attributes = [
+        'mission_status' => self::STATUS_BROUILLON,
+    ];
+
     protected $fillable = [
         'organisation',
         'description',
@@ -66,6 +81,12 @@ class Mission extends Model
      */
     public function scopeVisibleToUser(Builder $query, User $user): Builder
     {
+        $user->loadMissing('institutionalRole');
+
+        if ($user->institutionalRole?->slug === 'copri') {
+            return $query->whereRaw('1 = 0');
+        }
+
         if ($user->canViewAllInstitutionalData()) {
             return $query;
         }

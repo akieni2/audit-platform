@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ActionCorrective extends Model
@@ -24,7 +25,16 @@ class ActionCorrective extends Model
     {
         return $this->belongsTo(Risque::class);
     }
-    
+
+    /**
+     * @param  Builder<ActionCorrective>  $query
+     * @return Builder<ActionCorrective>
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        return $query->whereHas('risque', fn (Builder $rq) => $rq->visibleToUser($user));
+    }
+
    public function recommendation()
     {
     return $this->belongsTo(RecommendationLibrary::class,'recommendation_library_id');

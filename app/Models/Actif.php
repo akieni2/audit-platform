@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Actif extends Model
@@ -23,6 +24,18 @@ class Actif extends Model
     public function processus()
     {
         return $this->belongsTo(Processus::class);
+    }
+
+    /**
+     * @param  Builder<Actif>  $query
+     * @return Builder<Actif>
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        return $query->whereHas(
+            'processus.mission',
+            fn (Builder $mq) => $mq->visibleToUser($user)
+        );
     }
 
     public function risques()

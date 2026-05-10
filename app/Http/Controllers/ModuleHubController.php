@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mission;
 use App\Models\Questionnaire;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Pages d'accès aux modules nécessitant un contexte (mission / service / etc.).
@@ -13,7 +14,9 @@ class ModuleHubController extends Controller
 {
     public function entretiens(): View
     {
+        $user = Auth::user();
         $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
             ->with('services')
             ->orderByDesc('date_debut')
             ->get();
@@ -37,7 +40,11 @@ class ModuleHubController extends Controller
 
     public function processus(): View
     {
-        $missions = Mission::query()->orderByDesc('date_debut')->get();
+        $user = Auth::user();
+        $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
+            ->orderByDesc('date_debut')
+            ->get();
 
         $entries = $missions->map(fn (Mission $m) => $this->entry(
             $m,
@@ -56,7 +63,9 @@ class ModuleHubController extends Controller
 
     public function actifs(): View
     {
+        $user = Auth::user();
         $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
             ->with(['processus' => fn ($q) => $q->orderBy('id')])
             ->orderByDesc('date_debut')
             ->get();
@@ -84,7 +93,9 @@ class ModuleHubController extends Controller
 
     public function risques(): View
     {
+        $user = Auth::user();
         $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
             ->with([
                 'processus' => fn ($q) => $q->orderBy('id'),
                 'processus.actifs' => fn ($q) => $q->orderBy('id'),
@@ -115,7 +126,9 @@ class ModuleHubController extends Controller
 
     public function actionsCorrectives(): View
     {
+        $user = Auth::user();
         $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
             ->with([
                 'processus' => fn ($q) => $q->orderBy('id'),
                 'processus.actifs' => fn ($q) => $q->orderBy('id'),
@@ -150,7 +163,11 @@ class ModuleHubController extends Controller
 
     public function rapports(): View
     {
-        $missions = Mission::query()->orderByDesc('date_debut')->get();
+        $user = Auth::user();
+        $missions = Mission::query()
+            ->when($user, fn ($q) => $q->visibleToUser($user))
+            ->orderByDesc('date_debut')
+            ->get();
 
         $entries = $missions->map(fn (Mission $m) => $this->entry(
             $m,

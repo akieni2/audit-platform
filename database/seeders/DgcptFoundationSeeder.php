@@ -62,6 +62,7 @@ class DgcptFoundationSeeder extends Seeder
 
         $roles = [
             ['slug' => 'super_admin', 'name' => 'Super administrateur technique', 'hierarchy_level' => 110],
+            ['slug' => 'copri', 'name' => 'COPRI — Pilotage stratégique national', 'hierarchy_level' => 105],
             ['slug' => 'inspecteur_services', 'name' => 'Inspecteur des Services', 'hierarchy_level' => 100],
             ['slug' => 'inspecteur_adjoint', 'name' => 'Inspecteur adjoint', 'hierarchy_level' => 80],
             ['slug' => 'inspecteur_verificateur', 'name' => 'Inspecteur vérificateur', 'hierarchy_level' => 60],
@@ -93,6 +94,13 @@ class DgcptFoundationSeeder extends Seeder
         $inspecteur = Role::query()->where('slug', 'inspecteur_services')->first();
         if ($inspecteur) {
             $inspecteur->permissions()->sync($allPermissionIds);
+        }
+
+        $copriRole = Role::query()->where('slug', 'copri')->first();
+        if ($copriRole) {
+            $copriRole->permissions()->sync(
+                Permission::query()->whereIn('slug', ['view', 'export', 'view_global_dashboard'])->pluck('id')
+            );
         }
 
         $subset = Permission::query()->whereIn('slug', ['view', 'create', 'update', 'export'])->pluck('id');

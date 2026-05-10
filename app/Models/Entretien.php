@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Entretien extends Model
 {
-
 protected $fillable = [
 
     'mission_id',
@@ -36,6 +36,21 @@ public function mission()
 public function service()
 {
     return $this->belongsTo(Service::class);
+}
+
+/**
+ * @param  Builder<Entretien>  $query
+ * @return Builder<Entretien>
+ */
+public function scopeVisibleToUser(Builder $query, User $user): Builder
+{
+    return $query->where(function (Builder $q) use ($user) {
+        $q->whereHas('mission', fn (Builder $mq) => $mq->visibleToUser($user))
+            ->orWhereHas(
+                'service.mission',
+                fn (Builder $mq) => $mq->visibleToUser($user)
+            );
+    });
 }
 
 public function reponses()

@@ -14,11 +14,18 @@ final class ExecutiveDashboardService
     public function nationalKpis(): array
     {
         $missionsOuvertes = Mission::query()
-            ->where('mission_status', '!=', 'closed')
+            ->whereIn('mission_status', [
+                Mission::STATUS_BROUILLON,
+                Mission::STATUS_EN_COURS,
+            ])
             ->count();
 
         $missionsCloturees = Mission::query()
-            ->where('mission_status', 'closed')
+            ->whereIn('mission_status', [
+                Mission::STATUS_CLOTUREE,
+                Mission::STATUS_VALIDEE_IS,
+                Mission::STATUS_VALIDEE_COPRI,
+            ])
             ->count();
 
         $risquesCritiques = Risque::query()

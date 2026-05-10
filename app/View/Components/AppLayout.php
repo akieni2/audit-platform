@@ -18,11 +18,19 @@ class AppLayout extends Component
             $user->loadIamRelations();
         }
 
-        return view('layouts.app', [
-            'sidebarDepartments' => Department::query()
+        $navMode = $user !== null ? $user->institutionalNavMode() : 'department';
+
+        $sidebarDepartments = collect();
+        if ($user !== null && in_array($navMode, ['inspection', 'technical_admin'], true)) {
+            $sidebarDepartments = Department::query()
                 ->where('active', true)
                 ->orderBy('code')
-                ->get(),
+                ->get();
+        }
+
+        return view('layouts.app', [
+            'institutionalNavMode' => $navMode,
+            'sidebarDepartments' => $sidebarDepartments,
             'canManageUsers' => $user !== null && $user->canAccessAdministrationMenu(),
             'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
             'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),

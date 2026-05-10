@@ -11,10 +11,12 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View|RedirectResponse
     {
         $user = Auth::user();
         if ($user === null) {
@@ -22,6 +24,14 @@ class DashboardController extends Controller
         }
 
         $user->loadMissing('institutionalRole');
+
+        if ($user->institutionalRole?->slug === 'copri') {
+            return redirect()->route('dashboard.executive');
+        }
+
+        if ($user->institutionalNavMode() === 'technical_admin') {
+            return redirect()->route('admin.home');
+        }
 
         $focusDepartmentId = $this->resolveDashboardDepartmentFocus($request, $user);
         $focusedDepartment = $focusDepartmentId !== null
