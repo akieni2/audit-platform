@@ -28,8 +28,9 @@
             </div>
         @endif
 
-        {{-- Un seul formulaire de création sur cette vue (le layout ajoute un autre <form> pour la déconnexion dans la sidebar : ce n’est pas un imbriquement). --}}
+        {{-- Formulaire explicite : la sidebar contient un autre <form> (logout) en premier dans le DOM — id + attribut form sur le bouton évitent toute ambiguïté. --}}
         <form
+            id="admin-user-create-form"
             method="post"
             action="{{ route('admin.users.store') }}"
             class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm"
@@ -117,7 +118,12 @@
             </label>
 
             <div class="flex gap-3 pt-2">
-                <button type="submit" @if($departments->isEmpty() || $roles->isEmpty()) disabled @endif class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button
+                    type="submit"
+                    form="admin-user-create-form"
+                    @if($departments->isEmpty() || $roles->isEmpty()) disabled @endif
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                     Créer
                 </button>
                 <a href="{{ route('admin.users.index') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 inline-flex items-center">
