@@ -9,8 +9,9 @@
         </div>
 
         @if ($errors->any())
-            <div class="rounded-md bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
-                <ul class="list-disc ms-5 space-y-1">
+            <div role="alert" class="rounded-md bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
+                <p class="font-semibold">Des erreurs empêchent l’enregistrement</p>
+                <ul class="mt-2 list-disc ms-5 space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -63,15 +64,33 @@
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
+                <div class="sm:col-span-2 rounded-md border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 px-3 py-2 text-xs text-gray-600 dark:text-gray-400">
+                    <p class="font-medium text-gray-800 dark:text-gray-200">Exigences du mot de passe (politique DGCPT)</p>
+                    <ul class="mt-1.5 list-disc ms-4 space-y-0.5">
+                        <li>Au moins <strong>12 caractères</strong></li>
+                        <li>Au moins une <strong>majuscule</strong> et une <strong>minuscule</strong></li>
+                        <li>Au moins un <strong>chiffre</strong></li>
+                        <li>Au moins un <strong>caractère spécial</strong> (symbole ou ponctuation)</li>
+                        @if (config('dgcpt.password_uncompromised'))
+                            <li>Ne doit pas figurer dans les bases de mots de passe compromis (vérification en ligne)</li>
+                        @endif
+                    </ul>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe <span class="text-red-600">*</span></label>
-                    <input type="password" name="password" required autocomplete="new-password"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <input type="password" name="password" required autocomplete="new-password" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm @error('password') border-red-500 ring-1 ring-red-500 @enderror" />
+                    @error('password')
+                        <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirmation <span class="text-red-600">*</span></label>
-                    <input type="password" name="password_confirmation" required autocomplete="new-password"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <input type="password" name="password_confirmation" required autocomplete="new-password" aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm @error('password_confirmation') border-red-500 ring-1 ring-red-500 @enderror" />
+                    @error('password_confirmation')
+                        <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 

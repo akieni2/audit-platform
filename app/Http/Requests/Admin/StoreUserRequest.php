@@ -23,6 +23,26 @@ class StoreUserRequest extends FormRequest
             'nom' => 'nom',
             'prenom' => 'prénom',
             'role_id' => 'catégorie',
+            'password' => 'mot de passe',
+            'password_confirmation' => 'confirmation du mot de passe',
+        ];
+    }
+
+    /**
+     * Messages explicites pour la politique DGCPT (évitent les libellés génériques en anglais).
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.confirmed' => 'La confirmation ne correspond pas au mot de passe saisi.',
+            'password.min' => 'Le mot de passe doit comporter au moins :min caractères.',
+            'password.mixed' => 'Le mot de passe doit contenir au moins une lettre majuscule et une lettre minuscule.',
+            'password.numbers' => 'Le mot de passe doit contenir au moins un chiffre.',
+            'password.symbols' => 'Le mot de passe doit contenir au moins un caractère spécial (symbole ou ponctuation, par exemple ! ? @ #).',
+            'password.uncompromised' => 'Ce mot de passe est trop courant ou figure dans des fuites de données connues. Choisissez une combinaison différente et plus longue.',
         ];
     }
 
