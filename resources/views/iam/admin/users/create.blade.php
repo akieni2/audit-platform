@@ -21,15 +21,21 @@
         @if ($departments->isEmpty() || $roles->isEmpty())
             <div class="rounded-md bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-100 border border-amber-200 dark:border-amber-800">
                 <p class="font-medium">Configuration IAM incomplète</p>
-                <p class="mt-1">Il doit exister au moins un <strong>département actif</strong> et un <strong>rôle institutionnel</strong> pour créer un utilisateur. Sinon le navigateur bloque l’envoi (champs obligatoires vides).</p>
+                <p class="mt-1">Il doit exister au moins un <strong>département actif</strong> et un <strong>rôle institutionnel</strong> pour créer un utilisateur.</p>
                 @if ($departments->isEmpty() && Route::has('admin.departments.create'))
                     <p class="mt-2"><a href="{{ route('admin.departments.create') }}" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Créer un département</a></p>
                 @endif
             </div>
         @endif
 
-        <form id="form-admin-user-create" method="post" action="{{ route('admin.users.store') }}" class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+        {{-- Un seul formulaire de création sur cette vue (le layout ajoute un autre <form> pour la déconnexion dans la sidebar : ce n’est pas un imbriquement). --}}
+        <form
+            method="post"
+            action="{{ route('admin.users.store') }}"
+            class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm"
+        >
             @csrf
+
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
@@ -42,32 +48,36 @@
                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
                 </div>
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email <span class="text-red-600">*</span></label>
                 <input type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
                 <input type="text" name="telephone" value="{{ old('telephone') }}" autocomplete="tel"
                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
             </div>
+
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe <span class="text-red-600">*</span></label>
                     <input type="password" name="password" required autocomplete="new-password"
                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirmation</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirmation <span class="text-red-600">*</span></label>
                     <input type="password" name="password_confirmation" required autocomplete="new-password"
                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
                 </div>
             </div>
+
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Département / pôle <span class="text-red-600">*</span></label>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Obligatoire pour que l’utilisateur voie les bonnes missions et le bon bandeau d’accueil.</p>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Obligatoire pour le périmètre métier et le bandeau d’accueil.</p>
                     <select name="department_id" @if($departments->isNotEmpty()) required @endif class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
                         <option value="">— Choisir un département —</option>
                         @foreach ($departments as $d)
@@ -86,6 +96,7 @@
                     </select>
                 </div>
             </div>
+
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Poste / fonction</label>
@@ -98,16 +109,18 @@
                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
                 </div>
             </div>
+
             <input type="hidden" name="active" value="0" />
             <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="active" value="1" @checked(old('active', true)) />
                 Compte actif
             </label>
-            <div class="flex gap-3">
+
+            <div class="flex gap-3 pt-2">
                 <button type="submit" @if($departments->isEmpty() || $roles->isEmpty()) disabled @endif class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
                     Créer
                 </button>
-                <a href="{{ route('admin.users.index') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <a href="{{ route('admin.users.index') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 inline-flex items-center">
                     Annuler
                 </a>
             </div>
