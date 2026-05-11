@@ -12,7 +12,7 @@
         : 'bg-[#10192B]';
 @endphp
 
-<div {{ $attributes->merge(['class' => 'rounded-xl border border-[rgba(0,209,255,0.18)] shadow-[0_8px_28px_rgba(0,0,0,0.28)] '.$border.' border-l-4 pl-4 pr-3 py-3 '.$bg]) }}>
+<div {{ $attributes->merge(['class' => 'dgcpt-notification-card rounded-xl border border-[rgba(0,209,255,0.18)] shadow-[0_8px_28px_rgba(0,0,0,0.28)] '.$border.' border-l-4 pl-4 pr-3 py-3 '.$bg]) }}>
     <div class="flex flex-wrap items-start justify-between gap-2">
         <div class="min-w-0">
             <p class="text-sm font-bold tracking-tight text-[#E6EEF8]">{{ $title }}</p>

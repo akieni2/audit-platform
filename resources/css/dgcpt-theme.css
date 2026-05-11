@@ -99,8 +99,101 @@ html.dark select option {
     color: var(--dgcpt-text);
 }
 
+/*
+ * Colonne principale : fond clair lisible même si <html class="dark">
+ * (sidebar / shell restent « SOC » sombres). Les utilitaires .dgcpt-page-title
+ * etc. utilisaient encore la couleur « dark theme » car html:not(.dark) ne s'appliquait pas.
+ */
 html.dark .main-wrap {
-    background: var(--main-bg);
+    background: #f1f5f9;
+    color: #0b1220;
+}
+
+html.dark .main-wrap .dgcpt-page-title,
+html.dark .main-wrap .dgcpt-section-title {
+    color: #0b1220;
+}
+
+html.dark .main-wrap .dgcpt-card-title {
+    color: #7c8ca5;
+}
+
+html.dark .main-wrap .dgcpt-text {
+    color: #0b1220;
+}
+
+html.dark .main-wrap .dgcpt-text-muted {
+    color: #5b6b84;
+}
+
+html.dark .main-wrap .dgcpt-text-secondary {
+    color: #7c8ca5;
+}
+
+/* Repasser en clair pour les widgets / panneaux sombres dans la colonne */
+html.dark .main-wrap .app-topbar,
+html.dark .main-wrap .dgcpt-surface,
+html.dark .main-wrap .dgcpt-panel,
+html.dark .main-wrap .dgcpt-filter-bar,
+html.dark .main-wrap .dgcpt-table-wrap,
+html.dark .main-wrap .dgcpt-kpi-card {
+    color: var(--dgcpt-text);
+}
+
+html.dark .main-wrap .dgcpt-filter-bar .dgcpt-card-title,
+html.dark .main-wrap .dgcpt-surface .dgcpt-card-title,
+html.dark .main-wrap .dgcpt-panel .dgcpt-card-title,
+html.dark .main-wrap .dgcpt-table-wrap .dgcpt-card-title,
+html.dark .main-wrap .dgcpt-kpi-card .dgcpt-kpi-label {
+    color: var(--dgcpt-text-muted);
+}
+
+html.dark .main-wrap .dgcpt-panel .dgcpt-section-title,
+html.dark .main-wrap .dgcpt-surface .dgcpt-section-title {
+    color: var(--dgcpt-text);
+}
+
+html.dark .main-wrap .dgcpt-surface .dgcpt-text-muted,
+html.dark .main-wrap .dgcpt-panel .dgcpt-text-muted,
+html.dark .main-wrap .dgcpt-filter-bar .dgcpt-text-muted,
+html.dark .main-wrap .dgcpt-table-wrap .dgcpt-text-muted,
+html.dark .main-wrap .dgcpt-kpi-card .dgcpt-text-muted {
+    color: var(--dgcpt-text-muted);
+}
+
+html.dark .main-wrap .dgcpt-surface .dgcpt-text,
+html.dark .main-wrap .dgcpt-panel .dgcpt-text {
+    color: var(--dgcpt-text);
+}
+
+/* Anciennes classes utilitaires Tailwind (#9FB3C8) hors panneaux : lisibles sur fond clair */
+html.dark .main-wrap .text-\[\#9FB3C8\] {
+    color: #5b6b84 !important;
+}
+
+html.dark .main-wrap .text-\[\#E6EEF8\] {
+    color: #0b1220 !important;
+}
+
+html.dark .main-wrap .dgcpt-surface .text-\[\#9FB3C8\],
+html.dark .main-wrap .dgcpt-panel .text-\[\#9FB3C8\],
+html.dark .main-wrap .dgcpt-filter-bar .text-\[\#9FB3C8\],
+html.dark .main-wrap .dgcpt-table-wrap .text-\[\#9FB3C8\],
+html.dark .main-wrap .dgcpt-kpi-card .text-\[\#9FB3C8\] {
+    color: var(--dgcpt-text-muted) !important;
+}
+
+html.dark .main-wrap .dgcpt-surface .text-\[\#E6EEF8\],
+html.dark .main-wrap .dgcpt-panel .text-\[\#E6EEF8\],
+html.dark .main-wrap .dgcpt-filter-bar .text-\[\#E6EEF8\],
+html.dark .main-wrap .dgcpt-table-wrap .text-\[\#E6EEF8\],
+html.dark .main-wrap .dgcpt-kpi-card .text-\[\#E6EEF8\],
+html.dark .main-wrap .dgcpt-notification-card .text-\[\#E6EEF8\] {
+    color: var(--dgcpt-text) !important;
+}
+
+html.dark .main-wrap .dgcpt-notification-card .text-\[\#9FB3C8\] {
+    color: var(--dgcpt-text-muted) !important;
 }
 
 /* --- App shell --- */
