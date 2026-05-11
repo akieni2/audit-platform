@@ -4,7 +4,7 @@
             <div>
                 <p class="dgcpt-card-title">Super administration</p>
                 <h1 class="dgcpt-page-title">Demandes d'enrôlement</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">
+                <p class="mt-1 text-sm dgcpt-text-muted">
                     Validation — comptes issus de l'inscription publique (aucun accès avant approbation).
                 </p>
             </div>

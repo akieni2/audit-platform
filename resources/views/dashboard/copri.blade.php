@@ -3,7 +3,7 @@
         <header class="space-y-2">
             <p class="dgcpt-card-title">COPRI — pilotage stratégique</p>
             <h1 class="dgcpt-page-title">Indicateurs nationaux consolidés</h1>
-            <p class="text-sm text-[#9FB3C8]">
+            <p class="text-sm dgcpt-text-muted">
                 Vue agrégée uniquement : aucune donnée opérationnelle nominative n'est exposée à ce niveau.
             </p>
         </header>
@@ -24,7 +24,7 @@
         </div>
 
         <p class="text-sm text-[#9FB3C8]">
-            <a href="{{ route('dashboard') }}" class="dgcpt-link">← Tableau de bord opérationnel (si habilité)</a>
+            <a href="{{ route('dashboard') }}" class="dgcpt-link text-sm">← Tableau de bord opérationnel (si habilité)</a>
         </p>
     </div>
 </x-app-layout>

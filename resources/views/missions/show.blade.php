@@ -20,12 +20,12 @@
         <div class="space-y-2">
             <p class="dgcpt-card-title">Fiche mission</p>
             <h1 class="dgcpt-page-title">{{ $mission->organisation }}</h1>
-            <p class="flex flex-wrap items-center gap-2 text-sm text-[#9FB3C8]">
+            <p class="flex flex-wrap items-center gap-2 text-sm dgcpt-text-muted">
                 <span>État workflow :</span>
                 <x-mission-status-badge :status="$mission->mission_status" />
             </p>
             @if ($mission->department)
-                <p class="text-sm text-[#E6EEF8]">
+                <p class="text-sm dgcpt-text-muted">
                     <span class="font-mono font-semibold text-[#00D1FF]">{{ $mission->department->code }}</span>
                     — {{ $mission->department->name }}
                 </p>
@@ -118,7 +118,7 @@
             <a href="{{ route('processus.index', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Processus</a>
             <a href="{{ route('cartographie.index', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Cartographie</a>
             <a href="{{ route('missions.rapport', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Rapport PDF</a>
-            <a href="{{ route('missions.index') }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">← Liste des missions</a>
+            <a href="{{ route('missions.index') }}" class="dgcpt-text-muted text-sm hover:underline">← Liste des missions</a>
         </div>
     </div>
 </x-app-layout>

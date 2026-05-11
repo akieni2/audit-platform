@@ -4,7 +4,7 @@
             <div>
                 <p class="dgcpt-card-title">Structure</p>
                 <h1 class="dgcpt-page-title">Pôles / départements</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Codes, rattachements et supervision.</p>
+                <p class="mt-1 text-sm dgcpt-text-muted">Codes, rattachements et supervision.</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">Tableau de bord admin</a>

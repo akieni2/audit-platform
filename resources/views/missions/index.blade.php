@@ -4,7 +4,7 @@
             <div>
                 <p class="dgcpt-card-title">Opérations</p>
                 <h1 class="dgcpt-page-title">Missions</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Workflow ascendant — rattachement départemental.</p>
+                <p class="mt-1 text-sm dgcpt-text-muted">Workflow ascendant — rattachement départemental.</p>
             </div>
             @if (auth()->user()?->can('create', \App\Models\Mission::class))
                 <a href="{{ route('missions.create') }}" class="inline-flex rounded-xl bg-gradient-to-r from-[#0A2A66] to-blue-950 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-cyan-500/15 ring-1 ring-[rgba(0,209,255,0.25)] hover:shadow-cyan-500/25">

@@ -2,9 +2,9 @@
     <div class="mx-auto max-w-4xl space-y-6 px-0 py-2">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-dgcpt-cyan/90">Centre SOC</p>
+                <p class="dgcpt-card-title">Centre SOC</p>
                 <h1 class="dgcpt-page-title">Notifications</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Flux d'alertes institutionnelles — workflow missions, validations et décisions COPRI.</p>
+                <p class="mt-1 text-sm dgcpt-text-muted">Flux d'alertes institutionnelles — workflow missions, validations et décisions COPRI.</p>
             </div>
             @if (($unreadNotificationsCount ?? 0) > 0)
                 <form method="post" action="{{ route('notifications.read-all') }}">

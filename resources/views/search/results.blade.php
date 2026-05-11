@@ -3,7 +3,7 @@
         <div>
             <p class="dgcpt-card-title">Recherche</p>
             <h1 class="dgcpt-page-title">Missions</h1>
-            <p class="mt-1 text-sm text-[#9FB3C8]">Missions visibles pour votre périmètre (minimum 2 caractères).</p>
+            <p class="mt-1 text-sm dgcpt-text-muted">Missions visibles pour votre périmètre (minimum 2 caractères).</p>
         </div>
 
         <form method="get" action="{{ route('search') }}" class="dgcpt-filter-bar">
@@ -17,7 +17,7 @@
         </form>
 
         @if (strlen($term) < 2)
-            <p class="text-sm text-[#9FB3C8]">Saisissez au moins 2 caractères pour lancer une recherche.</p>
+            <p class="text-sm dgcpt-text-muted">Saisissez au moins 2 caractères pour lancer une recherche.</p>
         @elseif ($missions->isEmpty())
             <div class="dgcpt-surface px-4 py-6 text-center text-sm text-[#9FB3C8]">
                 Aucune mission ne correspond à « {{ $term }} ».

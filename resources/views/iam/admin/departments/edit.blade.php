@@ -3,7 +3,7 @@
         <div>
             <p class="dgcpt-card-title">Structure</p>
             <h1 class="dgcpt-page-title">Modifier {{ $department->code }}</h1>
-            <p class="mt-1 text-sm text-[#9FB3C8]">
+            <p class="mt-1 text-sm">
                 <a href="{{ route('admin.departments.index') }}" class="dgcpt-link">← Retour liste</a>
             </p>
         </div>

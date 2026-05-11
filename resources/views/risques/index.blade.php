@@ -2,7 +2,7 @@
     <div class="mx-auto max-w-6xl space-y-8 px-0 py-2">
         <div>
             <p class="dgcpt-card-title">Risques</p>
-            <h1 class="dgcpt-page-title">Matrice ó {{ $actif->nom }}</h1>
+            <h1 class="dgcpt-page-title">Matrice ù {{ $actif->nom }}</h1>
         </div>
 
         @if (session('status'))
@@ -12,15 +12,15 @@
         @endif
 
         <div class="dgcpt-surface p-5 shadow-sm">
-            <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Matrice de criticitÈ</h2>
-            <p class="mt-2 text-sm text-[#9FB3C8]">
-                CriticitÈ = impact ◊ probabilitÈ (1ñ25). Seuils : Faible ?6, Moyen 7ñ12, …levÈ 13ñ18, Critique ?19.
-                Le risque rÈsiduel est recalculÈ aprËs enregistrement d'un contrÙle (efficacitÈ faible / moyenne / forte).
+            <h2 class="dgcpt-section-title">Matrice de criticitù</h2>
+            <p class="mt-2 text-sm dgcpt-text-muted">
+                Criticitù = impact ù probabilitù (1ù25). Seuils : Faible ?6, Moyen 7ù12, ùlevù 13ù18, Critique ?19.
+                Le risque rùsiduel est recalculù aprùs enregistrement d'un contrùle (efficacitù faible / moyenne / forte).
             </p>
         </div>
 
         <div>
-            <h2 class="mb-3 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Nouveau risque</h2>
+            <h2 class="dgcpt-section-title mb-3">Nouveau risque</h2>
             <form method="POST" action="{{ route('risques.store') }}" class="dgcpt-surface mb-8 space-y-4 p-5 shadow-sm">
                 @csrf
                 <input type="hidden" name="actif_id" value="{{ $actif->id }}">
@@ -33,19 +33,19 @@
 
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div>
-                        <label class="dgcpt-label">Impact (1ñ5)</label>
+                        <label class="dgcpt-label">Impact (1ù5)</label>
                         <input type="number" name="impact_inherent" min="1" max="5" class="dgcpt-input" required value="{{ old('impact_inherent') }}">
                     </div>
                     <div>
-                        <label class="dgcpt-label">ProbabilitÈ (1ñ5)</label>
+                        <label class="dgcpt-label">Probabilitù (1ù5)</label>
                         <input type="number" name="probabilite_inherent" min="1" max="5" class="dgcpt-input" required value="{{ old('probabilite_inherent') }}">
                     </div>
                     <div>
-                        <label class="dgcpt-label">PropriÈtaire du risque</label>
+                        <label class="dgcpt-label">Propriùtaire du risque</label>
                         <input type="text" name="proprietaire" class="dgcpt-input" maxlength="255" value="{{ old('proprietaire') }}">
                     </div>
                     <div>
-                        <label class="dgcpt-label">DÈpartement</label>
+                        <label class="dgcpt-label">Dùpartement</label>
                         <input type="text" name="departement" class="dgcpt-input" maxlength="255" value="{{ old('departement') }}">
                     </div>
                 </div>
@@ -75,7 +75,7 @@
         </div>
 
         <div>
-            <h2 class="mb-3 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Risques enregistrÈs</h2>
+            <h2 class="mb-3 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Risques enregistrùs</h2>
             <div class="dgcpt-table-wrap shadow-sm">
                 <table class="dgcpt-table">
                     <thead>
@@ -83,10 +83,10 @@
                             <th>Description</th>
                             <th>Score inh.</th>
                             <th>Crit. inh.</th>
-                            <th>Score rÈs.</th>
-                            <th>Crit. rÈs.</th>
-                            <th>PropriÈtaire</th>
-                            <th>DÈpt.</th>
+                            <th>Score rùs.</th>
+                            <th>Crit. rùs.</th>
+                            <th>Propriùtaire</th>
+                            <th>Dùpt.</th>
                             <th>Statut</th>
                             <th>Liens</th>
                             <th>Modifier</th>
@@ -97,20 +97,20 @@
                             <tr>
                                 <td>{{ $r->description }}</td>
                                 <td class="text-center">{{ $r->score_inherent }}</td>
-                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? 'ó' }}</td>
-                                <td class="text-center">{{ $r->score_residuel ?? 'ó' }}</td>
-                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? 'ó' }}</td>
-                                <td>{{ $r->proprietaire ?? 'ó' }}</td>
-                                <td>{{ $r->departement ?? 'ó' }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? 'ù' }}</td>
+                                <td class="text-center">{{ $r->score_residuel ?? 'ù' }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? 'ù' }}</td>
+                                <td>{{ $r->proprietaire ?? 'ù' }}</td>
+                                <td>{{ $r->departement ?? 'ù' }}</td>
                                 <td>{{ \App\Domain\Risk\Enums\RiskStatus::tryFrom($r->statut_risque ?? '')?->label() ?? $r->statut_risque }}</td>
                                 <td class="text-xs">
                                     <a href="{{ route('actions.index', $r->id) }}" class="dgcpt-link">Actions</a><br>
-                                    <a href="{{ route('controles.index', $r->id) }}" class="dgcpt-link">ContrÙles</a>
+                                    <a href="{{ route('controles.index', $r->id) }}" class="dgcpt-link">Contrùles</a>
                                 </td>
                                 <td>
                                     @can('update', $r)
                                         <details>
-                                            <summary class="cursor-pointer text-xs font-semibold text-[#00D1FF] hover:underline">…diter</summary>
+                                            <summary class="cursor-pointer text-xs font-semibold text-[#00D1FF] hover:underline">ùditer</summary>
                                             <form method="POST" action="{{ route('risques.update', $r) }}" class="mt-2 space-y-2 rounded-lg border border-[rgba(0,209,255,0.18)] bg-[#10192B] p-3 text-xs">
                                                 @csrf
                                                 @method('PATCH')
@@ -119,8 +119,8 @@
                                                     <input type="number" name="impact_inherent" min="1" max="5" value="{{ $r->impact_inherent }}" class="dgcpt-input w-20 text-xs">
                                                     <input type="number" name="probabilite_inherent" min="1" max="5" value="{{ $r->probabilite_inherent }}" class="dgcpt-input w-20 text-xs">
                                                 </div>
-                                                <input type="text" name="proprietaire" value="{{ $r->proprietaire }}" placeholder="PropriÈtaire" class="dgcpt-input text-xs">
-                                                <input type="text" name="departement" value="{{ $r->departement }}" placeholder="DÈpartement" class="dgcpt-input text-xs">
+                                                <input type="text" name="proprietaire" value="{{ $r->proprietaire }}" placeholder="Propriùtaire" class="dgcpt-input text-xs">
+                                                <input type="text" name="departement" value="{{ $r->departement }}" placeholder="Dùpartement" class="dgcpt-input text-xs">
                                                 <input type="date" name="date_revue" value="{{ $r->date_revue?->format('Y-m-d') }}" class="dgcpt-input text-xs">
                                                 <select name="statut_risque" class="dgcpt-select text-xs">
                                                     @foreach(\App\Domain\Risk\Enums\RiskStatus::cases() as $st)
@@ -132,8 +132,8 @@
                                             </form>
                                         </details>
                                     @else
-                                        <span class="text-xs text-[#F4D000]" title="Risque critique : rÈservÈ Risk Manager / Admin">
-                                            VerrouillÈ (critique)
+                                        <span class="text-xs text-[#F4D000]" title="Risque critique : rùservù Risk Manager / Admin">
+                                            Verrouillù (critique)
                                         </span>
                                     @endcan
                                 </td>

@@ -3,8 +3,8 @@
         <header class="space-y-1">
             <p class="dgcpt-card-title">IAM</p>
             <h1 class="dgcpt-page-title">Nouvel utilisateur</h1>
-            <p class="text-sm text-[#9FB3C8]">
-                Affectez un <strong class="text-[#E6EEF8]">département / pôle</strong> pour l'isolation des données et le tableau de bord.
+            <p class="text-sm dgcpt-text-muted">
+                Affectez un <strong class="dgcpt-text">département / pôle</strong> pour l'isolation des données et le tableau de bord.
             </p>
             <p>
                 <a href="{{ route('admin.users.index') }}" class="dgcpt-link text-sm">Retour à la liste</a>

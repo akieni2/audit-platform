@@ -4,9 +4,9 @@
             <div>
                 <p class="dgcpt-card-title">Sécurité</p>
                 <h1 class="dgcpt-page-title">Journal de sécurité</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Traçabilité des opérations sensibles (OWASP).</p>
+                <p class="mt-1 text-sm dgcpt-text-muted">Traçabilité des opérations sensibles (OWASP).</p>
             </div>
-            <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">← Administration</a>
+            <a href="{{ route('admin.home') }}" class="dgcpt-link text-sm">← Administration</a>
         </div>
 
         <form method="get" action="{{ route('admin.security.audit-logs') }}" class="dgcpt-filter-bar">

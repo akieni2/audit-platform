@@ -13,13 +13,13 @@
 
         @if(isset($departments) && $departments->isNotEmpty())
             <x-ui.dashboard-panel>
-                <p class="text-sm text-[#9FB3C8]">
+                <p class="text-sm dgcpt-text-muted">
                     Rattachement :
                     @if(auth()->user()?->department)
-                        <strong class="font-mono text-[#E6EEF8]">{{ auth()->user()->department->code }}</strong>
-                        <span class="text-[#9FB3C8]"> — </span> {{ auth()->user()->department->name }}
+                        <strong class="font-mono font-semibold text-[#00D1FF]">{{ auth()->user()->department->code }}</strong>
+                        <span> — </span> {{ auth()->user()->department->name }}
                     @else
-                        <em class="text-[#9FB3C8]">non défini</em>
+                        <em>non défini</em>
                     @endif
                 </p>
 
@@ -31,7 +31,7 @@
                     </div>
                 @endif
 
-                <p class="mt-3 text-xs text-[#9FB3C8]">
+                <p class="mt-3 text-xs dgcpt-text-secondary">
                     @if(auth()->user()?->canViewAllInstitutionalData())
                         Filtre tableau de bord par pôle ; les menus restent globaux.
                     @else

@@ -3,7 +3,7 @@
         <header class="space-y-2">
             <p class="dgcpt-card-title">Inspection des services</p>
             <h1 class="dgcpt-page-title">Consolidation et validation</h1>
-            <p class="text-sm text-[#9FB3C8]">
+            <p class="text-sm dgcpt-text-muted">
                 Supervision nationale : missions à contrôler, files de validation IS / COPRI, indicateurs critiques.
             </p>
         </header>
@@ -18,8 +18,8 @@
         </div>
 
         <section class="space-y-3">
-            <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Validations IS en attente</h2>
-            <p class="text-sm text-[#9FB3C8]">Missions au statut « clôturée », à examiner avant validation Inspection.</p>
+            <h2 class="dgcpt-section-title">Validations IS en attente</h2>
+            <p class="text-sm dgcpt-text-muted">Missions au statut « clôturée », à examiner avant validation Inspection.</p>
             <div class="dgcpt-table-wrap shadow-sm">
                 <table class="dgcpt-table">
                     <thead>
@@ -51,8 +51,8 @@
         </section>
 
         <section class="space-y-3">
-            <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Validation COPRI en attente</h2>
-            <p class="text-sm text-[#9FB3C8]">Missions au statut « validée_IS ».</p>
+            <h2 class="dgcpt-section-title">Validation COPRI en attente</h2>
+            <p class="text-sm dgcpt-text-muted">Missions au statut « validée_IS ».</p>
             <div class="dgcpt-table-wrap shadow-sm">
                 <table class="dgcpt-table">
                     <thead>
@@ -84,7 +84,7 @@
         </section>
 
         <p class="text-sm text-[#9FB3C8]">
-            <a href="{{ route('dashboard') }}" class="dgcpt-link">← Tableau de bord départemental</a>
+            <a href="{{ route('dashboard') }}" class="dgcpt-link text-sm">← Tableau de bord départemental</a>
         </p>
     </div>
 </x-app-layout>

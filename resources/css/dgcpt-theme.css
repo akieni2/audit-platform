@@ -841,6 +841,10 @@ html:not(.dark) .dgcpt-table tbody tr:hover {
     color: var(--dgcpt-text-muted);
 }
 
+html:not(.dark) .dgcpt-card-title {
+    color: #7c8ca5;
+}
+
 .dgcpt-page-title {
     font-size: 1.5rem;
     font-weight: 800;
@@ -850,7 +854,46 @@ html:not(.dark) .dgcpt-table tbody tr:hover {
 }
 
 html:not(.dark) .dgcpt-page-title {
-    color: #0f172a;
+    color: #0b1220;
+}
+
+/* --- Text utilities adaptive light/dark --- */
+
+.dgcpt-text {
+    color: var(--dgcpt-text);
+}
+
+html:not(.dark) .dgcpt-text {
+    color: #0b1220;
+}
+
+.dgcpt-text-muted {
+    color: var(--dgcpt-text-muted);
+}
+
+html:not(.dark) .dgcpt-text-muted {
+    color: #5b6b84;
+}
+
+.dgcpt-text-secondary {
+    color: var(--dgcpt-text-muted);
+}
+
+html:not(.dark) .dgcpt-text-secondary {
+    color: #7c8ca5;
+}
+
+/* Section headings inside panels (not page titles) */
+.dgcpt-section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dgcpt-text);
+}
+
+html:not(.dark) .dgcpt-section-title {
+    color: #0b1220;
 }
 
 .dgcpt-link {

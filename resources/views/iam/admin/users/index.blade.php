@@ -4,7 +4,7 @@
             <div>
                 <p class="dgcpt-card-title">Administration IAM</p>
                 <h1 class="dgcpt-page-title">Utilisateurs</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">
+                <p class="mt-1 text-sm dgcpt-text-muted">
                     Annuaire, affectations département / catégorie, désactivation et réinitialisation sécurisée.
                 </p>
             </div>

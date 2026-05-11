@@ -3,7 +3,7 @@
         <div>
             <p class="dgcpt-card-title">Approbation</p>
             <h1 class="dgcpt-page-title">Demande : {{ $user->displayName() }}</h1>
-            <p class="mt-1 text-sm text-[#9FB3C8]">{{ $user->email }}</p>
+            <p class="mt-1 text-sm dgcpt-text-muted">{{ $user->email }}</p>
         </div>
 
         <div class="dgcpt-surface space-y-2 p-6 text-sm shadow-sm">

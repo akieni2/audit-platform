@@ -3,7 +3,7 @@
         <div>
             <p class="dgcpt-card-title">IAM</p>
             <h1 class="dgcpt-page-title">Modifier {{ $editUser->displayName() }}</h1>
-            <p class="mt-1 text-sm text-[#9FB3C8]">
+            <p class="mt-1 text-sm">
                 <a href="{{ route('admin.users.index') }}" class="dgcpt-link">← Retour liste</a>
             </p>
         </div>
