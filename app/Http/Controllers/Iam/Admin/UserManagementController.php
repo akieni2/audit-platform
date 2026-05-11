@@ -109,6 +109,9 @@ class UserManagementController extends Controller
             'telephone' => $data['telephone'] ?? null,
             'active' => $request->boolean('active'),
             'role' => 'auditeur',
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => $request->user()->id,
         ]);
 
         app(SecurityAuditService::class)->userCreated($request->user(), $user, $request);

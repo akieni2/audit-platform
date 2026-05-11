@@ -37,6 +37,10 @@ class User extends Authenticatable
         'mfa_recovery_codes',
         'must_change_password',
         'password_expires_at',
+        'approval_status',
+        'approved_at',
+        'approved_by',
+        'registration_requested_department_id',
     ];
 
     protected $hidden = [
@@ -56,7 +60,47 @@ class User extends Authenticatable
             'mfa_enabled' => 'boolean',
             'must_change_password' => 'boolean',
             'password_expires_at' => 'datetime',
+            'approved_at' => 'datetime',
         ];
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->approval_status === 'pending';
+    }
+
+    public function isEnrollmentRejected(): bool
+    {
+        return $this->approval_status === 'rejected';
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function registrationRequestedDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'registration_requested_department_id');
+    }
+
+    /**
+     * Comptes Super Admin institutionnels actifs (notifications enrôlement).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<User>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<User>
+     */
+    public function scopeInstitutionalSuperAdmins($query)
+    {
+        return $query
+            ->where('approval_status', 'approved')
+            ->where('active', true)
+            ->whereHas('institutionalRole', fn ($q) => $q->where('slug', 'super_admin'));
     }
 
     public function missions()

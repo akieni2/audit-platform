@@ -52,11 +52,35 @@ class LoginRequest extends FormRequest
                 ]);
             }
 
+            if ($user->isPendingApproval()) {
+                app(SecurityAuditService::class)->loginFailure($email, $this, 'Compte en attente de validation');
+
+                throw ValidationException::withMessages([
+                    'email' => 'Votre compte est en attente de validation par l\'administration DGCPT.',
+                ]);
+            }
+
+            if ($user->isEnrollmentRejected()) {
+                app(SecurityAuditService::class)->loginFailure($email, $this, 'Compte rejeté');
+
+                throw ValidationException::withMessages([
+                    'email' => 'Votre demande d\'accès a été refusée. Contactez l\'administration DGCPT pour plus d\'informations.',
+                ]);
+            }
+
+            if (! $user->isApproved()) {
+                app(SecurityAuditService::class)->loginFailure($email, $this, 'Compte non approuvé');
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+
             if (! $user->active) {
                 app(SecurityAuditService::class)->loginFailure($email, $this, 'Compte désactivé');
 
                 throw ValidationException::withMessages([
-                    'email' => trans('auth.failed'),
+                    'email' => 'Ce compte est désactivé.',
                 ]);
             }
         }
@@ -90,10 +114,18 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey());
-
         /** @var User $authenticated */
         $authenticated = Auth::user();
+        if (! $authenticated->isApproved() || ! $authenticated->active) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte est en attente de validation par l\'administration DGCPT.',
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+
         $authenticated->forceFill([
             'failed_login_attempts' => 0,
             'locked_until' => null,

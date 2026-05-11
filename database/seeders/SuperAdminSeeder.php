@@ -39,6 +39,9 @@ class SuperAdminSeeder extends Seeder
             'role_id' => $role->id,
             'role' => 'admin',
             'active' => true,
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => null,
             'position' => 'Super Administrateur système',
         ];
 

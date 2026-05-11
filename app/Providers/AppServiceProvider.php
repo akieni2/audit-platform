@@ -53,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('manageDepartments', fn (?User $user): bool => $user?->canManageDepartments() ?? false);
 
+        Gate::define('manageEnrollmentRequests', fn (?User $user): bool => $user?->isInstitutionalSuperAdmin() ?? false);
+
         Risque::observe(RisqueObserver::class);
 
         RateLimiter::for('api', function (Request $request) {

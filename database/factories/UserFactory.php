@@ -30,6 +30,8 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'active' => true,
+            'approval_status' => 'approved',
+            'approved_at' => now(),
         ];
     }
 
@@ -40,6 +42,18 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /** Demande d'enrôlement publique (non approuvée, sans rôle). */
+    public function pendingEnrollment(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'active' => false,
+            'approval_status' => 'pending',
+            'approved_at' => null,
+            'approved_by' => null,
+            'role_id' => null,
         ]);
     }
 }

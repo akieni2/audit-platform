@@ -3,6 +3,8 @@
 namespace App\View\Components;
 
 use App\Models\Department;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -28,6 +30,11 @@ class AppLayout extends Component
                 ->get();
         }
 
+        $canManageEnrollments = $user !== null && Gate::forUser($user)->allows('manageEnrollmentRequests');
+        $pendingEnrollmentsCount = $canManageEnrollments
+            ? User::query()->where('approval_status', 'pending')->count()
+            : 0;
+
         return view('layouts.app', [
             'institutionalNavMode' => $navMode,
             'sidebarDepartments' => $sidebarDepartments,
@@ -35,6 +42,8 @@ class AppLayout extends Component
             'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
             'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),
             'unreadNotificationsCount' => $user !== null ? $user->unreadNotifications()->count() : 0,
+            'canManageEnrollments' => $canManageEnrollments,
+            'pendingEnrollmentsCount' => $pendingEnrollmentsCount,
         ]);
     }
 }

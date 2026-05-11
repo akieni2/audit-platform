@@ -20,6 +20,7 @@ use App\Http\Controllers\Auth\ForcedPasswordChangeController;
 use App\Http\Controllers\ExecutiveDashboardController;
 use App\Http\Controllers\Iam\Admin\AdminDashboardController;
 use App\Http\Controllers\Iam\Admin\DepartmentManagementController;
+use App\Http\Controllers\Iam\Admin\EnrollmentApprovalController;
 use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
 use App\Http\Controllers\ModuleHubController;
@@ -244,6 +245,16 @@ Route::middleware(['auth', 'active'])->group(function () {
     */
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
+        Route::middleware(['can:manageEnrollmentRequests'])->group(function (): void {
+            Route::get('/enrollments', [EnrollmentApprovalController::class, 'index'])->name('enrollments.index');
+            Route::get('/enrollments/pending-count', [EnrollmentApprovalController::class, 'pendingCount'])
+                ->middleware('throttle:120,1')
+                ->name('enrollments.pending-count');
+            Route::get('/enrollments/{user}/review', [EnrollmentApprovalController::class, 'review'])->name('enrollments.review');
+            Route::post('/enrollments/{user}/approve', [EnrollmentApprovalController::class, 'approve'])->name('enrollments.approve');
+            Route::post('/enrollments/{user}/reject', [EnrollmentApprovalController::class, 'reject'])->name('enrollments.reject');
+        });
+
         Route::middleware(['can:manageUsers'])->group(function (): void {
             Route::get('/', AdminDashboardController::class)->name('home');
             Route::get('/security/audit-logs', [SecurityAuditLogController::class, 'index'])->name('security.audit-logs');

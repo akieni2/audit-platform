@@ -29,6 +29,16 @@
                         Journal sécurité
                     </a>
                 @endif
+                @can('manageEnrollmentRequests')
+                    <a class="nav-link {{ request()->routeIs('admin.enrollments.*') ? 'active' : '' }}"
+                       href="{{ route('admin.enrollments.index') }}">
+                        <span class="ni" aria-hidden="true">✉</span>
+                        Demandes d'enrôlement
+                        @if (($pendingEnrollmentsCount ?? 0) > 0)
+                            <span class="nav-badge">{{ $pendingEnrollmentsCount > 99 ? '99+' : $pendingEnrollmentsCount }}</span>
+                        @endif
+                    </a>
+                @endcan
                 @if ($canManageDepartmentsNav ?? false)
                     <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
@@ -83,6 +93,16 @@
                         Journal sécurité
                     </a>
                 @endif
+                @can('manageEnrollmentRequests')
+                    <a class="nav-link {{ request()->routeIs('admin.enrollments.*') ? 'active' : '' }}"
+                       href="{{ route('admin.enrollments.index') }}">
+                        <span class="ni" aria-hidden="true">✉</span>
+                        Demandes d'enrôlement
+                        @if (($pendingEnrollmentsCount ?? 0) > 0)
+                            <span class="nav-badge">{{ $pendingEnrollmentsCount > 99 ? '99+' : $pendingEnrollmentsCount }}</span>
+                        @endif
+                    </a>
+                @endcan
                 @if ($canManageDepartmentsNav ?? false)
                     <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
