@@ -1,145 +1,146 @@
 <x-app-layout>
-    <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2 sm:px-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Tableau de bord admin</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilotage institutionnel des comptes, sécurité et indicateurs d’activité.</p>
+                <p class="dgcpt-card-title">Console</p>
+                <h1 class="dgcpt-page-title">Tableau de bord admin</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Pilotage des comptes, sécurité et indicateurs d’activité.</p>
             </div>
             <div class="flex flex-wrap gap-2 text-sm">
-                <a href="{{ route('admin.users.create') }}" class="rounded-md bg-slate-700 px-4 py-2 font-semibold text-white shadow hover:bg-slate-600">Créer utilisateur</a>
-                <a href="{{ route('admin.users.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:bg-indigo-500">Utilisateurs</a>
+                <a href="{{ route('admin.users.create') }}" class="rounded-xl bg-[#10192B] px-4 py-2 font-bold uppercase tracking-wider text-[#E6EEF8] ring-1 ring-[rgba(0,209,255,0.25)] hover:bg-[#122038]">Créer utilisateur</a>
+                <a href="{{ route('admin.users.index') }}" class="rounded-xl bg-gradient-to-r from-[#0A2A66] to-blue-950 px-4 py-2 font-bold uppercase tracking-wider text-white ring-1 ring-[rgba(0,209,255,0.3)]">Utilisateurs</a>
                 @can('manageDepartments')
-                    <a href="{{ route('admin.departments.index') }}" class="rounded-md bg-slate-600 px-4 py-2 font-semibold text-white shadow hover:bg-slate-500">Pôles / départements</a>
+                    <a href="{{ route('admin.departments.index') }}" class="rounded-xl bg-[#10192B] px-4 py-2 font-bold uppercase tracking-wider text-[#E6EEF8] ring-1 ring-[rgba(0,209,255,0.25)] hover:bg-[#122038]">Pôles / départements</a>
                 @endcan
-                <a href="{{ route('admin.security.audit-logs') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">Journal sécurité</a>
+                <a href="{{ route('admin.security.audit-logs') }}" class="dgcpt-btn-outline px-4 py-2 text-sm font-semibold">Journal sécurité</a>
             </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Actifs</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-50">{{ $stats['active'] }}</p>
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <p class="dgcpt-card-title">Actifs</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['active'] }}</p>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Inactifs</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-50">{{ $stats['inactive'] }}</p>
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <p class="dgcpt-card-title">Inactifs</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['inactive'] }}</p>
             </div>
-            <div class="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-900/10 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-amber-800 dark:text-amber-200">Mot de passe à changer</p>
-                <p class="mt-2 text-3xl font-bold text-amber-950 dark:text-amber-100">{{ $stats['must_change'] }}</p>
+            <div class="dgcpt-surface border-[#F4D000]/35 p-4 shadow-sm ring-1 ring-[rgba(244,208,0,0.2)]">
+                <p class="dgcpt-card-title text-[#F4D000]">Mot de passe à changer</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#F4D000]">{{ $stats['must_change'] }}</p>
             </div>
-            <div class="rounded-lg border border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-900/10 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-red-800 dark:text-red-200">Verrouillés (maintenant)</p>
-                <p class="mt-2 text-3xl font-bold text-red-950 dark:text-red-100">{{ $stats['locked_now'] }}</p>
+            <div class="dgcpt-surface border-[#FF5A5A]/35 p-4 shadow-sm ring-1 ring-[rgba(255,90,90,0.2)]">
+                <p class="dgcpt-card-title text-[#FF5A5A]">Verrouillés (maintenant)</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#FF5A5A]">{{ $stats['locked_now'] }}</p>
             </div>
-            <div class="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-900/10 p-4 shadow-sm sm:col-span-2 lg:col-span-2">
-                <p class="text-xs uppercase tracking-wide text-indigo-800 dark:text-indigo-200">Risques critiques (score ≥ 16)</p>
-                <p class="mt-2 text-3xl font-bold text-indigo-950 dark:text-indigo-100">{{ $risquesCritiques }}</p>
+            <div class="dgcpt-surface border-[#FF5A5A]/25 p-4 shadow-sm ring-1 ring-[rgba(255,90,90,0.15)] sm:col-span-2 lg:col-span-2">
+                <p class="dgcpt-card-title text-[#9FB3C8]">Risques critiques (score ≥ 16)</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $risquesCritiques }}</p>
             </div>
-            <div class="rounded-lg border border-violet-200 dark:border-violet-900 bg-violet-50/50 dark:bg-violet-900/10 p-4 shadow-sm sm:col-span-2 lg:col-span-2">
-                <p class="text-xs uppercase tracking-wide text-violet-800 dark:text-violet-200">Risques transversaux (ouverts)</p>
-                <p class="mt-2 text-3xl font-bold text-violet-950 dark:text-violet-100">{{ $crossDepartmentRisksOpen }}</p>
+            <div class="dgcpt-surface border-[#00D1FF]/25 p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.2)] sm:col-span-2 lg:col-span-2">
+                <p class="dgcpt-card-title">Risques transversaux (ouverts)</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#00D1FF]">{{ $crossDepartmentRisksOpen }}</p>
             </div>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Connexions récentes</h2>
-                <ul class="space-y-2 text-sm">
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Connexions récentes</h2>
+                <ul class="space-y-2 text-sm text-[#E6EEF8]">
                     @forelse ($recentConnected as $u)
                         <li class="flex justify-between gap-2">
                             <span>{{ $u->displayName() }}</span>
-                            <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap text-xs">{{ $u->department?->code ?? '—' }} · {{ optional($u->last_login_at)->diffForHumans() }}</span>
+                            <span class="whitespace-nowrap text-xs text-[#9FB3C8]">{{ $u->department?->code ?? '—' }} · {{ optional($u->last_login_at)->diffForHumans() }}</span>
                         </li>
                     @empty
-                        <li class="text-gray-500 text-sm">Aucune connexion enregistrée.</li>
+                        <li class="text-sm text-[#9FB3C8]">Aucune connexion enregistrée.</li>
                     @endforelse
                 </ul>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Utilisateurs actifs par département</h2>
-                <ul class="space-y-2 text-sm max-h-56 overflow-y-auto">
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Utilisateurs actifs par département</h2>
+                <ul class="max-h-56 space-y-2 overflow-y-auto text-sm">
                     @foreach ($usersByDepartment as $d)
                         <li class="flex justify-between gap-2">
-                            <span><span class="font-medium">{{ $d->code }}</span> — {{ \Illuminate\Support\Str::limit($d->name, 42) }}</span>
-                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ $d->users_count }}</span>
+                            <span><span class="font-semibold text-[#00D1FF]">{{ $d->code }}</span> <span class="text-[#9FB3C8]">— {{ \Illuminate\Support\Str::limit($d->name, 42) }}</span></span>
+                            <span class="font-semibold text-[#E6EEF8]">{{ $d->users_count }}</span>
                         </li>
                     @endforeach
                 </ul>
             </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm overflow-x-auto">
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Missions par pôle</h2>
-            <table class="min-w-full text-sm">
+        <div class="dgcpt-surface overflow-x-auto p-4 shadow-sm">
+            <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Missions par pôle</h2>
+            <table class="dgcpt-table min-w-full">
                 <thead>
-                    <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                        <th class="py-2 pr-4">Code</th>
-                        <th class="py-2 pr-4">Département</th>
-                        <th class="py-2">Missions</th>
+                    <tr>
+                        <th>Code</th>
+                        <th>Département</th>
+                        <th>Missions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     @forelse ($missionsByDepartment as $row)
                         <tr>
-                            <td class="py-2 pr-4 whitespace-nowrap font-medium">{{ $row->department?->code ?? '—' }}</td>
-                            <td class="py-2 pr-4">{{ \Illuminate\Support\Str::limit($row->department?->name ?? '—', 48) }}</td>
-                            <td class="py-2">{{ $row->total }}</td>
+                            <td class="whitespace-nowrap font-semibold text-[#00D1FF]">{{ $row->department?->code ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">{{ \Illuminate\Support\Str::limit($row->department?->name ?? '—', 48) }}</td>
+                            <td class="font-semibold text-[#E6EEF8]">{{ $row->total }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="3" class="py-3 text-gray-500">Aucune mission rattachée à un département.</td></tr>
+                        <tr><td colspan="3" class="py-4 text-[#9FB3C8]">Aucune mission rattachée à un département.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Comptes verrouillés</h2>
-                <ul class="space-y-2 text-sm">
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Comptes verrouillés</h2>
+                <ul class="space-y-2 text-sm text-[#E6EEF8]">
                     @forelse ($lockedUsers as $u)
                         <li class="flex justify-between gap-2">
                             <span>{{ $u->displayName() }}</span>
-                            <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">jusqu’à {{ $u->locked_until?->format('d/m/Y H:i') }}</span>
+                            <span class="whitespace-nowrap text-[#9FB3C8]">jusqu’à {{ $u->locked_until?->format('d/m/Y H:i') }}</span>
                         </li>
                     @empty
-                        <li class="text-gray-500 text-sm">Aucun verrouillage en cours.</li>
+                        <li class="text-sm text-[#9FB3C8]">Aucun verrouillage en cours.</li>
                     @endforelse
                 </ul>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Alertes sécurité (récentes)</h2>
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Alertes sécurité (récentes)</h2>
                 <ul class="space-y-2 text-sm">
                     @forelse ($securityAlerts as $log)
                         <li>
-                            <span class="font-medium text-gray-900 dark:text-gray-100">{{ $log->action }}</span>
-                            <span class="text-gray-500 dark:text-gray-400"> — {{ \Illuminate\Support\Str::limit($log->description ?? '', 80) }}</span>
+                            <span class="font-semibold text-[#E6EEF8]">{{ $log->action }}</span>
+                            <span class="text-[#9FB3C8]"> — {{ \Illuminate\Support\Str::limit($log->description ?? '', 80) }}</span>
                         </li>
                     @empty
-                        <li class="text-gray-500 text-sm">Aucune alerte récente.</li>
+                        <li class="text-sm text-[#9FB3C8]">Aucune alerte récente.</li>
                     @endforelse
                 </ul>
             </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm overflow-x-auto">
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Activités administratives / audit (extrait)</h2>
-            <table class="min-w-full text-sm">
+        <div class="dgcpt-surface overflow-x-auto p-4 shadow-sm">
+            <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Activités administratives / audit (extrait)</h2>
+            <table class="dgcpt-table min-w-full">
                 <thead>
-                    <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                        <th class="py-2 pr-4">Date</th>
-                        <th class="py-2 pr-4">Action</th>
-                        <th class="py-2 pr-4">Module</th>
-                        <th class="py-2">Description</th>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     @foreach ($recentAudits as $log)
                         <tr>
-                            <td class="py-2 pr-4 whitespace-nowrap">{{ $log->created_at?->format('d/m/Y H:i') }}</td>
-                            <td class="py-2 pr-4">{{ $log->action }}</td>
-                            <td class="py-2 pr-4">{{ $log->module }}</td>
-                            <td class="py-2">{{ \Illuminate\Support\Str::limit($log->description ?? '', 120) }}</td>
+                            <td class="whitespace-nowrap text-[#9FB3C8]">{{ $log->created_at?->format('d/m/Y H:i') }}</td>
+                            <td class="font-medium text-[#E6EEF8]">{{ $log->action }}</td>
+                            <td class="text-[#9FB3C8]">{{ $log->module }}</td>
+                            <td class="text-[#9FB3C8]">{{ \Illuminate\Support\Str::limit($log->description ?? '', 120) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

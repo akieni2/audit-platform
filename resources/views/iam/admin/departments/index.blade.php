@@ -1,52 +1,51 @@
 <x-app-layout>
-    <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2 sm:px-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Pôles / départements</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Structure organisationnelle DGCPT — codes, rattachements et supervision.
-                </p>
+                <p class="dgcpt-card-title">Structure</p>
+                <h1 class="dgcpt-page-title">Pôles / départements</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Codes, rattachements et supervision.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Tableau de bord admin</a>
-                <a href="{{ route('admin.departments.create') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">Nouveau département</a>
+                <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">Tableau de bord admin</a>
+                <a href="{{ route('admin.departments.create') }}" class="inline-flex rounded-xl bg-gradient-to-r from-[#0A2A66] to-blue-950 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white ring-1 ring-[rgba(0,209,255,0.3)]">Nouveau département</a>
             </div>
         </div>
 
         @if (session('status'))
-            <div class="rounded-md bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800">
+            <div class="dgcpt-surface border-[#00A86B]/35 px-4 py-3 text-sm text-[#E6EEF8] ring-1 ring-[rgba(0,168,107,0.25)]">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+        <div class="dgcpt-table-wrap shadow-sm">
+            <table class="dgcpt-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Code</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nom</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Superviseur</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Utilisateurs actifs</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Statut</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Actions</th>
+                        <th>Code</th>
+                        <th>Nom</th>
+                        <th>Superviseur</th>
+                        <th class="text-right">Utilisateurs actifs</th>
+                        <th class="text-right">Statut</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     @foreach ($departments as $d)
                         <tr>
-                            <td class="px-4 py-3 font-medium">{{ $d->code }}</td>
-                            <td class="px-4 py-3">{{ $d->name }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $d->supervisor?->displayName() ?? '—' }}</td>
-                            <td class="px-4 py-3 text-right">{{ $d->users_count }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="font-semibold text-[#00D1FF]">{{ $d->code }}</td>
+                            <td class="text-[#E6EEF8]">{{ $d->name }}</td>
+                            <td class="text-[#9FB3C8]">{{ $d->supervisor?->displayName() ?? '—' }}</td>
+                            <td class="text-right font-semibold text-[#E6EEF8]">{{ $d->users_count }}</td>
+                            <td class="text-right">
                                 @if ($d->active)
-                                    <span class="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-200">Actif</span>
+                                    <span class="inline-flex rounded-lg border border-[rgba(0,168,107,0.35)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#00A86B]">Actif</span>
                                 @else
-                                    <span class="inline-flex rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-200">Inactif</span>
+                                    <span class="inline-flex rounded-lg border border-[rgba(148,163,184,0.3)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#9FB3C8]">Inactif</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-right whitespace-nowrap">
-                                <a href="{{ route('admin.departments.edit', $d) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline text-xs font-semibold">Modifier</a>
+                            <td class="whitespace-nowrap text-right">
+                                <a href="{{ route('admin.departments.edit', $d) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
                             </td>
                         </tr>
                     @endforeach
@@ -54,7 +53,7 @@
             </table>
         </div>
 
-        <div class="mt-4">
+        <div class="text-[#9FB3C8]">
             {{ $departments->links() }}
         </div>
     </div>

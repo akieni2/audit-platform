@@ -1,55 +1,56 @@
 <x-app-layout>
-    <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mx-auto max-w-7xl space-y-6 px-0 py-2 sm:px-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Journal de sécurité</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Traçabilité des opérations sensibles (OWASP).</p>
+                <p class="dgcpt-card-title">Sécurité</p>
+                <h1 class="dgcpt-page-title">Journal de sécurité</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Traçabilité des opérations sensibles (OWASP).</p>
             </div>
-            <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">← Administration</a>
+            <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">← Administration</a>
         </div>
 
-        <form method="get" action="{{ route('admin.security.audit-logs') }}" class="flex flex-wrap gap-3 items-end bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+        <form method="get" action="{{ route('admin.security.audit-logs') }}" class="dgcpt-filter-bar">
             <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Module</label>
+                <label class="dgcpt-card-title mb-1 block">Module</label>
                 <input type="text" name="module" value="{{ $filters['module'] ?? '' }}" placeholder="auth, iam…"
-                       class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                       class="rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/70 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Action</label>
+                <label class="dgcpt-card-title mb-1 block">Action</label>
                 <input type="text" name="action" value="{{ $filters['action'] ?? '' }}" placeholder="login_success…"
-                       class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                       class="rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/70 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
             </div>
-            <button type="submit" class="rounded-md bg-slate-800 dark:bg-slate-600 px-4 py-2 text-sm font-semibold text-white">Filtrer</button>
-            <a href="{{ route('admin.security.audit-logs') }}" class="text-sm text-indigo-600 dark:text-indigo-400 py-2">Réinitialiser</a>
+            <button type="submit" class="rounded-xl bg-[#10192B] px-4 py-2 text-sm font-bold uppercase tracking-wider text-[#E6EEF8] ring-1 ring-[rgba(0,209,255,0.25)] hover:bg-[#122038]">Filtrer</button>
+            <a href="{{ route('admin.security.audit-logs') }}" class="dgcpt-link py-2 text-sm">Réinitialiser</a>
         </form>
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+        <div class="dgcpt-table-wrap shadow-sm">
+            <table class="dgcpt-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Date</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Utilisateur</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Action</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Module</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">IP</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Description</th>
+                        <th>Date</th>
+                        <th>Utilisateur</th>
+                        <th>Action</th>
+                        <th>Module</th>
+                        <th>IP</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     @foreach ($logs as $log)
                         <tr>
-                            <td class="px-4 py-2 whitespace-nowrap text-gray-700 dark:text-gray-300">{{ $log->created_at?->format('d/m/Y H:i:s') }}</td>
-                            <td class="px-4 py-2">{{ $log->user?->email ?? '—' }}</td>
-                            <td class="px-4 py-2 font-medium">{{ $log->action }}</td>
-                            <td class="px-4 py-2">{{ $log->module }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ $log->ip ?? '—' }}</td>
-                            <td class="px-4 py-2 text-gray-600 dark:text-gray-400">{{ \Illuminate\Support\Str::limit($log->description ?? '', 160) }}</td>
+                            <td class="whitespace-nowrap text-[#9FB3C8]">{{ $log->created_at?->format('d/m/Y H:i:s') }}</td>
+                            <td class="text-[#E6EEF8]">{{ $log->user?->email ?? '—' }}</td>
+                            <td class="font-semibold text-[#E6EEF8]">{{ $log->action }}</td>
+                            <td class="text-[#9FB3C8]">{{ $log->module }}</td>
+                            <td class="whitespace-nowrap text-[#9FB3C8]">{{ $log->ip ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">{{ \Illuminate\Support\Str::limit($log->description ?? '', 160) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
 
-        <div>{{ $logs->links() }}</div>
+        <div class="text-[#9FB3C8]">{{ $logs->links() }}</div>
     </div>
 </x-app-layout>

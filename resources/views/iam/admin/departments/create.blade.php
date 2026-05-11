@@ -1,15 +1,16 @@
 <x-app-layout>
-    <div class="py-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Nouveau département</h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                <a href="{{ route('admin.departments.index') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">← Retour liste</a>
+            <p class="dgcpt-card-title">Structure</p>
+            <h1 class="dgcpt-page-title">Nouveau département</h1>
+            <p class="mt-1 text-sm text-[#9FB3C8]">
+                <a href="{{ route('admin.departments.index') }}" class="dgcpt-link">← Retour liste</a>
             </p>
         </div>
 
         @if ($errors->any())
-            <div class="rounded-md bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
-                <ul class="list-disc ms-5 space-y-1">
+            <div class="rounded-lg border border-[rgba(255,90,90,0.45)] bg-[#10192B] px-4 py-3 text-sm text-[#FF5A5A]">
+                <ul class="ms-5 list-disc space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -17,33 +18,29 @@
             </div>
         @endif
 
-        <form method="post" action="{{ route('admin.departments.store') }}" class="space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+        <form method="post" action="{{ route('admin.departments.store') }}" class="dgcpt-surface space-y-6 p-6 shadow-sm">
             @csrf
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Code <span class="text-red-600">*</span></label>
-                    <input type="text" name="code" value="{{ old('code') }}" required maxlength="32"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <label class="dgcpt-label">Code <span class="text-[#FF5A5A]">*</span></label>
+                    <input type="text" name="code" value="{{ old('code') }}" required maxlength="32" class="dgcpt-input" />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
-                    <input type="text" name="type" value="{{ old('type') }}" maxlength="64"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <label class="dgcpt-label">Type</label>
+                    <input type="text" name="type" value="{{ old('type') }}" maxlength="64" class="dgcpt-input" />
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom <span class="text-red-600">*</span></label>
-                <input type="text" name="name" value="{{ old('name') }}" required
-                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                <label class="dgcpt-label">Nom <span class="text-[#FF5A5A]">*</span></label>
+                <input type="text" name="name" value="{{ old('name') }}" required class="dgcpt-input" />
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                <textarea name="description" rows="3"
-                          class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">{{ old('description') }}</textarea>
+                <label class="dgcpt-label">Description</label>
+                <textarea name="description" rows="3" class="dgcpt-textarea">{{ old('description') }}</textarea>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Superviseur référent</label>
-                <select name="supervisor_user_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
+                <label class="dgcpt-label">Superviseur référent</label>
+                <select name="supervisor_user_id" class="dgcpt-select">
                     <option value="">—</option>
                     @foreach ($supervisors as $s)
                         <option value="{{ $s->id }}" @selected(old('supervisor_user_id') == $s->id)>{{ $s->displayName() }} ({{ $s->email }})</option>
@@ -52,24 +49,22 @@
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Couleur (UI)</label>
-                    <input type="text" name="accent_color" value="{{ old('accent_color') }}" placeholder="#334155 ou slate-700"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <label class="dgcpt-label">Couleur (UI)</label>
+                    <input type="text" name="accent_color" value="{{ old('accent_color') }}" placeholder="#334155 ou slate-700" class="dgcpt-input" />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Logo (chemin ou URL)</label>
-                    <input type="text" name="logo_path" value="{{ old('logo_path') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                    <label class="dgcpt-label">Logo (chemin ou URL)</label>
+                    <input type="text" name="logo_path" value="{{ old('logo_path') }}" class="dgcpt-input" />
                 </div>
             </div>
             <input type="hidden" name="active" value="0" />
-            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="active" value="1" @checked(old('active', true)) />
+            <label class="inline-flex items-center gap-2 text-sm font-medium text-[#9FB3C8]">
+                <input type="checkbox" name="active" value="1" class="h-4 w-4 rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" @checked(old('active', true)) />
                 Département actif
             </label>
-            <div class="flex gap-3">
-                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">Créer</button>
-                <a href="{{ route('admin.departments.index') }}" class="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200">Annuler</a>
+            <div class="flex flex-wrap gap-3">
+                <button type="submit" class="dgcpt-btn-primary">Créer</button>
+                <a href="{{ route('admin.departments.index') }}" class="dgcpt-btn-outline">Annuler</a>
             </div>
         </form>
     </div>

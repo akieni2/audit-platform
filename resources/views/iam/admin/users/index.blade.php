@@ -1,32 +1,31 @@
 <x-app-layout>
-    <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2 sm:px-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Utilisateurs</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Administration · annuaire IAM, affectations département / catégorie, désactivation et réinitialisation sécurisée.
+                <p class="dgcpt-card-title">Administration IAM</p>
+                <h1 class="dgcpt-page-title">Utilisateurs</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">
+                    Annuaire, affectations département / catégorie, désactivation et réinitialisation sécurisée.
                 </p>
             </div>
-            <div class="flex flex-wrap gap-3 items-center">
-                <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
-                    Tableau de bord admin
-                </a>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.home') }}" class="dgcpt-link text-sm">Tableau de bord admin</a>
                 <a href="{{ route('admin.users.create') }}"
-                   class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                   class="inline-flex justify-center rounded-xl bg-gradient-to-r from-[#0A2A66] to-blue-950 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white ring-1 ring-[rgba(0,209,255,0.25)]">
                     Nouvel utilisateur
                 </a>
             </div>
         </div>
 
         @if (session('status'))
-            <div class="rounded-md bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800">
+            <div class="dgcpt-surface border-[#00A86B]/35 bg-[#0B1220] px-4 py-3 text-sm text-[#E6EEF8] ring-1 ring-[rgba(0,168,107,0.25)]">
                 {{ session('status') }}
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="rounded-md bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
-                <ul class="list-disc ms-5 space-y-1">
+            <div class="dgcpt-surface border-[#FF5A5A]/40 px-4 py-3 text-sm text-[#FF5A5A] ring-1 ring-[rgba(255,90,90,0.2)]">
+                <ul class="ms-5 list-disc space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -35,127 +34,127 @@
         @endif
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Actifs</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-50">{{ $stats['active'] }}</p>
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <p class="dgcpt-card-title">Actifs</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['active'] }}</p>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Désactivés</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-50">{{ $stats['inactive'] }}</p>
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <p class="dgcpt-card-title">Désactivés</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['inactive'] }}</p>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm sm:col-span-2">
-                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Connexions récentes</p>
-                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+            <div class="dgcpt-surface p-4 shadow-sm sm:col-span-2">
+                <p class="dgcpt-card-title mb-2">Connexions récentes</p>
+                <ul class="space-y-1 text-sm text-[#E6EEF8]">
                     @forelse ($recentLogins as $u)
                         <li class="flex justify-between gap-2">
                             <span>{{ $u->displayName() }}</span>
-                            <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ optional($u->last_login_at)->diffForHumans() }}</span>
+                            <span class="whitespace-nowrap text-[#9FB3C8]">{{ optional($u->last_login_at)->diffForHumans() }}</span>
                         </li>
                     @empty
-                        <li class="text-gray-500">Aucune connexion enregistrée.</li>
+                        <li class="text-[#9FB3C8]">Aucune connexion enregistrée.</li>
                     @endforelse
                 </ul>
             </div>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Par département (actifs)</h2>
-                <ul class="space-y-2 text-sm">
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Par département (actifs)</h2>
+                <ul class="space-y-2 text-sm text-[#E6EEF8]">
                     @foreach ($byDepartment as $d)
-                        <li class="flex justify-between">
-                            <span><span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-100">{{ $d->code }}</span> {{ $d->name }}</span>
-                            <span class="font-medium">{{ $d->users_count }}</span>
+                        <li class="flex justify-between gap-2">
+                            <span><span class="inline-flex items-center rounded-lg border border-[rgba(0,209,255,0.2)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#00D1FF]">{{ $d->code }}</span> <span class="text-[#9FB3C8]">{{ $d->name }}</span></span>
+                            <span class="font-semibold text-[#E6EEF8]">{{ $d->users_count }}</span>
                         </li>
                     @endforeach
                 </ul>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Par rôle institutionnel (actifs)</h2>
-                <ul class="space-y-2 text-sm">
+            <div class="dgcpt-surface p-4 shadow-sm">
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-[#E6EEF8]">Par rôle institutionnel (actifs)</h2>
+                <ul class="space-y-2 text-sm text-[#E6EEF8]">
                     @foreach ($byRole as $r)
                         <li class="flex justify-between">
-                            <span>{{ $r->name }}</span>
-                            <span class="font-medium">{{ $r->users_count }}</span>
+                            <span class="text-[#9FB3C8]">{{ $r->name }}</span>
+                            <span class="font-semibold">{{ $r->users_count }}</span>
                         </li>
                     @endforeach
                 </ul>
             </div>
         </div>
 
-        <form method="get" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-3 items-end bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
-            <div class="flex-1 min-w-[180px]">
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Recherche</label>
+        <form method="get" action="{{ route('admin.users.index') }}" class="dgcpt-filter-bar flex-wrap">
+            <div class="min-w-[180px] flex-1">
+                <label class="dgcpt-card-title mb-1 block">Recherche</label>
                 <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Nom, email, matricule…"
-                       class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm" />
+                       class="block w-full rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/70 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Département</label>
-                <select name="department_id" class="block rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 shadow-sm text-sm">
+                <label class="dgcpt-card-title mb-1 block">Département</label>
+                <select name="department_id" class="block rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]">
                     <option value="">— Tous —</option>
                     @foreach ($departments as $d)
                         <option value="{{ $d->id }}" @selected(($filters['department_id'] ?? '') == $d->id)>{{ $d->code }} — {{ $d->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="inactive_only" value="1" @checked(!empty($filters['inactive_only'])) />
+            <label class="inline-flex items-center gap-2 text-sm text-[#9FB3C8]">
+                <input type="checkbox" name="inactive_only" value="1" @checked(!empty($filters['inactive_only'])) class="rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" />
                 Désactivés seulement
             </label>
-            <button type="submit" class="rounded-md bg-slate-800 dark:bg-slate-600 px-4 py-2 text-sm font-semibold text-white">Filtrer</button>
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 py-2">Réinitialiser</a>
+            <button type="submit" class="rounded-xl bg-[#10192B] px-4 py-2 text-sm font-bold uppercase tracking-wider text-[#E6EEF8] ring-1 ring-[rgba(0,209,255,0.25)] hover:bg-[#122038]">Filtrer</button>
+            <a href="{{ route('admin.users.index') }}" class="dgcpt-link py-2 text-sm">Réinitialiser</a>
         </form>
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+        <div class="dgcpt-table-wrap shadow-sm">
+            <table class="dgcpt-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Utilisateur</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Département</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Catégorie</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Statut</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Actions</th>
+                        <th>Utilisateur</th>
+                        <th>Département</th>
+                        <th>Catégorie</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody>
                     @foreach ($users as $u)
                         <tr>
-                            <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900 dark:text-gray-100">{{ $u->displayName() }}</div>
-                                <div class="text-xs text-gray-500">{{ $u->email }}</div>
+                            <td>
+                                <div class="font-semibold text-[#E6EEF8]">{{ $u->displayName() }}</div>
+                                <div class="text-xs text-[#9FB3C8]">{{ $u->email }}</div>
                             </td>
-                            <td class="px-4 py-3">
+                            <td>
                                 @if ($u->department)
-                                    <span class="inline-flex rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-200">{{ $u->department->code }}</span>
+                                    <span class="inline-flex rounded-lg border border-[rgba(0,209,255,0.25)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#00D1FF]">{{ $u->department->code }}</span>
                                 @else
-                                    <span class="text-gray-400">—</span>
+                                    <span class="text-[#9FB3C8]">—</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="text-[#9FB3C8]">
                                 @if ($u->institutionalRole)
                                     {{ $u->institutionalRole->name }}
                                 @else
-                                    <span class="text-gray-400">—</span>
+                                    —
                                 @endif
                             </td>
-                            <td class="px-4 py-3">
+                            <td>
                                 @if ($u->active)
-                                    <span class="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-200">Actif</span>
+                                    <span class="inline-flex rounded-lg border border-[rgba(0,168,107,0.35)] bg-[#0B1220] px-2 py-0.5 text-xs font-semibold text-[#00A86B]">Actif</span>
                                 @else
-                                    <span class="inline-flex rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-200">Désactivé</span>
+                                    <span class="inline-flex rounded-lg border border-[rgba(148,163,184,0.25)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#9FB3C8]">Désactivé</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
-                                <a href="{{ route('admin.users.edit', $u) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline text-xs font-semibold">Modifier</a>
+                            <td class="space-x-2 whitespace-nowrap text-right">
+                                <a href="{{ route('admin.users.edit', $u) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
                                 @if ($u->active && auth()->id() !== $u->id)
                                     <form method="post" action="{{ route('admin.users.deactivate', $u) }}" class="inline" onsubmit="return confirm('Désactiver cet utilisateur ?');">
                                         @csrf
-                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:underline text-xs font-semibold">Désactiver</button>
+                                        <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Désactiver</button>
                                     </form>
                                 @endif
                                 <form method="post" action="{{ route('admin.users.password-reset', $u) }}" class="inline">
                                     @csrf
-                                    <button type="submit" class="text-slate-600 dark:text-slate-300 hover:underline text-xs font-semibold">Reset MDP</button>
+                                    <button type="submit" class="text-xs font-semibold text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Reset MDP</button>
                                 </form>
                             </td>
                         </tr>
@@ -164,7 +163,7 @@
             </table>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-4 text-[#9FB3C8]">
             {{ $users->links() }}
         </div>
     </div>

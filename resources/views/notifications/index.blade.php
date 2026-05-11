@@ -3,8 +3,8 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-dgcpt-cyan/90">Centre SOC</p>
-                <h1 class="text-2xl font-extrabold uppercase tracking-wide text-slate-900 dark:text-white">Notifications</h1>
-                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Alertes workflow mission, validations institutionnelles et décisions COPRI.</p>
+                <h1 class="dgcpt-page-title">Notifications</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Flux d'alertes institutionnelles — workflow missions, validations et décisions COPRI.</p>
             </div>
             @if (($unreadNotificationsCount ?? 0) > 0)
                 <form method="post" action="{{ route('notifications.read-all') }}">
@@ -40,7 +40,7 @@
                 @endphp
                 <x-ui.notification-card :title="$title" :time="$n->created_at?->translatedFormat('d M Y, H:i')" :tone="$tone" :read="(bool) $n->read_at">
                     @if ($body)
-                        <p class="mt-1 text-sm text-slate-400">{{ $body }}</p>
+                        <p class="mt-1 text-sm leading-relaxed text-[#9FB3C8]">{{ $body }}</p>
                     @endif
                     <div class="mt-3 flex flex-wrap items-center gap-3">
                         @if ($missionId)
@@ -51,7 +51,7 @@
                         @unless ($n->read_at)
                             <form method="post" action="{{ route('notifications.read', $n->id) }}" class="inline">
                                 @csrf
-                                <button type="submit" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-widest text-slate-200 hover:bg-white/10">
+                                <button type="submit" class="rounded-lg border border-[rgba(0,209,255,0.28)] bg-[#050816] px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-[#00D1FF] shadow-[0_0_16px_rgba(0,209,255,0.12)] hover:border-[rgba(0,209,255,0.45)] hover:bg-[#122038]">
                                     Marquer lu
                                 </button>
                             </form>
@@ -60,7 +60,7 @@
                 </x-ui.notification-card>
             @empty
                 <x-ui.dashboard-panel>
-                    <p class="text-center text-sm text-slate-500 dark:text-slate-400">Aucune notification pour le moment.</p>
+                    <p class="text-center text-sm text-[#9FB3C8]">Aucune notification pour le moment.</p>
                 </x-ui.dashboard-panel>
             @endforelse
         </div>

@@ -1,146 +1,149 @@
 <x-app-layout>
+    <div class="mx-auto max-w-6xl space-y-8 px-0 py-2">
+        <div>
+            <p class="dgcpt-card-title">Risques</p>
+            <h1 class="dgcpt-page-title">Matrice — {{ $actif->nom }}</h1>
+        </div>
 
-<script src="https://cdn.tailwindcss.com"></script>
+        @if (session('status'))
+            <div class="rounded-lg border border-[rgba(0,168,107,0.4)] bg-[#10192B] px-4 py-3 text-sm font-medium text-[#E6EEF8]">
+                {{ session('status') }}
+            </div>
+        @endif
 
-<div style="max-width:1100px;">
+        <div class="dgcpt-surface p-5 shadow-sm">
+            <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Matrice de criticité</h2>
+            <p class="mt-2 text-sm text-[#9FB3C8]">
+                Criticité = impact × probabilité (1–25). Seuils : Faible ?6, Moyen 7–12, Élevé 13–18, Critique ?19.
+                Le risque résiduel est recalculé après enregistrement d'un contrôle (efficacité faible / moyenne / forte).
+            </p>
+        </div>
 
-<h2 class="text-xl font-semibold text-slate-800 mb-2">Actif : {{ $actif->nom }}</h2>
+        <div>
+            <h2 class="mb-3 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Nouveau risque</h2>
+            <form method="POST" action="{{ route('risques.store') }}" class="dgcpt-surface mb-8 space-y-4 p-5 shadow-sm">
+                @csrf
+                <input type="hidden" name="actif_id" value="{{ $actif->id }}">
 
-@if (session('status'))
-    <p class="mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">{{ session('status') }}</p>
-@endif
+                <div>
+                    <label class="dgcpt-label">Description</label>
+                    <input type="text" name="description" class="dgcpt-input" required maxlength="2000" value="{{ old('description') }}">
+                    @error('description')<span class="mt-1 block text-sm text-[#FF5A5A]">{{ $message }}</span>@enderror
+                </div>
 
-<h3 class="text-lg font-medium text-slate-700 mb-3">Matrice de criticité</h3>
-<p class="text-sm text-slate-600 mb-4">
-    Criticité = impact × probabilité (1–25). Seuils : Faible ?6, Moyen 7–12, Élevé 13–18, Critique ?19.
-    Le risque résiduel est recalculé après enregistrement d’un contrôle (efficacité faible / moyenne / forte).
-</p>
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div>
+                        <label class="dgcpt-label">Impact (1–5)</label>
+                        <input type="number" name="impact_inherent" min="1" max="5" class="dgcpt-input" required value="{{ old('impact_inherent') }}">
+                    </div>
+                    <div>
+                        <label class="dgcpt-label">Probabilité (1–5)</label>
+                        <input type="number" name="probabilite_inherent" min="1" max="5" class="dgcpt-input" required value="{{ old('probabilite_inherent') }}">
+                    </div>
+                    <div>
+                        <label class="dgcpt-label">Propriétaire du risque</label>
+                        <input type="text" name="proprietaire" class="dgcpt-input" maxlength="255" value="{{ old('proprietaire') }}">
+                    </div>
+                    <div>
+                        <label class="dgcpt-label">Département</label>
+                        <input type="text" name="departement" class="dgcpt-input" maxlength="255" value="{{ old('departement') }}">
+                    </div>
+                </div>
 
-<h3 class="text-lg font-medium text-slate-700 mb-3">Nouveau risque</h3>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="dgcpt-label">Date de revue</label>
+                        <input type="date" name="date_revue" class="dgcpt-input" value="{{ old('date_revue') }}">
+                    </div>
+                    <div>
+                        <label class="dgcpt-label">Statut du risque</label>
+                        <select name="statut_risque" class="dgcpt-select">
+                            @foreach(\App\Domain\Risk\Enums\RiskStatus::cases() as $st)
+                                <option value="{{ $st->value }}" @selected(old('statut_risque') === $st->value)>{{ $st->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-<form method="POST" action="{{ route('risques.store') }}" class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-8 space-y-3">
-    @csrf
-    <input type="hidden" name="actif_id" value="{{ $actif->id }}">
+                <div>
+                    <label class="dgcpt-label">Plan de mitigation</label>
+                    <textarea name="plan_mitigation" rows="3" class="dgcpt-textarea" maxlength="10000">{{ old('plan_mitigation') }}</textarea>
+                </div>
 
-    <div>
-        <label class="block text-sm font-medium text-slate-700">Description</label>
-        <input type="text" name="description" class="mt-1 w-full border border-slate-300 rounded px-3 py-2" required maxlength="2000" value="{{ old('description') }}">
-        @error('description')<span class="text-red-600 text-sm">{{ $message }}</span>@enderror
+                <button type="submit" class="dgcpt-btn-primary">Ajouter le risque</button>
+            </form>
+        </div>
+
+        <div>
+            <h2 class="mb-3 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Risques enregistrés</h2>
+            <div class="dgcpt-table-wrap shadow-sm">
+                <table class="dgcpt-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Score inh.</th>
+                            <th>Crit. inh.</th>
+                            <th>Score rés.</th>
+                            <th>Crit. rés.</th>
+                            <th>Propriétaire</th>
+                            <th>Dépt.</th>
+                            <th>Statut</th>
+                            <th>Liens</th>
+                            <th>Modifier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($risques as $r)
+                            <tr>
+                                <td>{{ $r->description }}</td>
+                                <td class="text-center">{{ $r->score_inherent }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? '—' }}</td>
+                                <td class="text-center">{{ $r->score_residuel ?? '—' }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? '—' }}</td>
+                                <td>{{ $r->proprietaire ?? '—' }}</td>
+                                <td>{{ $r->departement ?? '—' }}</td>
+                                <td>{{ \App\Domain\Risk\Enums\RiskStatus::tryFrom($r->statut_risque ?? '')?->label() ?? $r->statut_risque }}</td>
+                                <td class="text-xs">
+                                    <a href="{{ route('actions.index', $r->id) }}" class="dgcpt-link">Actions</a><br>
+                                    <a href="{{ route('controles.index', $r->id) }}" class="dgcpt-link">Contrôles</a>
+                                </td>
+                                <td>
+                                    @can('update', $r)
+                                        <details>
+                                            <summary class="cursor-pointer text-xs font-semibold text-[#00D1FF] hover:underline">Éditer</summary>
+                                            <form method="POST" action="{{ route('risques.update', $r) }}" class="mt-2 space-y-2 rounded-lg border border-[rgba(0,209,255,0.18)] bg-[#10192B] p-3 text-xs">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="text" name="description" value="{{ $r->description }}" class="dgcpt-input text-xs" required>
+                                                <div class="flex gap-2">
+                                                    <input type="number" name="impact_inherent" min="1" max="5" value="{{ $r->impact_inherent }}" class="dgcpt-input w-20 text-xs">
+                                                    <input type="number" name="probabilite_inherent" min="1" max="5" value="{{ $r->probabilite_inherent }}" class="dgcpt-input w-20 text-xs">
+                                                </div>
+                                                <input type="text" name="proprietaire" value="{{ $r->proprietaire }}" placeholder="Propriétaire" class="dgcpt-input text-xs">
+                                                <input type="text" name="departement" value="{{ $r->departement }}" placeholder="Département" class="dgcpt-input text-xs">
+                                                <input type="date" name="date_revue" value="{{ $r->date_revue?->format('Y-m-d') }}" class="dgcpt-input text-xs">
+                                                <select name="statut_risque" class="dgcpt-select text-xs">
+                                                    @foreach(\App\Domain\Risk\Enums\RiskStatus::cases() as $st)
+                                                        <option value="{{ $st->value }}" @selected($r->statut_risque === $st->value)>{{ $st->label() }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <textarea name="plan_mitigation" rows="2" class="dgcpt-textarea text-xs" placeholder="Plan de mitigation">{{ $r->plan_mitigation }}</textarea>
+                                                <button type="submit" class="dgcpt-btn-primary w-full justify-center py-2 text-xs">Enregistrer</button>
+                                            </form>
+                                        </details>
+                                    @else
+                                        <span class="text-xs text-[#F4D000]" title="Risque critique : réservé Risk Manager / Admin">
+                                            Verrouillé (critique)
+                                        </span>
+                                    @endcan
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="10" class="py-4 text-center text-[#9FB3C8]">Aucun risque pour cet actif.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Impact (1–5)</label>
-            <input type="number" name="impact_inherent" min="1" max="5" class="mt-1 w-full border rounded px-3 py-2" required value="{{ old('impact_inherent') }}">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Probabilité (1–5)</label>
-            <input type="number" name="probabilite_inherent" min="1" max="5" class="mt-1 w-full border rounded px-3 py-2" required value="{{ old('probabilite_inherent') }}">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Propriétaire du risque</label>
-            <input type="text" name="proprietaire" class="mt-1 w-full border rounded px-3 py-2" maxlength="255" value="{{ old('proprietaire') }}">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Département</label>
-            <input type="text" name="departement" class="mt-1 w-full border rounded px-3 py-2" maxlength="255" value="{{ old('departement') }}">
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Date de revue</label>
-            <input type="date" name="date_revue" class="mt-1 w-full border rounded px-3 py-2" value="{{ old('date_revue') }}">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Statut du risque</label>
-            <select name="statut_risque" class="mt-1 w-full border rounded px-3 py-2">
-                @foreach(\App\Domain\Risk\Enums\RiskStatus::cases() as $st)
-                    <option value="{{ $st->value }}" @selected(old('statut_risque') === $st->value)>{{ $st->label() }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-slate-700">Plan de mitigation</label>
-        <textarea name="plan_mitigation" rows="3" class="mt-1 w-full border rounded px-3 py-2" maxlength="10000">{{ old('plan_mitigation') }}</textarea>
-    </div>
-
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium">Ajouter le risque</button>
-</form>
-
-<h3 class="text-lg font-medium text-slate-700 mb-3">Risques enregistrés</h3>
-
-<div class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200">
-    <table class="min-w-full text-sm">
-        <thead>
-            <tr class="bg-slate-800 text-white">
-                <th class="text-left p-2">Description</th>
-                <th class="p-2">Score inh.</th>
-                <th class="p-2">Crit. inh.</th>
-                <th class="p-2">Score rés.</th>
-                <th class="p-2">Crit. rés.</th>
-                <th class="p-2">Propriétaire</th>
-                <th class="p-2">Dépt.</th>
-                <th class="p-2">Statut</th>
-                <th class="p-2">Liens</th>
-                <th class="p-2">Modifier</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($risques as $r)
-                <tr class="border-b border-slate-100 align-top">
-                    <td class="p-2">{{ $r->description }}</td>
-                    <td class="p-2 text-center">{{ $r->score_inherent }}</td>
-                    <td class="p-2 text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? '—' }}</td>
-                    <td class="p-2 text-center">{{ $r->score_residuel ?? '—' }}</td>
-                    <td class="p-2 text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? '—' }}</td>
-                    <td class="p-2">{{ $r->proprietaire ?? '—' }}</td>
-                    <td class="p-2">{{ $r->departement ?? '—' }}</td>
-                    <td class="p-2">{{ \App\Domain\Risk\Enums\RiskStatus::tryFrom($r->statut_risque ?? '')?->label() ?? $r->statut_risque }}</td>
-                    <td class="p-2 text-xs">
-                        <a href="{{ route('actions.index', $r->id) }}" class="text-blue-600 underline">Actions</a><br>
-                        <a href="{{ route('controles.index', $r->id) }}" class="text-blue-600 underline">Contrôles</a>
-                    </td>
-                    <td class="p-2">
-                        @can('update', $r)
-                            <details>
-                                <summary class="cursor-pointer text-blue-600 text-xs">Éditer</summary>
-                                <form method="POST" action="{{ route('risques.update', $r) }}" class="mt-2 space-y-2 text-xs bg-slate-50 p-2 rounded border">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="text" name="description" value="{{ $r->description }}" class="w-full border rounded px-2 py-1" required>
-                                    <div class="flex gap-2">
-                                        <input type="number" name="impact_inherent" min="1" max="5" value="{{ $r->impact_inherent }}" class="w-16 border rounded px-1">
-                                        <input type="number" name="probabilite_inherent" min="1" max="5" value="{{ $r->probabilite_inherent }}" class="w-16 border rounded px-1">
-                                    </div>
-                                    <input type="text" name="proprietaire" value="{{ $r->proprietaire }}" placeholder="Propriétaire" class="w-full border rounded px-2 py-1">
-                                    <input type="text" name="departement" value="{{ $r->departement }}" placeholder="Département" class="w-full border rounded px-2 py-1">
-                                    <input type="date" name="date_revue" value="{{ $r->date_revue?->format('Y-m-d') }}" class="w-full border rounded px-2 py-1">
-                                    <select name="statut_risque" class="w-full border rounded px-2 py-1">
-                                        @foreach(\App\Domain\Risk\Enums\RiskStatus::cases() as $st)
-                                            <option value="{{ $st->value }}" @selected($r->statut_risque === $st->value)>{{ $st->label() }}</option>
-                                        @endforeach
-                                    </select>
-                                    <textarea name="plan_mitigation" rows="2" class="w-full border rounded px-2 py-1" placeholder="Plan de mitigation">{{ $r->plan_mitigation }}</textarea>
-                                    <button type="submit" class="bg-slate-800 text-white px-2 py-1 rounded w-full">Enregistrer</button>
-                                </form>
-                            </details>
-                        @else
-                            <span class="text-xs text-amber-700" title="Risque critique : réservé Risk Manager / Admin">
-                                Verrouillé (critique)
-                            </span>
-                        @endcan
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="10" class="p-4 text-center text-slate-500">Aucun risque pour cet actif.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-</div>
-
 </x-app-layout>

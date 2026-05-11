@@ -1,35 +1,36 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto px-4 py-10 space-y-6">
+    <div class="mx-auto max-w-4xl space-y-6 px-4 py-10">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Recherche</h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Missions visibles pour votre périmètre (minimum 2 caractères).</p>
+            <p class="dgcpt-card-title">Recherche</p>
+            <h1 class="dgcpt-page-title">Missions</h1>
+            <p class="mt-1 text-sm text-[#9FB3C8]">Missions visibles pour votre périmètre (minimum 2 caractères).</p>
         </div>
 
-        <form method="get" action="{{ route('search') }}" class="flex flex-wrap gap-2">
-            <label class="sr-only" for="q">Requête</label>
-            <input id="q" name="q" type="search" value="{{ $term }}"
-                   placeholder="Organisation, description…"
-                   class="min-w-[12rem] flex-1 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100" />
-            <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
-                Rechercher
-            </button>
+        <form method="get" action="{{ route('search') }}" class="dgcpt-filter-bar">
+            <div class="min-w-0 flex-1">
+                <label class="dgcpt-card-title" for="q">Requête</label>
+                <input id="q" name="q" type="search" value="{{ $term }}"
+                       placeholder="Organisation, description…"
+                       class="mt-1 block w-full rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/65 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
+            </div>
+            <button type="submit" class="dgcpt-btn-primary self-end sm:self-auto">Rechercher</button>
         </form>
 
         @if (strlen($term) < 2)
-            <p class="text-sm text-gray-500 dark:text-gray-400">Saisissez au moins 2 caractères pour lancer une recherche.</p>
+            <p class="text-sm text-[#9FB3C8]">Saisissez au moins 2 caractères pour lancer une recherche.</p>
         @elseif ($missions->isEmpty())
-            <p class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+            <div class="dgcpt-surface px-4 py-6 text-center text-sm text-[#9FB3C8]">
                 Aucune mission ne correspond à « {{ $term }} ».
-            </p>
+            </div>
         @else
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div class="dgcpt-table-wrap shadow-sm">
+                <ul class="divide-y divide-[rgba(0,209,255,0.12)]">
                     @foreach ($missions as $m)
-                        <li class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-900/40">
-                            <a href="{{ route('missions.show', $m) }}" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                        <li class="px-4 py-3 transition hover:bg-[#122038]">
+                            <a href="{{ route('missions.show', $m) }}" class="font-semibold text-[#00D1FF] hover:underline">
                                 {{ $m->organisation }}
                             </a>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            <p class="mt-1 text-xs text-[#9FB3C8]">
                                 {{ $m->department?->code ?? '—' }} · {{ $m->mission_status }} · MAJ {{ $m->updated_at?->format('d/m/Y H:i') }}
                             </p>
                         </li>

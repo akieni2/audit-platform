@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="border-b border-gray-100 bg-white dark:border-[rgba(0,209,255,0.18)] dark:bg-[#050816]">
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -72,7 +72,7 @@ Rapports
 
 <x-slot name="trigger">
 
-<button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition">
+<button class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition hover:text-gray-700 focus:outline-none dark:bg-[#10192B] dark:text-[#9FB3C8] dark:hover:bg-[#122038] dark:hover:text-[#E6EEF8]">
 
 <div>{{ Auth::user()->name }}</div>
 
@@ -145,7 +145,7 @@ Déconnexion
 <!-- Mobile Menu -->
 <div class="-me-2 flex items-center sm:hidden">
 
-<button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+<button @click="open = ! open" class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:text-[#9FB3C8] dark:hover:bg-[#122038] dark:hover:text-[#E6EEF8]">
 
 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
 

@@ -1,12 +1,13 @@
 <x-app-layout>
     <div class="py-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <header class="space-y-1">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Nouvel utilisateur</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-                Affectez un <strong>département / pôle</strong> pour l'isolation des données et le tableau de bord.
+            <p class="dgcpt-card-title">IAM</p>
+            <h1 class="dgcpt-page-title">Nouvel utilisateur</h1>
+            <p class="text-sm text-[#9FB3C8]">
+                Affectez un <strong class="text-[#E6EEF8]">département / pôle</strong> pour l'isolation des données et le tableau de bord.
             </p>
             <p>
-                <a href="{{ route('admin.users.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">Retour à la liste</a>
+                <a href="{{ route('admin.users.index') }}" class="dgcpt-link text-sm">Retour à la liste</a>
             </p>
         </header>
 
@@ -48,27 +49,27 @@
             action="{{ route('admin.users.store') }}"
             method="post"
             accept-charset="UTF-8"
-            class="space-y-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm"
+            class="dgcpt-surface space-y-6 p-6 shadow-sm"
         >
             @csrf
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="user-prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
+                    <label for="user-prenom" class="dgcpt-label">Prénom</label>
                     <input
                         id="user-prenom"
                         type="text"
                         name="prenom"
                         value="{{ old('prenom') }}"
                         autocomplete="given-name"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('prenom') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('prenom') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('prenom')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="user-nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="user-nom" class="dgcpt-label">
                         Nom <span class="text-red-600" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -78,7 +79,7 @@
                         value="{{ old('nom') }}"
                         autocomplete="family-name"
                         required
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('nom') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('nom') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('nom')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -87,7 +88,7 @@
             </div>
 
             <div>
-                <label for="user-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label for="user-email" class="dgcpt-label">
                     Email <span class="text-red-600" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -97,7 +98,7 @@
                     value="{{ old('email') }}"
                     autocomplete="username"
                     required
-                    class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('email') border-red-500 ring-1 ring-red-500 @enderror"
+                    class="dgcpt-input @error('email') border-red-500 ring-1 ring-red-500 @enderror"
                 />
                 @error('email')
                     <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -105,22 +106,22 @@
             </div>
 
             <div>
-                <label for="user-telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
+                <label for="user-telephone" class="dgcpt-label">Téléphone</label>
                 <input
                     id="user-telephone"
                     type="text"
                     name="telephone"
                     value="{{ old('telephone') }}"
                     autocomplete="tel"
-                    class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('telephone') border-red-500 ring-1 ring-red-500 @enderror"
+                    class="dgcpt-input @error('telephone') border-red-500 ring-1 ring-red-500 @enderror"
                 />
                 @error('telephone')
                     <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-600 dark:bg-gray-900/40 dark:text-gray-400">
-                <p class="font-medium text-gray-800 dark:text-gray-200">Exigences du mot de passe</p>
+            <div class="rounded-lg border border-[rgba(0,209,255,0.18)] bg-[#10192B] px-3 py-2 text-xs text-[#9FB3C8]">
+                <p class="font-semibold text-[#E6EEF8]">Exigences du mot de passe</p>
                 <ul class="mt-1.5 list-disc ps-4 space-y-0.5">
                     <li>Au moins <strong>{{ config('dgcpt.password_min_length', 8) }} caractères</strong></li>
                     @if (config('dgcpt.password_require_mixed_case'))
@@ -140,7 +141,7 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="user-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="user-password" class="dgcpt-label">
                         Mot de passe <span class="text-red-600" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -150,14 +151,14 @@
                         autocomplete="new-password"
                         required
                         aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('password') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('password') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('password')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="user-password-confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="user-password-confirmation" class="dgcpt-label">
                         Confirmation <span class="text-red-600" aria-hidden="true">*</span>
                     </label>
                     <input
@@ -167,7 +168,7 @@
                         autocomplete="new-password"
                         required
                         aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('password_confirmation') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('password_confirmation') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('password_confirmation')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -177,10 +178,10 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="user-department-id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="user-department-id" class="dgcpt-label">
                         Département / pôle <span class="text-red-600" aria-hidden="true">*</span>
                     </label>
-                    <p id="user-department-hint" class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    <p id="user-department-hint" class="mt-0.5 text-xs text-[#9FB3C8]">
                         Obligatoire pour le périmètre métier et le bandeau d'accueil.
                     </p>
                     <select
@@ -188,7 +189,7 @@
                         name="department_id"
                         @if ($departments->isNotEmpty()) required @endif
                         aria-describedby="user-department-hint"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('department_id') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('department_id') border-red-500 ring-1 ring-red-500 @enderror"
                     >
                         <option value="" @selected(old('department_id') === null || old('department_id') === '')>— Choisir un département —</option>
                         @foreach ($departments as $d)
@@ -202,7 +203,7 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="user-role-id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="user-role-id" class="dgcpt-label">
                         Catégorie <span class="text-red-600" aria-hidden="true">*</span>
                     </label>
                     <p id="user-role-hint" class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Rôle institutionnel (droits et périmètre).</p>
@@ -211,7 +212,7 @@
                         name="role_id"
                         @if ($roles->isNotEmpty()) required @endif
                         aria-describedby="user-role-hint"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('role_id') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('role_id') border-red-500 ring-1 ring-red-500 @enderror"
                     >
                         <option value="" @selected(old('role_id') === null || old('role_id') === '')>— Choisir une catégorie —</option>
                         @foreach ($roles as $r)
@@ -228,26 +229,26 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="user-position" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Poste / fonction</label>
+                    <label for="user-position" class="dgcpt-label">Poste / fonction</label>
                     <input
                         id="user-position"
                         type="text"
                         name="position"
                         value="{{ old('position') }}"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('position') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('position') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('position')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="user-matricule" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Matricule</label>
+                    <label for="user-matricule" class="dgcpt-label">Matricule</label>
                     <input
                         id="user-matricule"
                         type="text"
                         name="matricule"
                         value="{{ old('matricule') }}"
-                        class="mt-1 block w-full rounded-md border border-gray-300 bg-white text-sm shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 @error('matricule') border-red-500 ring-1 ring-red-500 @enderror"
+                        class="dgcpt-input @error('matricule') border-red-500 ring-1 ring-red-500 @enderror"
                     />
                     @error('matricule')
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -263,30 +264,25 @@
                         type="checkbox"
                         name="active"
                         value="1"
-                        class="mt-1 rounded border-gray-300 text-indigo-600 shadow-sm dark:border-gray-600 dark:bg-gray-900"
+                        class="mt-1 h-4 w-4 rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] shadow-sm focus:ring-[#00D1FF]"
                         @checked(old('active', '1') === '1')
                     />
-                    <label for="user-active" class="text-sm text-gray-700 dark:text-gray-300">Compte actif</label>
+                    <label for="user-active" class="text-sm font-medium text-[#9FB3C8]">Compte actif</label>
                 </div>
                 @error('active')
                     <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="flex flex-wrap gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+            <div class="flex flex-wrap gap-3 border-t border-[rgba(0,209,255,0.15)] pt-4">
                 <button
                     type="submit"
                     @if ($departments->isEmpty() || $roles->isEmpty()) disabled @endif
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="dgcpt-btn-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     Créer
                 </button>
-                <a
-                    href="{{ route('admin.users.index') }}"
-                    class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-                >
-                    Annuler
-                </a>
+                <a href="{{ route('admin.users.index') }}" class="dgcpt-btn-outline">Annuler</a>
             </div>
         </form>
     </div>

@@ -1,28 +1,30 @@
 <x-app-layout>
-    <div class="py-10 max-w-3xl mx-auto px-4 space-y-8">
+    <div class="mx-auto max-w-3xl space-y-8 px-4 py-10">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Approbation</p>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Demande : {{ $user->displayName() }}</h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $user->email }}</p>
+            <p class="dgcpt-card-title">Approbation</p>
+            <h1 class="dgcpt-page-title">Demande : {{ $user->displayName() }}</h1>
+            <p class="mt-1 text-sm text-[#9FB3C8]">{{ $user->email }}</p>
         </div>
 
-        <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm space-y-2 text-sm">
-            <p><span class="text-gray-500 dark:text-gray-400">Département demandé :</span>
-                <strong>{{ $user->registrationRequestedDepartment?->code ?? '—' }}</strong>
-                — {{ $user->registrationRequestedDepartment?->name ?? '—' }}</p>
-            <p><span class="text-gray-500 dark:text-gray-400">Fonction :</span> {{ $user->fonction ?? $user->position ?? '—' }}</p>
-            <p><span class="text-gray-500 dark:text-gray-400">Matricule :</span> {{ $user->matricule ?? '—' }}</p>
-            <p><span class="text-gray-500 dark:text-gray-400">Téléphone :</span> {{ $user->telephone ?? '—' }}</p>
+        <div class="dgcpt-surface space-y-2 p-6 text-sm shadow-sm">
+            <p class="text-[#E6EEF8]">
+                <span class="text-[#9FB3C8]">Département demandé :</span>
+                <strong class="font-semibold text-[#E6EEF8]">{{ $user->registrationRequestedDepartment?->code ?? '—' }}</strong>
+                — {{ $user->registrationRequestedDepartment?->name ?? '—' }}
+            </p>
+            <p><span class="text-[#9FB3C8]">Fonction :</span> <span class="text-[#E6EEF8]">{{ $user->fonction ?? $user->position ?? '—' }}</span></p>
+            <p><span class="text-[#9FB3C8]">Matricule :</span> <span class="text-[#E6EEF8]">{{ $user->matricule ?? '—' }}</span></p>
+            <p><span class="text-[#9FB3C8]">Téléphone :</span> <span class="text-[#E6EEF8]">{{ $user->telephone ?? '—' }}</span></p>
         </div>
 
-        <form method="post" action="{{ route('admin.enrollments.approve', $user) }}" class="space-y-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <form method="post" action="{{ route('admin.enrollments.approve', $user) }}" class="dgcpt-surface space-y-6 p-6 shadow-sm">
             @csrf
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Approuver et activer</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Attribuez le rôle institutionnel et le département réel d'affectation.</p>
+            <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">Approuver et activer</h2>
+            <p class="text-sm text-[#9FB3C8]">Attribuez le rôle institutionnel et le département réel d'affectation.</p>
 
             <div>
                 <x-input-label for="role_id" value="Rôle institutionnel" />
-                <select id="role_id" name="role_id" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 shadow-sm">
+                <select id="role_id" name="role_id" required class="dgcpt-select shadow-sm">
                     <option value="">— Choisir —</option>
                     @foreach ($roles as $role)
                         <option value="{{ $role->id }}" @selected(old('role_id') == $role->id)>{{ $role->name }} ({{ $role->slug }})</option>
@@ -33,7 +35,7 @@
 
             <div>
                 <x-input-label for="department_id" value="Département / Pôle d'affectation" />
-                <select id="department_id" name="department_id" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 shadow-sm">
+                <select id="department_id" name="department_id" required class="dgcpt-select shadow-sm">
                     <option value="">— Choisir —</option>
                     @foreach ($departments as $dept)
                         <option value="{{ $dept->id }}" @selected(old('department_id', $user->registration_requested_department_id) == $dept->id)>
@@ -46,17 +48,15 @@
 
             <div class="flex flex-wrap gap-3">
                 <x-primary-button type="submit">Approuver et activer</x-primary-button>
-                <a href="{{ route('admin.enrollments.index') }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900">
-                    Annuler
-                </a>
+                <a href="{{ route('admin.enrollments.index') }}" class="dgcpt-btn-outline">Annuler</a>
             </div>
         </form>
 
-        <form method="post" action="{{ route('admin.enrollments.reject', $user) }}" class="rounded-lg border border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 p-6" onsubmit="return confirm('Rejeter définitivement cette demande ?');">
+        <form method="post" action="{{ route('admin.enrollments.reject', $user) }}" class="rounded-xl border border-[rgba(255,90,90,0.45)] bg-[#10192B] p-6 shadow-[0_8px_28px_rgba(0,0,0,0.28)]" onsubmit="return confirm('Rejeter définitivement cette demande ?');">
             @csrf
-            <h2 class="text-lg font-semibold text-red-900 dark:text-red-100">Rejeter la demande</h2>
-            <p class="mt-1 text-sm text-red-800 dark:text-red-200">Le demandeur ne pourra pas se connecter.</p>
-            <x-primary-button type="submit" class="mt-4 !bg-red-700 hover:!bg-red-600">Rejeter</x-primary-button>
+            <h2 class="text-base font-bold uppercase tracking-wider text-[#FF5A5A]">Rejeter la demande</h2>
+            <p class="mt-1 text-sm text-[#9FB3C8]">Le demandeur ne pourra pas se connecter.</p>
+            <x-primary-button type="submit" class="mt-4 !border-[rgba(255,90,90,0.5)] !bg-[#7f1d1d] hover:!bg-[#991b1b]">Rejeter</x-primary-button>
         </form>
     </div>
 </x-app-layout>

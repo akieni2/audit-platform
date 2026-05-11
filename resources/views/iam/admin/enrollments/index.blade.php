@@ -1,40 +1,41 @@
 <x-app-layout>
-    <div class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2 sm:px-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Demandes d'enrôlement</h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Validation Super Admin — comptes issus de l'inscription publique (aucun accès avant approbation).
+                <p class="dgcpt-card-title">Super administration</p>
+                <h1 class="dgcpt-page-title">Demandes d'enrôlement</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">
+                    Validation — comptes issus de l'inscription publique (aucun accès avant approbation).
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('admin.enrollments.index', ['status' => 'pending']) }}"
-                   class="rounded-md px-3 py-2 text-sm font-semibold {{ ($status ?? 'pending') === 'pending' ? 'bg-indigo-600 text-white' : 'border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200' }}">
+                   class="rounded-lg px-3 py-2 text-sm font-semibold ring-1 transition {{ ($status ?? 'pending') === 'pending' ? 'bg-[#122038] text-[#E6EEF8] ring-[rgba(0,209,255,0.45)]' : 'border border-[rgba(0,209,255,0.18)] bg-[#0B1220] text-[#9FB3C8] hover:bg-[#122038]' }}">
                     En attente
                 </a>
                 <a href="{{ route('admin.enrollments.index', ['status' => 'rejected']) }}"
-                   class="rounded-md px-3 py-2 text-sm font-semibold {{ ($status ?? '') === 'rejected' ? 'bg-indigo-600 text-white' : 'border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200' }}">
+                   class="rounded-lg px-3 py-2 text-sm font-semibold ring-1 transition {{ ($status ?? '') === 'rejected' ? 'bg-[#122038] text-[#E6EEF8] ring-[rgba(0,209,255,0.45)]' : 'border border-[rgba(0,209,255,0.18)] bg-[#0B1220] text-[#9FB3C8] hover:bg-[#122038]' }}">
                     Rejetées
                 </a>
                 <a href="{{ route('admin.enrollments.index', ['status' => 'all']) }}"
-                   class="rounded-md px-3 py-2 text-sm font-semibold {{ ($status ?? '') === 'all' ? 'bg-indigo-600 text-white' : 'border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200' }}">
+                   class="rounded-lg px-3 py-2 text-sm font-semibold ring-1 transition {{ ($status ?? '') === 'all' ? 'bg-[#122038] text-[#E6EEF8] ring-[rgba(0,209,255,0.45)]' : 'border border-[rgba(0,209,255,0.18)] bg-[#0B1220] text-[#9FB3C8] hover:bg-[#122038]' }}">
                     Toutes
                 </a>
-                <a href="{{ route('admin.home') }}" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline self-center">
+                <a href="{{ route('admin.home') }}" class="self-center text-sm font-semibold text-[#00D1FF] hover:underline">
                     Console admin
                 </a>
             </div>
         </div>
 
         @if (session('status'))
-            <div class="rounded-md bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800">
+            <div class="dgcpt-surface border-[#00A86B]/35 px-4 py-3 text-sm text-[#E6EEF8] ring-1 ring-[rgba(0,168,107,0.25)]">
                 {{ session('status') }}
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="rounded-md bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800">
-                <ul class="list-disc ms-5 space-y-1">
+            <div class="dgcpt-surface border-[#FF5A5A]/40 px-4 py-3 text-sm text-[#FF5A5A] ring-1 ring-[rgba(255,90,90,0.2)]">
+                <ul class="ms-5 list-disc space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -42,54 +43,54 @@
             </div>
         @endif
 
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
+        <div class="dgcpt-table-wrap shadow-sm">
+            <table class="dgcpt-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Nom</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Prénom</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Email</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Téléphone</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Département demandé</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Fonction</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Matricule</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Date</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Statut</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100"></th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Département demandé</th>
+                        <th>Fonction</th>
+                        <th>Matricule</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody>
                     @forelse ($users as $u)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40">
-                            <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{{ $u->name }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $u->prenom ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $u->email }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $u->telephone ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                        <tr>
+                            <td class="font-semibold text-[#E6EEF8]">{{ $u->name }}</td>
+                            <td class="text-[#9FB3C8]">{{ $u->prenom ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">{{ $u->email }}</td>
+                            <td class="text-[#9FB3C8]">{{ $u->telephone ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">
                                 {{ $u->registrationRequestedDepartment?->code ?? '—' }}
                             </td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $u->fonction ?? $u->position ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $u->matricule ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $u->created_at?->format('d/m/Y H:i') }}</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold
-                                    {{ $u->approval_status === 'pending' ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100' : '' }}
-                                    {{ $u->approval_status === 'rejected' ? 'bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-100' : '' }}
-                                    {{ $u->approval_status === 'approved' ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100' : '' }}">
+                            <td class="text-[#9FB3C8]">{{ $u->fonction ?? $u->position ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">{{ $u->matricule ?? '—' }}</td>
+                            <td class="text-[#9FB3C8]">{{ $u->created_at?->format('d/m/Y H:i') }}</td>
+                            <td>
+                                <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-bold uppercase tracking-wide ring-1
+                                    {{ $u->approval_status === 'pending' ? 'bg-[#10192B] text-[#F4D000] ring-[rgba(244,208,0,0.35)]' : '' }}
+                                    {{ $u->approval_status === 'rejected' ? 'bg-[#10192B] text-[#FF5A5A] ring-[rgba(255,90,90,0.35)]' : '' }}
+                                    {{ $u->approval_status === 'approved' ? 'bg-[#10192B] text-[#00A86B] ring-[rgba(0,168,107,0.35)]' : '' }}">
                                     {{ $u->approval_status }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3">
+                            <td>
                                 @if ($u->isPendingApproval())
-                                    <a href="{{ route('admin.enrollments.review', $u) }}" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Traiter</a>
+                                    <a href="{{ route('admin.enrollments.review', $u) }}" class="font-semibold text-[#00D1FF] hover:underline">Traiter</a>
                                 @else
-                                    —
+                                    <span class="text-[#9FB3C8]">—</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Aucune demande dans cette liste.</td>
+                            <td colspan="10" class="py-10 text-center text-[#9FB3C8]">Aucune demande dans cette liste.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -97,7 +98,7 @@
         </div>
 
         @if ($users->hasPages())
-            <div>{{ $users->links() }}</div>
+            <div class="text-[#9FB3C8]">{{ $users->links() }}</div>
         @endif
     </div>
 </x-app-layout>

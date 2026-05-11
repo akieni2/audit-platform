@@ -2,7 +2,7 @@
 
 <div {{ $attributes->merge(['class' => 'dgcpt-panel']) }}>
     @if ($title)
-        <h2 class="text-base font-bold uppercase tracking-widest text-slate-800 dark:text-slate-100 mb-1">{{ $title }}</h2>
+        <h2 class="mb-2 text-base font-bold uppercase tracking-wider text-[#E6EEF8]">{{ $title }}</h2>
     @endif
     {{ $slot }}
 </div>

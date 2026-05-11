@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-base font-bold uppercase tracking-wider text-[#E6EEF8]">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm text-[#9FB3C8]">
             {{ __("Update your account's profile information and email address.") }}
         </p>
     </header>
@@ -20,14 +20,14 @@
         @if ($user->profile_photo)
             <div class="flex items-center gap-3">
                 <img src="{{ asset('storage/'.$user->profile_photo) }}" alt="" class="h-14 w-14 rounded-full object-cover ring-1 ring-gray-200 dark:ring-gray-600" />
-                <p class="text-xs text-gray-500 dark:text-gray-400">Photo actuelle</p>
+                <p class="text-xs text-[#9FB3C8]">Photo actuelle</p>
             </div>
         @endif
 
         <div>
             <x-input-label for="profile_photo" value="Photo de profil" />
             <input id="profile_photo" name="profile_photo" type="file" accept="image/*"
-                   class="mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 dark:file:bg-gray-700" />
+                   class="mt-1 block w-full text-sm text-[#9FB3C8] file:mr-4 file:rounded-lg file:border-0 file:bg-[#10192B] file:px-3 file:py-2 file:text-[#E6EEF8] file:ring-1 file:ring-[rgba(0,209,255,0.2)]" />
             <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
         </div>
 
@@ -53,7 +53,7 @@
                     <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
                         {{ __('Your email address is unverified.') }}
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                        <button form="send-verification" class="rounded-md text-sm font-semibold text-[#00D1FF] underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-[#00D1FF] focus:ring-offset-2 focus:ring-offset-[#0B1220]">
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>
