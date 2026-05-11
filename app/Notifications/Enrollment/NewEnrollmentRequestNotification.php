@@ -3,15 +3,11 @@
 namespace App\Notifications\Enrollment;
 
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewEnrollmentRequestNotification extends Notification implements ShouldQueue
+class NewEnrollmentRequestNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(
         public User $applicant,
     ) {}
