@@ -48,11 +48,11 @@
         <div class="inline-flex items-center gap-2 rounded-full border border-dgcpt-cyan/25 bg-dgcpt-blue/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-dgcpt-cyan">
             Centre de contrôle institutionnel
         </div>
-        <h1 class="text-3xl font-extrabold uppercase leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.35rem] lg:leading-[1.12]">
+        <h1 class="text-3xl font-extrabold uppercase leading-tight tracking-tight text-[#0B1220] sm:text-4xl lg:text-[2.35rem] lg:leading-[1.12]">
             Plateforme d’audit,<br>
             de gouvernance<br>
             et de suivi de performance<br>
-            <span class="text-dgcpt-cyan">du Trésor public gabonais</span>
+            <span class="text-[#00D1FF]">du Trésor public gabonais</span>
         </h1>
         <p class="max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
             Centre intelligent de contrôle, d’audit, de gouvernance et de pilotage de la performance institutionnelle.
