@@ -29,7 +29,7 @@
         <div class="mt-4">
             <x-input-label for="registration_requested_department_id" value="Département / Pôle demandé" />
             <select id="registration_requested_department_id" name="registration_requested_department_id" required
-                    class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    class="block mt-1 w-full rounded-xl border border-white/10 bg-slate-950/60 py-2.5 text-slate-100 focus:border-dgcpt-cyan/50 focus:outline-none focus:ring-2 focus:ring-dgcpt-cyan/30">
                 <option value="" disabled {{ old('registration_requested_department_id') ? '' : 'selected' }}>— Choisir —</option>
                 @foreach ($departments as $dept)
                     <option value="{{ $dept->id }}" @selected((string) old('registration_requested_department_id') === (string) $dept->id)>
@@ -65,7 +65,7 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+            <a class="text-sm font-semibold text-dgcpt-cyan underline-offset-4 hover:underline" href="{{ route('login') }}">
                 Déjà inscrit ?
             </a>
 

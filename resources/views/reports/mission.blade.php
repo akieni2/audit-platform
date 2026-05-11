@@ -19,9 +19,14 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
 </head>
 <body>
 
-<div class="header-band">
-    <div style="font-size: 11px; font-weight: 700;">RÉPUBLIQUE — RAPPORT D'AUDIT INSTITUTIONNEL</div>
-    <div class="sub">DGCPT · Traçabilité workflow · Document confidentiel</div>
+<div class="header-band" style="display:flex;align-items:center;justify-content:center;gap:12px;">
+    @if (file_exists(public_path('assets/branding/dgcpt-logo.png')))
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/branding/dgcpt-logo.png'))) }}" alt="DGCPT" style="height:48px;width:auto;">
+    @endif
+    <div>
+        <div style="font-size: 11px; font-weight: 700;">RÉPUBLIQUE — RAPPORT D'AUDIT INSTITUTIONNEL</div>
+        <div class="sub">DGCPT · Trésor public gabonais · Traçabilité workflow · Document confidentiel</div>
+    </div>
 </div>
 
 <h1>RAPPORT D'AUDIT</h1>

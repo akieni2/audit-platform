@@ -1,12 +1,18 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    @php
+        $usersActive = \App\Models\User::query()->where('active', true)->count();
+        $perfRate = $missions > 0 ? min(100, (int) round(($missionsValideesNationales / $missions) * 100)) : 0;
+        $conformite = $risques > 0 ? max(0, min(100, (int) round(100 - ($risquesCritiques / $risques) * 100))) : 100;
+    @endphp
+
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <header class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Pilotage d?partemental</p>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Tableau de bord audit</h1>
+            <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-dgcpt-cyan/90">Pilotage d?partemental</p>
+            <h1 class="text-2xl font-extrabold uppercase tracking-wide text-slate-900 dark:text-white">Centre de contr?le ? tableau de bord</h1>
         </header>
 
         @if(isset($departments) && $departments->isNotEmpty())
-            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-gray-800">
+            <x-ui.dashboard-panel>
                 <p class="text-sm text-slate-600 dark:text-slate-300">
                     Rattachement :
                     @if(auth()->user()?->department)
@@ -18,10 +24,10 @@
                 </p>
 
                 @if(!empty($focusedDepartment) && auth()->user()?->canViewAllInstitutionalData())
-                    <div class="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
+                    <div class="mt-3 rounded-lg border border-dgcpt-cyan/25 bg-dgcpt-blue/20 px-3 py-2 text-sm text-slate-100">
                         <strong>Vue p?le :</strong> {{ $focusedDepartment->code }} ? {{ $focusedDepartment->name }}.
                         Indicateurs <em>limit?s ? ce d?partement</em>.
-                        <a href="{{ route('dashboard', ['department' => 'all']) }}" class="ml-2 font-semibold text-blue-700 underline dark:text-blue-300">Vue globale</a>
+                        <a href="{{ route('dashboard', ['department' => 'all']) }}" class="ml-2 font-semibold text-dgcpt-cyan underline">Vue globale</a>
                     </div>
                 @endif
 
@@ -37,84 +43,51 @@
                     @foreach($departments as $dept)
                         @php $isFocus = isset($dashboardDepartmentFocusId) && (int) $dashboardDepartmentFocusId === (int) $dept->id; @endphp
                         <a href="{{ route('dashboard', ['department' => $dept->id]) }}"
-                           class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition
-                               {{ $isFocus ? 'bg-indigo-600 text-white shadow' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600' }}">
+                           class="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-semibold transition
+                               {{ $isFocus ? 'bg-dgcpt-cyan/20 text-white ring-1 ring-dgcpt-cyan/50' : 'bg-slate-200/80 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700' }}">
                             <span class="font-mono">{{ $dept->code }}</span>
                             <span class="opacity-90">{{ \Illuminate\Support\Str::limit($dept->name, 36) }}</span>
                         </a>
                     @endforeach
                     @if(auth()->user()?->canViewAllInstitutionalData())
                         <a href="{{ route('dashboard', ['department' => 'all']) }}"
-                           class="inline-flex rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800">
+                           class="inline-flex rounded-xl border border-dgcpt-cyan/30 px-3 py-1.5 text-sm text-dgcpt-cyan hover:bg-dgcpt-cyan/10">
                             Vue globale
                         </a>
                     @endif
                 </div>
-            </div>
+            </x-ui.dashboard-panel>
         @endif
 
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <div class="rounded-xl border border-slate-200 bg-slate-900 p-5 text-white shadow-sm dark:border-slate-700">
-                <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Missions</p>
-                <p class="mt-2 text-4xl font-bold tabular-nums">{{ $missions }}</p>
-            </div>
-            <div class="rounded-xl border border-blue-100 bg-blue-600 p-5 text-white shadow-sm">
-                <p class="text-xs font-medium uppercase tracking-wide text-blue-100">Risques</p>
-                <p class="mt-2 text-4xl font-bold tabular-nums">{{ $risques }}</p>
-            </div>
-            <div class="rounded-xl border border-red-200 bg-red-700 p-5 text-white shadow-sm">
-                <p class="text-xs font-medium uppercase tracking-wide text-red-100">Risques critiques</p>
-                <p class="mt-2 text-4xl font-bold tabular-nums">{{ $risquesCritiques }}</p>
-            </div>
-            <div class="rounded-xl border border-orange-200 bg-orange-500 p-5 text-white shadow-sm">
-                <p class="text-xs font-medium uppercase tracking-wide text-orange-50">Actions ouvertes</p>
-                <p class="mt-2 text-4xl font-bold tabular-nums">{{ $actionsOuvertes }}</p>
-            </div>
-            <div class="rounded-xl border border-slate-700 bg-slate-950 p-5 text-white shadow-sm">
-                <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Actions en retard</p>
-                <p class="mt-2 text-4xl font-bold tabular-nums">{{ $actionsRetard }}</p>
-            </div>
+        <div class="dgcpt-kpi-grid">
+            <x-ui.kpi-card label="Audits en cours" :value="$missionsEnCours" accent="cyan" />
+            <x-ui.kpi-card label="Risques critiques" :value="$risquesCritiques" accent="danger" />
+            <x-ui.kpi-card label="Missions valid?es" :value="$missionsValideesNationales" accent="green" />
+            <x-ui.kpi-card label="Conformit? (synth?se)" :value="$conformite.'%'" accent="yellow" />
+            <x-ui.kpi-card label="Utilisateurs actifs" :value="$usersActive" accent="violet" />
+            <x-ui.kpi-card label="Actions correctives ouvertes" :value="$actionsOuvertes" accent="cyan" />
+            <x-ui.kpi-card label="Taux de validation" :value="$perfRate.'%'" accent="green" />
         </div>
 
         @if(isset($missionsEnCours))
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-xl bg-sky-500 p-4 text-white shadow">
-                    <p class="text-xs opacity-90">Missions en cours</p>
-                    <p class="mt-1 text-3xl font-bold tabular-nums">{{ $missionsEnCours }}</p>
-                </div>
-                <div class="rounded-xl bg-slate-500 p-4 text-white shadow">
-                    <p class="text-xs opacity-90">Brouillons</p>
-                    <p class="mt-1 text-3xl font-bold tabular-nums">{{ $missionsBrouillon }}</p>
-                </div>
-                <div class="rounded-xl bg-emerald-600 p-4 text-white shadow">
-                    <p class="text-xs opacity-90">Valid?es IS / COPRI</p>
-                    <p class="mt-1 text-3xl font-bold tabular-nums">{{ $missionsValideesNationales }}</p>
-                </div>
-                <div class="rounded-xl bg-violet-600 p-4 text-white shadow">
-                    <p class="text-xs opacity-90">Entretiens terrain</p>
-                    <p class="mt-1 text-3xl font-bold tabular-nums">{{ $entretiensTerrain }}</p>
-                </div>
+            <div class="dgcpt-kpi-grid">
+                <x-ui.kpi-card label="Missions (total)" :value="$missions" />
+                <x-ui.kpi-card label="Brouillons" :value="$missionsBrouillon" />
+                <x-ui.kpi-card label="Entretiens terrain" :value="$entretiensTerrain" accent="violet" />
+                <x-ui.kpi-card label="Actions en retard" :value="$actionsRetard" accent="danger" />
             </div>
         @endif
 
         <div class="grid gap-6 lg:grid-cols-2">
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-gray-800">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Cr?ation de missions (12 semaines)</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Volume hebdomadaire sur votre p?rim?tre.</p>
-                <div class="mt-4 h-64">
-                    <canvas id="missionTrendChart"></canvas>
-                </div>
-            </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-gray-800">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">R?partition des risques par service</h2>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comptage agr?g?.</p>
-                <div class="mt-4 h-64">
-                    <canvas id="riskChart"></canvas>
-                </div>
-            </div>
+            <x-ui.chart-card title="Cr?ation de missions (12 semaines)" subtitle="Volume hebdomadaire sur votre p?rim?tre.">
+                <canvas id="missionTrendChart"></canvas>
+            </x-ui.chart-card>
+            <x-ui.chart-card title="R?partition des risques par service" subtitle="Comptage agr?g?.">
+                <canvas id="riskChart"></canvas>
+            </x-ui.chart-card>
         </div>
 
-        <div class="rounded-lg border px-4 py-3 text-sm font-medium {{ $risquesCritiques > 0 ? 'border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100' : 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100' }}">
+        <div class="rounded-xl border px-4 py-3 text-sm font-semibold {{ $risquesCritiques > 0 ? 'border-red-500/40 bg-red-950/40 text-red-100' : 'border-dgcpt-green/35 bg-dgcpt-green/10 text-emerald-100' }}">
             @if($risquesCritiques > 0)
                 Alerte : {{ $risquesCritiques }} risque(s) critique(s) sur le p?rim?tre.
             @else
@@ -138,8 +111,8 @@
                         datasets: [{
                             label: 'Missions cr??es',
                             data: trendData,
-                            borderColor: '#6366f1',
-                            backgroundColor: 'rgba(99, 102, 241, 0.12)',
+                            borderColor: '#00D1FF',
+                            backgroundColor: 'rgba(0, 209, 255, 0.12)',
                             fill: true,
                             tension: 0.35,
                         }],
@@ -149,7 +122,8 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: {
-                            y: { beginAtZero: true, ticks: { precision: 0 } },
+                            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(148,163,184,0.15)' } },
+                            x: { grid: { display: false } },
                         },
                     },
                 });
@@ -164,14 +138,19 @@
                         datasets: [{
                             label: 'Risques',
                             data: riskData,
-                            backgroundColor: '#2563eb',
+                            backgroundColor: '#0A2A66',
+                            borderColor: '#00A86B',
+                            borderWidth: 1,
                         }],
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(148,163,184,0.15)' } },
+                            x: { grid: { display: false } },
+                        },
                     },
                 });
             });

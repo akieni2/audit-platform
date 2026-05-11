@@ -14,7 +14,16 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', 'DM Sans', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                dgcpt: {
+                    blue: '#0A2A66',
+                    green: '#00A86B',
+                    yellow: '#F4D000',
+                    ink: '#050816',
+                    cyan: '#00D1FF',
+                },
             },
         },
     },
