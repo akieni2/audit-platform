@@ -9,8 +9,6 @@ use App\Notifications\Enrollment\NewEnrollmentRequestNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -35,34 +33,44 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:50'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email',
+            ],
             'registration_requested_department_id' => [
                 'required',
                 'integer',
-                Rule::exists('departments', 'id')->where('active', true),
+                'exists:departments,id',
             ],
             'fonction' => ['required', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:100'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+            ],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'prenom' => $request->prenom,
-            'telephone' => $request->telephone,
-            'email' => $request->email,
-            'password' => $request->validated('password'),
+            'name' => $validated['name'],
+            'prenom' => $validated['prenom'],
+            'telephone' => $validated['telephone'] ?? null,
+            'email' => strtolower($validated['email']),
+            'password' => $validated['password'],
             'password_changed_at' => now(),
             'must_change_password' => false,
             'password_expires_at' => now()->addDays((int) config('dgcpt.password_rotation_days', 90)),
-            'fonction' => $request->fonction,
-            'position' => $request->fonction,
-            'matricule' => $request->matricule,
-            'registration_requested_department_id' => $deptId,
+            'fonction' => $validated['fonction'],
+            'position' => $validated['fonction'],
+            'matricule' => $validated['matricule'] ?? null,
+            'registration_requested_department_id' => $validated['registration_requested_department_id'],
             'active' => false,
             'approval_status' => 'pending',
             'role_id' => null,
