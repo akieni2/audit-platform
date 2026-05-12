@@ -45,4 +45,12 @@ class UserPolicy
         return $actor->id === $model->id
             && ! $model->isProtectedSystemAdministrator();
     }
+
+    /**
+     * Suppression IAM (soft delete) — réservée aux super administrateurs institutionnels.
+     */
+    public function deleteFromAdministration(User $actor, User $model): bool
+    {
+        return $actor->isInstitutionalSuperAdmin();
+    }
 }

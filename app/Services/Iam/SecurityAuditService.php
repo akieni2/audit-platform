@@ -134,6 +134,21 @@ class SecurityAuditService
         );
     }
 
+    public function userSoftDeleted(User $actor, User $target, Request $request): AuditLog
+    {
+        return $this->log(
+            'user_soft_deleted',
+            'iam',
+            'Compte IAM supprimé (soft) — accès révoqué, traces conservées — '.$target->email,
+            $actor,
+            $request,
+            [
+                'target_user_id' => $target->id,
+                'deleted_by' => $actor->id,
+            ],
+        );
+    }
+
     public function permissionsUpdated(User $actor, User $target, Request $request, array $context = []): AuditLog
     {
         return $this->log(

@@ -33,7 +33,7 @@
             </div>
         @endif
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div class="dgcpt-surface p-4 shadow-sm">
                 <p class="dgcpt-card-title">Actifs</p>
                 <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['active'] }}</p>
@@ -41,6 +41,10 @@
             <div class="dgcpt-surface p-4 shadow-sm">
                 <p class="dgcpt-card-title">Désactivés</p>
                 <p class="mt-2 text-3xl font-bold tabular-nums text-[#E6EEF8]">{{ $stats['inactive'] }}</p>
+            </div>
+            <div class="dgcpt-surface border-[#FF5A5A]/25 p-4 shadow-sm ring-1 ring-[rgba(255,90,90,0.12)]">
+                <p class="dgcpt-card-title text-[#FF5A5A]/90">Supprimés IAM</p>
+                <p class="mt-2 text-3xl font-bold tabular-nums text-[#FF5A5A]">{{ $stats['deleted'] }}</p>
             </div>
             <div class="dgcpt-surface p-4 shadow-sm sm:col-span-2">
                 <p class="dgcpt-card-title mb-2">Connexions récentes</p>
@@ -97,9 +101,18 @@
                     @endforeach
                 </select>
             </div>
+            <div>
+                <label class="dgcpt-card-title mb-1 block">Vue annuaire</label>
+                <select name="account_view" class="block rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]">
+                    <option value="" @selected(($filters['account_view'] ?? '') === '')>Tous (non supprimés)</option>
+                    <option value="active" @selected(($filters['account_view'] ?? '') === 'active')>Actifs seulement</option>
+                    <option value="inactive" @selected(($filters['account_view'] ?? '') === 'inactive')>Désactivés seulement</option>
+                    <option value="deleted" @selected(($filters['account_view'] ?? '') === 'deleted')>Supprimés (IAM)</option>
+                </select>
+            </div>
             <label class="inline-flex items-center gap-2 text-sm text-[#9FB3C8]">
                 <input type="checkbox" name="inactive_only" value="1" @checked(!empty($filters['inactive_only'])) class="rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" />
-                Désactivés seulement
+                Désactivés (ancien filtre)
             </label>
             <button type="submit" class="rounded-xl bg-[#10192B] px-4 py-2 text-sm font-bold uppercase tracking-wider text-[#E6EEF8] ring-1 ring-[rgba(0,209,255,0.25)] hover:bg-[#122038]">Filtrer</button>
             <a href="{{ route('admin.users.index') }}" class="dgcpt-link py-2 text-sm">Réinitialiser</a>
@@ -113,6 +126,10 @@
                         <th>Département</th>
                         <th>Catégorie</th>
                         <th>Statut</th>
+                        @if(($filters['account_view'] ?? '') === 'deleted')
+                            <th>Supprimé le</th>
+                            <th>Supprimé par</th>
+                        @endif
                         <th class="text-right">Actions</th>
                     </tr>
                 </thead>
@@ -138,30 +155,85 @@
                                 @endif
                             </td>
                             <td>
-                                @if ($u->active)
+                                @if ($u->trashed())
+                                    <span class="inline-flex rounded-lg border border-[rgba(255,90,90,0.35)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#FF5A5A]">Supprimé IAM</span>
+                                @elseif ($u->active)
                                     <span class="inline-flex rounded-lg border border-[rgba(0,168,107,0.35)] bg-[#0B1220] px-2 py-0.5 text-xs font-semibold text-[#00A86B]">Actif</span>
                                 @else
                                     <span class="inline-flex rounded-lg border border-[rgba(148,163,184,0.25)] bg-[#10192B] px-2 py-0.5 text-xs font-semibold text-[#9FB3C8]">Désactivé</span>
                                 @endif
                             </td>
+                            @if(($filters['account_view'] ?? '') === 'deleted')
+                                <td class="whitespace-nowrap text-xs text-[#9FB3C8]">{{ $u->deleted_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                                <td class="text-xs text-[#9FB3C8]">{{ $u->deletedBy?->displayName() ?? '—' }}</td>
+                            @endif
                             <td class="space-x-2 whitespace-nowrap text-right">
-                                <a href="{{ route('admin.users.edit', $u) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
-                                @if ($u->active && auth()->id() !== $u->id)
-                                    <form method="post" action="{{ route('admin.users.deactivate', $u) }}" class="inline" onsubmit="return confirm('Désactiver cet utilisateur ?');">
+                                @unless($u->trashed())
+                                    <a href="{{ route('admin.users.edit', $u) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
+                                    @if ($u->active && auth()->id() !== $u->id)
+                                        <form method="post" action="{{ route('admin.users.deactivate', $u) }}" class="inline" onsubmit="return confirm('Désactiver cet utilisateur ?');">
+                                            @csrf
+                                            <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Désactiver</button>
+                                        </form>
+                                    @endif
+                                    <form method="post" action="{{ route('admin.users.password-reset', $u) }}" class="inline">
                                         @csrf
-                                        <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Désactiver</button>
+                                        <button type="submit" class="text-xs font-semibold text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Reset MDP</button>
                                     </form>
-                                @endif
-                                <form method="post" action="{{ route('admin.users.password-reset', $u) }}" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-xs font-semibold text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Reset MDP</button>
-                                </form>
+                                    @can('deleteFromAdministration', $u)
+                                        @if (auth()->id() !== $u->id)
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center gap-1 text-xs font-semibold text-[#FF5A5A] hover:underline"
+                                                title="Supprimer le compte (soft delete)"
+                                                x-data
+                                                @click="$dispatch('open-modal', 'confirm-delete-user-{{ $u->id }}')"
+                                            >
+                                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12zM10 11v6M14 11v6"/></svg>
+                                                Supprimer
+                                            </button>
+                                        @endif
+                                    @endcan
+                                @endunless
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+
+        @foreach ($users as $u)
+            @can('deleteFromAdministration', $u)
+                @if (auth()->id() !== $u->id && ! $u->trashed())
+                    <x-modal name="confirm-delete-user-{{ $u->id }}" maxWidth="md" focusable>
+                        <form method="post" action="{{ route('admin.users.destroy', $u) }}" class="p-6">
+                            @csrf
+                            @method('DELETE')
+                            <div class="flex items-start gap-3">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FF5A5A]/15 text-[#FF5A5A]" aria-hidden="true">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12zM10 11v6M14 11v6"/></svg>
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-lg font-bold text-[#E6EEF8]">Supprimer définitivement l’accès</h3>
+                                    <p class="mt-2 text-sm leading-relaxed text-[#9FB3C8]">
+                                        Cette action supprimera définitivement l’accès utilisateur pour <strong class="text-[#E6EEF8]">{{ $u->displayName() }}</strong>.
+                                        Les traces institutionnelles et historiques seront conservées.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-white/10 pt-4">
+                                <button type="button" class="rounded-lg border border-[rgba(0,209,255,0.25)] bg-[#10192B] px-4 py-2 text-sm font-semibold text-[#E6EEF8] hover:bg-[#122038]" @click="$dispatch('close-modal', 'confirm-delete-user-{{ $u->id }}')">
+                                    Annuler
+                                </button>
+                                <button type="submit" class="rounded-lg border border-[rgba(255,90,90,0.45)] bg-[#7f1d1d] px-4 py-2 text-sm font-bold text-white hover:bg-[#991b1b]">
+                                    Supprimer définitivement
+                                </button>
+                            </div>
+                        </form>
+                    </x-modal>
+                @endif
+            @endcan
+        @endforeach
 
         <div class="mt-4 text-[#9FB3C8]">
             {{ $users->links() }}

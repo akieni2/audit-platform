@@ -59,16 +59,34 @@ class SuperAdminProtectionService
         return $this->superAdministratorCount() > 1;
     }
 
+    /**
+     * Suppression IAM (soft delete) : dernier super administrateur institutionnel **actif**
+     * ne peut pas être retiré ; le compte technique configuré est protégé.
+     */
     public function mayDelete(User $target): bool
     {
         if ($this->isProtectedSystemEmail($target)) {
             return false;
         }
 
-        if ($target->institutionalRole?->slug === 'super_admin') {
-            return $this->superAdministratorCount() > 1;
+        if ($target->institutionalRole?->slug !== 'super_admin') {
+            return true;
         }
 
-        return true;
+        if (! $target->active) {
+            return true;
+        }
+
+        $roleId = $this->institutionalSuperAdminRoleId();
+        if ($roleId === null) {
+            return true;
+        }
+
+        $activeSuperAdminCount = User::query()
+            ->where('role_id', $roleId)
+            ->where('active', true)
+            ->count();
+
+        return $activeSuperAdminCount > 1;
     }
 }

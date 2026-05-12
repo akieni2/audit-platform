@@ -5,6 +5,7 @@ namespace App\Models;
 use Closure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -41,6 +42,7 @@ class User extends Authenticatable
         'approved_at',
         'approved_by',
         'registration_requested_department_id',
+        'deleted_by',
     ];
 
     protected $hidden = [
@@ -61,7 +63,14 @@ class User extends Authenticatable
             'must_change_password' => 'boolean',
             'password_expires_at' => 'datetime',
             'approved_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
+    }
+
+    /** Administrateur ayant effectué la suppression IAM (soft delete). */
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by')->withTrashed();
     }
 
     public function isApproved(): bool

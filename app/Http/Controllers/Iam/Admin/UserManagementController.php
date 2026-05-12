@@ -12,7 +12,9 @@ use App\Services\Iam\SecurityAuditService;
 use App\Services\Iam\SuperAdminProtectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class UserManagementController extends Controller
@@ -21,9 +23,15 @@ class UserManagementController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
+        $accountView = $request->string('account_view')->toString();
+
         $query = User::query()
-            ->with(['department', 'institutionalRole'])
+            ->with(['department', 'institutionalRole', 'deletedBy'])
             ->orderBy('name');
+
+        if ($accountView === 'deleted') {
+            $query->onlyTrashed();
+        }
 
         if ($request->filled('q')) {
             $q = '%'.$request->string('q').'%';
@@ -39,10 +47,16 @@ class UserManagementController extends Controller
             $query->where('department_id', $request->integer('department_id'));
         }
 
-        if ($request->boolean('inactive_only')) {
-            $query->where('active', false);
-        } elseif ($request->has('active_filter')) {
-            $query->where('active', $request->boolean('active_filter'));
+        if ($accountView !== 'deleted') {
+            if ($request->boolean('inactive_only')) {
+                $query->where('active', false);
+            } elseif ($accountView === 'active') {
+                $query->where('active', true);
+            } elseif ($accountView === 'inactive') {
+                $query->where('active', false);
+            } elseif ($request->has('active_filter')) {
+                $query->where('active', $request->boolean('active_filter'));
+            }
         }
 
         $users = $query->paginate(25)->withQueryString();
@@ -50,6 +64,7 @@ class UserManagementController extends Controller
         $stats = [
             'active' => User::query()->where('active', true)->count(),
             'inactive' => User::query()->where('active', false)->count(),
+            'deleted' => User::onlyTrashed()->count(),
         ];
 
         $recentLogins = User::query()
@@ -76,7 +91,7 @@ class UserManagementController extends Controller
             'byRole' => $byRole,
             'departments' => Department::query()->where('active', true)->orderBy('code')->get(),
             'roles' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->get(),
-            'filters' => $request->only(['q', 'department_id', 'inactive_only', 'active_filter']),
+            'filters' => $request->only(['q', 'department_id', 'inactive_only', 'active_filter', 'account_view']),
         ]);
     }
 
@@ -232,5 +247,50 @@ class UserManagementController extends Controller
         );
 
         return back()->with('status', 'Lien de réinitialisation envoyé à '.$user->email.'.');
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('deleteFromAdministration', $user);
+
+        if ($request->user()->id === $user->id) {
+            return back()->withErrors([
+                'delete' => 'Vous ne pouvez pas supprimer votre propre compte.',
+            ]);
+        }
+
+        $protection = app(SuperAdminProtectionService::class);
+        if (! $protection->mayDelete($user)) {
+            return back()->withErrors([
+                'delete' => 'Ce compte ne peut pas être supprimé (protection institutionnelle : dernier super administrateur actif ou compte système).',
+            ]);
+        }
+
+        $email = $user->email;
+
+        $user->forceFill([
+            'active' => false,
+            'deleted_by' => $request->user()->id,
+        ]);
+        $user->save();
+
+        $this->revokeUserSessionsAndTokens($user);
+
+        $user->delete();
+
+        app(SecurityAuditService::class)->userSoftDeleted($request->user(), $user, $request);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', 'Compte supprimé (accès révoqué pour '.$email.' — traces institutionnelles conservées).');
+    }
+
+    private function revokeUserSessionsAndTokens(User $user): void
+    {
+        if (Schema::hasTable('sessions')) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        $user->tokens()->delete();
     }
 }
