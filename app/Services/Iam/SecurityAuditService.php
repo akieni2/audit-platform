@@ -3,6 +3,8 @@
 namespace App\Services\Iam;
 
 use App\Models\AuditLog;
+use App\Models\Mission;
+use App\Models\MissionTeamMember;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -197,6 +199,56 @@ class SecurityAuditService
             $user,
             $request,
             ['route' => $routeName],
+        );
+    }
+
+    /** Mise à jour ordre de mission / champs institutionnels (traçabilité). */
+    public function missionOrdreUpdated(User $actor, Mission $mission, Request $request, array $fields): AuditLog
+    {
+        return $this->log(
+            'mission_ordre_updated',
+            'missions',
+            'Ordre de mission / fiche — mission #'.$mission->id,
+            $actor,
+            $request,
+            [
+                'mission_id' => $mission->id,
+                'fields' => $fields,
+            ],
+        );
+    }
+
+    public function missionTeamMemberAssigned(User $actor, Mission $mission, MissionTeamMember $member, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_team_member_assigned',
+            'missions',
+            'Affectation équipe mission — mission #'.$mission->id,
+            $actor,
+            $request,
+            [
+                'mission_id' => $mission->id,
+                'member_id' => $member->id,
+                'user_id' => $member->user_id,
+                'mission_role' => $member->mission_role,
+            ],
+        );
+    }
+
+    public function missionTeamMemberRemoved(User $actor, Mission $mission, MissionTeamMember $member, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_team_member_removed',
+            'missions',
+            'Retrait équipe mission — mission #'.$mission->id,
+            $actor,
+            $request,
+            [
+                'mission_id' => $mission->id,
+                'member_id' => $member->id,
+                'user_id' => $member->user_id,
+                'mission_role' => $member->mission_role,
+            ],
         );
     }
 }

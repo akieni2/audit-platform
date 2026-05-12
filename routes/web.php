@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MissionController;
+use App\Http\Controllers\MissionTeamMemberController;
 use App\Http\Controllers\ProcessusController;
 use App\Http\Controllers\ActifController;
 use App\Http\Controllers\RisqueController;
@@ -105,6 +106,11 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/missions/{mission}/edit', [MissionController::class, 'edit'])->name('missions.edit');
     Route::put('/missions/{mission}', [MissionController::class, 'update'])->name('missions.update');
     Route::post('/missions/{mission}/workflow', [MissionController::class, 'workflow'])->name('missions.workflow');
+
+    Route::post('/missions/{mission}/team-members', [MissionTeamMemberController::class, 'store'])
+        ->name('missions.team-members.store');
+    Route::delete('/missions/{mission}/team-members/{team_member}', [MissionTeamMemberController::class, 'destroy'])
+        ->name('missions.team-members.destroy');
 
 
     /*

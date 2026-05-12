@@ -24,7 +24,13 @@ class Mission extends Model
 
     protected $fillable = [
         'organisation',
+        'reference',
+        'objet',
         'description',
+        'periode_audit',
+        'ordre_mission_reference',
+        'date_ordre_mission',
+        'observations_generales',
         'date_debut',
         'date_fin',
         'auditeur_id',
@@ -36,6 +42,15 @@ class Mission extends Model
         'confidentiality_level',
         'supervising_department_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'date_debut' => 'date',
+            'date_fin' => 'date',
+            'date_ordre_mission' => 'date',
+        ];
+    }
 
     /*
     |--------------------------------------------------
@@ -76,6 +91,42 @@ class Mission extends Model
     public function workflowEvents()
     {
         return $this->hasMany(MissionWorkflowEvent::class)->orderByDesc('created_at');
+    }
+
+    public function missionTeamMembers()
+    {
+        return $this->hasMany(MissionTeamMember::class)->orderByDesc('is_lead')->orderBy('mission_role');
+    }
+
+    /**
+     * Utilisateurs pouvant être affectés à l’équipe de mission (IAM ≠ rôle missionnel).
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     */
+    public function eligibleTeamUsers(User $actor): \Illuminate\Database\Eloquent\Collection
+    {
+        $query = User::query()
+            ->where('approval_status', 'approved')
+            ->where('active', true);
+
+        if ($actor->canSuperviseAllDepartments()) {
+            return $query->orderBy('name')->orderBy('email')->get();
+        }
+
+        $departmentIds = array_unique(array_filter([
+            $this->department_id ? (int) $this->department_id : null,
+            $this->supervising_department_id ? (int) $this->supervising_department_id : null,
+            $actor->department_id ? (int) $actor->department_id : null,
+        ]));
+
+        if ($departmentIds === []) {
+            return $query->whereRaw('1 = 0')->get();
+        }
+
+        return $query->whereIn('department_id', $departmentIds)
+            ->orderBy('name')
+            ->orderBy('email')
+            ->get();
     }
 
     /**

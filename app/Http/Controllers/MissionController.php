@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesVisibleResources;
+use App\Http\Requests\Missions\StoreMissionRequest;
+use App\Http\Requests\Missions\UpdateMissionRequest;
 use App\Http\Requests\MissionWorkflowRequest;
 use App\Models\Mission;
+use App\Models\MissionTeamMember;
+use App\Services\Iam\SecurityAuditService;
 use App\Services\Missions\MissionWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,7 +39,9 @@ class MissionController extends Controller
             $query->where(function ($q) use ($qTerm) {
                 $like = '%'.$qTerm.'%';
                 $q->where('organisation', 'like', $like)
-                    ->orWhere('description', 'like', $like);
+                    ->orWhere('description', 'like', $like)
+                    ->orWhere('reference', 'like', $like)
+                    ->orWhere('objet', 'like', $like);
             });
         }
 
@@ -74,15 +80,30 @@ class MissionController extends Controller
     {
         $this->authorize('view', $mission);
 
-        $mission->load(['workflowEvents.user', 'department']);
+        $mission->load([
+            'workflowEvents.user',
+            'department',
+            'missionTeamMembers.user',
+            'missionTeamMembers.assignedBy',
+        ]);
 
         $workflow = app(MissionWorkflowService::class);
         $actor = Auth::user();
         abort_unless($actor, 403);
 
+        $eligibleTeamUsers = collect();
+        if ($actor->can('update', $mission)) {
+            $existingIds = $mission->missionTeamMembers->pluck('user_id');
+            $eligibleTeamUsers = $mission->eligibleTeamUsers($actor)
+                ->whereNotIn('id', $existingIds)
+                ->values();
+        }
+
         return view('missions.show', [
             'mission' => $mission,
             'allowedActions' => $workflow->allowedActions($actor, $mission),
+            'eligibleTeamUsers' => $eligibleTeamUsers,
+            'missionRoleLabels' => MissionTeamMember::missionRoleLabels(),
         ]);
     }
 
@@ -93,16 +114,16 @@ class MissionController extends Controller
         return view('missions.edit', compact('mission'));
     }
 
-    public function update(Request $request, Mission $mission): RedirectResponse
+    public function update(UpdateMissionRequest $request, Mission $mission): RedirectResponse
     {
-        $this->authorize('update', $mission);
+        $mission->update($request->validated());
 
-        $mission->update([
-            'organisation' => $request->organisation,
-            'description' => $request->description,
-            'date_debut' => $request->date_debut,
-            'date_fin' => $request->date_fin,
-        ]);
+        app(SecurityAuditService::class)->missionOrdreUpdated(
+            $request->user(),
+            $mission->fresh(),
+            $request,
+            array_keys($request->validated())
+        );
 
         return redirect()->route('missions.show', $mission)->with('status', 'Mission mise à jour.');
     }

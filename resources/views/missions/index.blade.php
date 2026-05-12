@@ -20,7 +20,7 @@
             <div class="min-w-[10rem] flex-1">
                 <label for="filter-q" class="dgcpt-card-title">Recherche</label>
                 <input id="filter-q" name="q" type="search" value="{{ request('q') }}"
-                       placeholder="Organisation, description…"
+                       placeholder="Référence, objet, organisation…"
                        class="mt-1 block w-full rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/70 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
             </div>
             <div class="w-full sm:w-52">
@@ -63,6 +63,9 @@
                                 <a href="{{ route('missions.show', $mission) }}" class="text-[#00D1FF] hover:underline">
                                     {{ $mission->organisation }}
                                 </a>
+                                @if ($mission->reference)
+                                    <span class="mt-0.5 block font-mono text-xs font-normal text-[#9FB3C8]">{{ $mission->reference }}</span>
+                                @endif
                             </td>
                             <td>
                                 <x-mission-status-badge :status="$mission->mission_status" />

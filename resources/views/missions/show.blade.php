@@ -33,18 +33,148 @@
         </div>
 
         <div class="dgcpt-surface p-6 shadow-sm">
-            <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Description</h2>
-            <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#9FB3C8]">{{ $mission->description ?: '—' }}</p>
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Ordre de mission</h2>
+                @can('update', $mission)
+                    <a href="{{ route('missions.edit', $mission) }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">
+                        Modifier ordre et fiche
+                    </a>
+                @endcan
+            </div>
             <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                    <dt class="text-[#9FB3C8]">Début</dt>
-                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_debut }}</dd>
+                    <dt class="text-[#9FB3C8]">Référence mission</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->reference ?: '—' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-[#9FB3C8]">Fin</dt>
-                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_fin ?: '—' }}</dd>
+                    <dt class="text-[#9FB3C8]">Période d’audit</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->periode_audit ?: '—' }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-[#9FB3C8]">Objet</dt>
+                    <dd class="whitespace-pre-wrap font-semibold text-[#E6EEF8]">{{ $mission->objet ?: '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Référence ordre de mission</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->ordre_mission_reference ?: '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Date ordre de mission</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_ordre_mission?->format('d/m/Y') ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Date début (mission)</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_debut instanceof \Carbon\Carbon ? $mission->date_debut->format('d/m/Y') : ($mission->date_debut ?? '—') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Date fin (mission)</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_fin instanceof \Carbon\Carbon ? $mission->date_fin->format('d/m/Y') : ($mission->date_fin ?? '—') }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-[#9FB3C8]">Observations générales</dt>
+                    <dd class="whitespace-pre-wrap text-[#E6EEF8]">{{ $mission->observations_generales ?: '—' }}</dd>
                 </div>
             </dl>
+        </div>
+
+        <div class="dgcpt-surface p-6 shadow-sm">
+            <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Équipe de mission</h2>
+            <p class="mt-1 text-sm text-[#9FB3C8]">
+                Rôles missionnels distincts du profil IAM — chef de mission, agents et experts affectés.
+            </p>
+
+            @if ($mission->missionTeamMembers->isEmpty())
+                <p class="mt-4 text-sm text-[#9FB3C8]">Aucun membre n’est encore affecté.</p>
+            @else
+                <div class="mt-4 overflow-x-auto">
+                    <table class="dgcpt-table min-w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="text-left">Membre</th>
+                                <th class="text-left">Rôle mission</th>
+                                <th class="text-left">Désignation</th>
+                                <th class="text-left">Affecté le</th>
+                                @can('update', $mission)
+                                    <th class="text-right">Actions</th>
+                                @endcan
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($mission->missionTeamMembers as $member)
+                                <tr>
+                                    <td class="font-semibold text-[#E6EEF8]">
+                                        {{ $member->user?->displayName() ?? '—' }}
+                                        @if ($member->is_lead || $member->mission_role === \App\Models\MissionTeamMember::ROLE_CHEF_MISSION)
+                                            <span class="ml-2 rounded bg-[#0A2A66]/80 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-[#00D1FF] ring-1 ring-[rgba(0,209,255,0.35)]">Chef</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-[#9FB3C8]">{{ $missionRoleLabels[$member->mission_role] ?? $member->mission_role }}</td>
+                                    <td class="text-[#9FB3C8]">{{ $member->designation ?: '—' }}</td>
+                                    <td class="text-[#9FB3C8]">{{ $member->assigned_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                                    @can('update', $mission)
+                                        <td class="text-right">
+                                            <form method="POST" action="{{ route('missions.team-members.destroy', [$mission, $member]) }}" class="inline" onsubmit="return confirm('Retirer ce membre de l’équipe ?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Retirer</button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            @can('update', $mission)
+                @if ($eligibleTeamUsers->isEmpty())
+                    <p class="mt-4 text-sm text-[#9FB3C8]">Aucun utilisateur disponible à affecter dans le périmètre autorisé (ou l’équipe est complète).</p>
+                @else
+                    <form method="POST" action="{{ route('missions.team-members.store', $mission) }}" class="mt-6 space-y-4 border-t border-[rgba(0,209,255,0.12)] pt-6">
+                        @csrf
+                        <p class="dgcpt-card-title">Ajouter un membre</p>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="sm:col-span-2">
+                                <label class="dgcpt-label" for="team-user-id">Utilisateur</label>
+                                <select id="team-user-id" name="user_id" required class="dgcpt-input">
+                                    <option value="">— Choisir —</option>
+                                    @foreach ($eligibleTeamUsers as $u)
+                                        <option value="{{ $u->id }}">{{ $u->displayName() }} — {{ $u->email }}</option>
+                                    @endforeach
+                                </select>
+                                @error('user_id')
+                                    <p class="mt-1 text-sm text-[#FF5A5A]">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="dgcpt-label" for="team-role">Rôle missionnel</label>
+                                <select id="team-role" name="mission_role" required class="dgcpt-input">
+                                    @foreach ($missionRoleLabels as $slug => $label)
+                                        <option value="{{ $slug }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('mission_role')
+                                    <p class="mt-1 text-sm text-[#FF5A5A]">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="dgcpt-label" for="team-designation">Désignation (optionnel)</label>
+                                <input id="team-designation" type="text" name="designation" value="{{ old('designation') }}" placeholder="ex. Expert SIG" class="dgcpt-input" />
+                                @error('designation')
+                                    <p class="mt-1 text-sm text-[#FF5A5A]">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <button type="submit" class="dgcpt-btn-primary">Ajouter à l’équipe</button>
+                    </form>
+                @endif
+            @endcan
+        </div>
+
+        <div class="dgcpt-surface p-6 shadow-sm">
+            <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Description</h2>
+            <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#9FB3C8]">{{ $mission->description ?: '—' }}</p>
             @can('update', $mission)
                 <p class="mt-4">
                     <a href="{{ route('missions.edit', $mission) }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">
