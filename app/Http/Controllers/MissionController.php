@@ -6,7 +6,10 @@ use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Http\Requests\Missions\StoreMissionRequest;
 use App\Http\Requests\Missions\UpdateMissionRequest;
 use App\Http\Requests\MissionWorkflowRequest;
+use App\Models\Entretien;
+use App\Models\IdentifiedRisk;
 use App\Models\Mission;
+use App\Models\MissionDocument;
 use App\Models\MissionTeamMember;
 use App\Services\Iam\SecurityAuditService;
 use App\Services\Missions\MissionWorkflowService;
@@ -96,11 +99,31 @@ class MissionController extends Controller
                 ->values();
         }
 
+        $missionStats = [
+            'services_count' => $mission->services()->where('active', true)->count(),
+            'entretiens_total' => Entretien::query()->where('mission_id', $mission->id)->count(),
+            'entretiens_done' => Entretien::query()
+                ->where('mission_id', $mission->id)
+                ->whereIn('status', [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED])
+                ->count(),
+            'risks_count' => IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
+            'risks_critical' => IdentifiedRisk::query()
+                ->where('mission_id', $mission->id)
+                ->whereIn('criticality', ['Critique', 'critique', 'High', 'high', 'Élevée', 'élevée', 'Elevée', 'elevée'])
+                ->count(),
+            'documents_count' => MissionDocument::query()->where('mission_id', $mission->id)->count(),
+        ];
+        $missionProgressPercent = $missionStats['entretiens_total'] > 0
+            ? (int) min(100, max(0, (int) round(100 * $missionStats['entretiens_done'] / $missionStats['entretiens_total'])))
+            : null;
+
         return view('missions.show', [
             'mission' => $mission,
             'allowedActions' => $workflow->allowedActions($actor, $mission),
             'eligibleTeamUsers' => $eligibleTeamUsers,
             'missionRoleLabels' => MissionTeamMember::missionRoleLabels(),
+            'missionStats' => $missionStats,
+            'missionProgressPercent' => $missionProgressPercent,
         ]);
     }
 

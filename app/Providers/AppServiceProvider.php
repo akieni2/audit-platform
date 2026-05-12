@@ -3,15 +3,22 @@
 namespace App\Providers;
 
 use App\Models\Department;
+use App\Models\DepartmentAuditConsolidation;
 use App\Models\Entretien;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
+use App\Models\MissionDocument;
+use App\Models\MissionService;
 use App\Models\QuestionnaireTemplate;
 use App\Models\Risque;
+use App\Models\Service;
 use App\Models\User;
+use App\Policies\DepartmentAuditConsolidationPolicy;
 use App\Policies\EntretienPolicy;
 use App\Policies\IdentifiedRiskPolicy;
+use App\Policies\MissionDocumentPolicy;
 use App\Policies\QuestionnaireTemplatePolicy;
+use App\Policies\ServicePolicy;
 use App\Services\Governance\ExecutiveDashboardService;
 use App\Observers\RisqueObserver;
 use App\Policies\RisquePolicy;
@@ -44,6 +51,30 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(QuestionnaireTemplate::class, QuestionnaireTemplatePolicy::class);
         Gate::policy(Entretien::class, EntretienPolicy::class);
         Gate::policy(IdentifiedRisk::class, IdentifiedRiskPolicy::class);
+        Gate::policy(Service::class, ServicePolicy::class);
+        Gate::policy(MissionService::class, ServicePolicy::class);
+        Gate::policy(MissionDocument::class, MissionDocumentPolicy::class);
+        Gate::policy(DepartmentAuditConsolidation::class, DepartmentAuditConsolidationPolicy::class);
+
+        Route::bind('service', function (string $value) {
+            $user = auth()->user();
+            abort_unless($user, 403);
+
+            return Service::query()
+                ->whereKey($value)
+                ->whereHas('mission', fn ($q) => $q->visibleToUser($user))
+                ->firstOrFail();
+        });
+
+        Route::bind('mission_document', function (string $value) {
+            $user = auth()->user();
+            abort_unless($user, 403);
+
+            return MissionDocument::query()
+                ->whereKey($value)
+                ->whereHas('mission', fn ($q) => $q->visibleToUser($user))
+                ->firstOrFail();
+        });
 
         Route::bind('entretien', function (string $value) {
             $user = auth()->user();

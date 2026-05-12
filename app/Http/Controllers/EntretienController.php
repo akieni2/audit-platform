@@ -6,6 +6,8 @@ use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\Entretien;
 use App\Models\Question;
 use App\Models\QuestionnaireTemplate;
+use App\Services\Iam\SecurityAuditService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +57,8 @@ class EntretienController extends Controller
         $mission = $service->mission;
         abort_unless($mission !== null, 422);
 
+        $this->authorize('update', $mission);
+
         $templateId = $request->input('questionnaire_template_id');
         if ($templateId !== null && $templateId !== '') {
             if (! Auth::user()?->can('governMission', $mission)) {
@@ -70,6 +74,10 @@ class EntretienController extends Controller
             );
         }
 
+        $conductedAt = $request->date_entretien
+            ? Carbon::parse((string) $request->date_entretien)->startOfDay()
+            : null;
+
         Entretien::query()->create([
             'mission_id' => $service->mission_id,
             'service_id' => $service->id,
@@ -80,9 +88,30 @@ class EntretienController extends Controller
             'auditeur' => $request->auditeur,
             'date_entretien' => $request->date_entretien,
             'notes' => $request->notes,
+            'status' => Entretien::STATUS_DRAFT,
+            'interviewed_person' => $request->responsable_nom,
+            'interviewed_role' => $request->role,
+            'conducted_at' => $conductedAt,
+            'conducted_by' => Auth::id(),
         ]);
 
         return back()->with('status', 'Entretien enregistré.');
+    }
+
+    public function complete(Request $request, Entretien $entretien): RedirectResponse
+    {
+        $this->authorize('completeEntretien', $entretien);
+
+        $previous = $entretien->status;
+        $entretien->update([
+            'status' => Entretien::STATUS_COMPLETED,
+        ]);
+
+        if (! in_array($previous, [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED], true)) {
+            app(SecurityAuditService::class)->entretienCompleted($request->user(), $entretien->fresh(), $request);
+        }
+
+        return back()->with('status', 'Entretien marqué comme complété.');
     }
 
     public function attachTemplate(Request $request, Entretien $entretien): RedirectResponse

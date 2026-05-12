@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentAuditConsolidationController;
 use App\Http\Controllers\EntretienConduiteController;
 use App\Http\Controllers\EntretienController;
 use App\Http\Controllers\IdentifiedRiskController;
 use App\Http\Controllers\MissionController;
+use App\Http\Controllers\MissionDocumentController;
 use App\Http\Controllers\MissionTeamMemberController;
 use App\Http\Controllers\Questionnaires\QuestionnaireTemplateController;
 use App\Http\Controllers\ProcessusController;
@@ -133,8 +135,16 @@ Route::middleware(['auth', 'active'])->group(function () {
     */
 
     Route::get('/missions/{mission}/services', [ServiceController::class, 'index'])->name('services.index');
+    Route::post('/missions/{mission}/services', [ServiceController::class, 'store'])->name('missions.services.store');
+    Route::get('/missions/{mission}/services/{service}/edit', [ServiceController::class, 'edit'])->name('missions.services.edit');
+    Route::put('/missions/{mission}/services/{service}', [ServiceController::class, 'update'])->name('missions.services.update');
+    Route::delete('/missions/{mission}/services/{service}', [ServiceController::class, 'destroy'])->name('missions.services.destroy');
 
-    Route::post('/services', [ServiceController::class,'store'])->name('services.store');
+    Route::get('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'index'])->name('missions.services.documents.index');
+    Route::post('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'store'])->name('missions.services.documents.store');
+    Route::delete('/mission-documents/{mission_document}', [MissionDocumentController::class, 'destroy'])->name('mission-documents.destroy');
+
+    Route::post('/missions/{mission}/consolidations', [DepartmentAuditConsolidationController::class, 'store'])->name('missions.consolidations.store');
 
 
     /*
@@ -149,6 +159,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('entretiens.conduite.show');
     Route::post('/entretiens/{entretien}/reponses-dynamiques', [EntretienConduiteController::class, 'storeResponses'])
         ->name('entretiens.dynamic-responses.store');
+    Route::post('/entretiens/{entretien}/completer', [EntretienController::class, 'complete'])
+        ->name('entretiens.complete');
     Route::patch('/entretiens/{entretien}/questionnaire', [EntretienController::class, 'attachTemplate'])
         ->name('entretiens.questionnaire.attach');
 

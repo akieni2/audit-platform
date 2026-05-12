@@ -64,6 +64,14 @@ class MissionPolicy
         return $user->canGovernMissionInstitutionally($mission);
     }
 
+    /**
+     * Structuration des services audités (Phase 2) — superviseur / inspection nationale.
+     */
+    public function manageServices(User $user, Mission $mission): bool
+    {
+        return $this->governMission($user, $mission);
+    }
+
     public function assignTeamMembers(User $user, Mission $mission): bool
     {
         return $this->governMission($user, $mission);

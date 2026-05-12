@@ -32,6 +32,32 @@
             @endif
         </div>
 
+        @isset($missionStats, $missionProgressPercent)
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                    <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Services audités</p>
+                    <p class="mt-2 text-2xl font-bold text-[#00D1FF]">{{ $missionStats['services_count'] }}</p>
+                </div>
+                <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                    <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Entretiens réalisés</p>
+                    <p class="mt-2 text-2xl font-bold text-[#E6EEF8]">{{ $missionStats['entretiens_done'] }}<span class="text-sm text-[#9FB3C8]">/{{ $missionStats['entretiens_total'] }}</span></p>
+                </div>
+                <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                    <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Risques critiques</p>
+                    <p class="mt-2 text-2xl font-bold text-[#FF8A8A]">{{ $missionStats['risks_critical'] }}</p>
+                    <p class="mt-1 text-xs text-[#9FB3C8]">Total identifiés : {{ $missionStats['risks_count'] }}</p>
+                </div>
+                <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                    <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Documents collectés</p>
+                    <p class="mt-2 text-2xl font-bold text-[#E6EEF8]">{{ $missionStats['documents_count'] }}</p>
+                </div>
+                <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                    <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Progression entretiens</p>
+                    <p class="mt-2 text-2xl font-bold text-[#00A86B]">{{ $missionProgressPercent !== null ? $missionProgressPercent.'%' : '—' }}</p>
+                </div>
+            </div>
+        @endisset
+
         @php
             $chefMembre = $mission->missionTeamMembers->firstWhere('mission_role', \App\Models\MissionTeamMember::ROLE_CHEF_MISSION);
         @endphp
@@ -271,6 +297,36 @@
             <a href="{{ route('cartographie.index', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Cartographie</a>
             <a href="{{ route('missions.rapport', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Rapport PDF</a>
             <a href="{{ route('missions.index') }}" class="dgcpt-text-muted text-sm hover:underline">← Liste des missions</a>
+        </div>
+
+        @can('manageServices', $mission)
+            <div class="dgcpt-surface border-[rgba(0,209,255,0.12)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.08)]">
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Consolidation départementale</h2>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Enregistre une synthèse institutionnelle (base pour rapports et IA — Phase 2B).</p>
+                <form method="POST" action="{{ route('missions.consolidations.store', $mission) }}" class="mt-4 space-y-3">
+                    @csrf
+                    <div>
+                        <label class="dgcpt-label" for="cons-synth">Synthèse</label>
+                        <textarea id="cons-synth" name="synthesis" rows="3" class="dgcpt-textarea w-full" placeholder="Constats consolidés…"></textarea>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label class="dgcpt-label" for="cons-risk">Niveau de risque global</label>
+                            <input id="cons-risk" name="global_risk_level" type="text" class="dgcpt-input" placeholder="ex. Modéré" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="dgcpt-label" for="cons-rec">Recommandations</label>
+                        <textarea id="cons-rec" name="recommendations" rows="2" class="dgcpt-textarea w-full"></textarea>
+                    </div>
+                    <button type="submit" class="dgcpt-btn-primary">Générer entrée de consolidation</button>
+                </form>
+            </div>
+        @endcan
+
+        <div class="dgcpt-surface border-[rgba(0,209,255,0.08)] p-4 text-sm text-[#9FB3C8] ring-1 ring-[rgba(0,209,255,0.06)]">
+            <p class="font-semibold text-[#E6EEF8]">Préparation SWOT & RACI (Phase 2C)</p>
+            <p class="mt-1">Les modèles <code class="text-xs text-[#00D1FF]">mission_swot_previews</code> et <code class="text-xs text-[#00D1FF]">mission_raci_previews</code> sont prêts côté données ; l’édition guidée arrive en phase ultérieure.</p>
         </div>
     </div>
 </x-app-layout>

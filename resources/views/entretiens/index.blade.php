@@ -90,6 +90,7 @@
                             <th class="text-left">Responsable</th>
                             <th class="text-left">Rôle</th>
                             <th class="text-left">Date</th>
+                            <th class="text-left">Statut</th>
                             <th class="text-left">Questionnaire</th>
                             <th class="text-right">Actions</th>
                         </tr>
@@ -100,6 +101,7 @@
                                 <td class="font-semibold text-[#E6EEF8]">{{ $e->responsable_nom ?: '—' }}</td>
                                 <td class="text-[#9FB3C8]">{{ $e->role ?: '—' }}</td>
                                 <td class="font-mono text-[#9FB3C8]">{{ $e->date_entretien ?: '—' }}</td>
+                                <td class="text-xs text-[#9FB3C8]">{{ \App\Models\Entretien::statusLabels()[$e->status] ?? ($e->status ?: '—') }}</td>
                                 <td>
                                     @if ($e->questionnaireTemplate)
                                         <span class="text-[#E6EEF8]">{{ $e->questionnaireTemplate->name }}</span>
@@ -112,6 +114,14 @@
                                         @can('conductQuestionnaire', $e)
                                             @if ($e->questionnaire_template_id)
                                                 <a href="{{ route('entretiens.conduite.show', $e) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Conduite</a>
+                                            @endif
+                                        @endcan
+                                        @can('completeEntretien', $e)
+                                            @if (! in_array($e->status, [\App\Models\Entretien::STATUS_COMPLETED, \App\Models\Entretien::STATUS_VALIDATED], true))
+                                                <form method="POST" action="{{ route('entretiens.complete', $e) }}" class="inline" onsubmit="return confirm('Marquer cet entretien comme complété ?');">
+                                                    @csrf
+                                                    <button type="submit" class="text-xs font-semibold text-[#00A86B] hover:underline">Compléter</button>
+                                                </form>
                                             @endif
                                         @endcan
                                         @can('attachTemplate', $e)
@@ -133,7 +143,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-[#9FB3C8]">Aucun entretien pour ce service.</td>
+                                <td colspan="6" class="py-8 text-center text-[#9FB3C8]">Aucun entretien pour ce service.</td>
                             </tr>
                         @endforelse
                     </tbody>

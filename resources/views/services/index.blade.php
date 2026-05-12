@@ -1,72 +1,134 @@
 <x-app-layout>
+    @php
+        /** @var \App\Models\Mission $mission */
+        /** @var \Illuminate\Support\Collection<int, \App\Models\MissionService> $services */
+        use App\Models\Entretien;
+    @endphp
 
-<h2>Mission : {{ $mission->organisation }}</h2>
+    <div class="mx-auto max-w-6xl space-y-8 px-0 py-2">
+        @if (session('status'))
+            <div class="dgcpt-surface border-[#00A86B]/35 px-4 py-3 text-sm text-[#E6EEF8] ring-1 ring-[rgba(0,168,107,0.25)]">
+                {{ session('status') }}
+            </div>
+        @endif
 
-<h3>Services auditÈs</h3>
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="dgcpt-card-title">Mission</p>
+                <h1 class="dgcpt-page-title">Services auditùs</h1>
+                <p class="text-sm text-[#9FB3C8]">{{ $mission->organisation }} @if ($mission->reference)<span class="font-mono text-[#00D1FF]">ù {{ $mission->reference }}</span>@endif</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('missions.show', $mission) }}" class="dgcpt-btn-outline text-sm">? Fiche mission</a>
+                <a href="{{ route('module.risques') }}" class="dgcpt-btn-outline text-sm">Risques (module)</a>
+            </div>
+        </div>
 
-<form method="POST" action="/services">
+        @can('manageServices', $mission)
+            <div class="dgcpt-surface p-6 shadow-sm">
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Ajouter un service</h2>
+                <form method="POST" action="{{ route('missions.services.store', $mission) }}" class="mt-4 grid gap-4 sm:grid-cols-2">
+                    @csrf
+                    <div>
+                        <label class="dgcpt-label" for="svc-code">Code (optionnel)</label>
+                        <input id="svc-code" name="code" type="text" class="dgcpt-input font-mono text-sm" />
+                    </div>
+                    <div>
+                        <label class="dgcpt-label" for="svc-type">Type de service</label>
+                        <input id="svc-type" name="service_type" type="text" class="dgcpt-input" placeholder="ex. RH, SI, Recettes" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="dgcpt-label" for="svc-nom">Nom du service</label>
+                        <input id="svc-nom" name="nom" type="text" required class="dgcpt-input" />
+                    </div>
+                    <div>
+                        <label class="dgcpt-label" for="svc-resp">Responsable (texte libre)</label>
+                        <input id="svc-resp" name="responsable" type="text" class="dgcpt-input" />
+                    </div>
+                    <div>
+                        <label class="dgcpt-label" for="svc-risk">Niveau risque (indicatif)</label>
+                        <input id="svc-risk" name="risk_level" type="text" class="dgcpt-input" placeholder="ex. Moyen" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="dgcpt-label" for="svc-desc">Description</label>
+                        <textarea id="svc-desc" name="description" rows="2" class="dgcpt-textarea w-full"></textarea>
+                    </div>
+                    <div class="flex items-center gap-2 sm:col-span-2">
+                        <input id="svc-active" type="checkbox" name="active" value="1" checked class="rounded border-[rgba(0,209,255,0.35)]" />
+                        <label for="svc-active" class="text-sm text-[#E6EEF8]">Service actif dans le pùrimùtre dùaudit</label>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <button type="submit" class="dgcpt-btn-primary">Crùer le service</button>
+                    </div>
+                </form>
+            </div>
+        @endcan
 
-@csrf
+        <div class="dgcpt-surface overflow-hidden p-0 shadow-sm">
+            <div class="border-b border-[rgba(0,209,255,0.12)] px-6 py-4">
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Tableau des services</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="dgcpt-table min-w-full text-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Service</th>
+                            <th class="text-left">Responsable</th>
+                            <th class="text-left">Risque</th>
+                            <th class="text-center">Entretiens</th>
+                            <th class="text-center">Risques id.</th>
+                            <th class="text-center">Documents</th>
+                            <th class="text-left">Progression</th>
+                            <th class="text-left">Statut</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($services as $s)
+                            @php
+                                $progressList = $s->entretiens->map(fn (Entretien $e) => $e->questionnaireCompletionPercent())->filter();
+                                $avgProgress = $progressList->isNotEmpty() ? (int) round($progressList->avg()) : null;
+                            @endphp
+                            <tr>
+                                <td>
+                                    <span class="font-semibold text-[#E6EEF8]">{{ $s->nom }}</span>
+                                    @if ($s->code)
+                                        <span class="ml-1 font-mono text-xs text-[#00D1FF]">{{ $s->code }}</span>
+                                    @endif
+                                    @if ($s->service_type)
+                                        <p class="text-xs text-[#9FB3C8]">{{ $s->service_type }}</p>
+                                    @endif
+                                </td>
+                                <td class="text-[#9FB3C8]">{{ $s->responsableDisplay() }}</td>
+                                <td class="text-[#9FB3C8]">{{ $s->risk_level ?: 'ù' }}</td>
+                                <td class="text-center font-mono text-[#E6EEF8]">{{ $s->entretiens_count }}</td>
+                                <td class="text-center font-mono text-[#E6EEF8]">{{ $s->identified_risks_count }}</td>
+                                <td class="text-center font-mono text-[#E6EEF8]">{{ $s->mission_documents_count }}</td>
+                                <td class="text-[#9FB3C8]">{{ $avgProgress !== null ? $avgProgress.'%' : 'ù' }}</td>
+                                <td><span class="rounded border border-[rgba(0,209,255,0.25)] px-2 py-0.5 text-xs">{{ $s->audit_status ?? 'pending' }}</span></td>
+                                <td class="text-right">
+                                    <div class="flex flex-col items-end gap-1">
+                                        <a href="{{ route('missions.services.edit', [$mission, $s]) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
+                                        <a href="{{ route('entretiens.index', $s->id) }}" class="text-xs font-semibold text-[#00A86B] hover:underline">Conduire entretien</a>
+                                        <a href="{{ route('module.risques') }}" class="text-xs text-[#9FB3C8] hover:underline">Risques</a>
+                                        <a href="{{ route('missions.services.documents.index', [$mission, $s]) }}" class="text-xs text-[#9FB3C8] hover:underline">Documents</a>
+                                        <span class="text-xs text-[#6B7F95]">Rapport service ù bientùt</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="py-8 text-center text-[#9FB3C8]">Aucun service structurù pour cette mission.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<input type="hidden" name="mission_id" value="{{ $mission->id }}">
-
-<label>Nom du service</label>
-<input type="text" name="nom">
-
-<br><br>
-
-<label>Responsable</label>
-<input type="text" name="responsable">
-
-<br><br>
-
-<label>Description</label>
-<textarea name="description"></textarea>
-
-<br><br>
-
-<button type="submit">Ajouter service</button>
-
-</form>
-
-<br>
-
-<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;background:white;">
-
-<tr style="background:#1e293b;color:white;">
-<th>Service</th>
-<th>Responsable</th>
-<th>Description</th>
-<th>Entretien</th>
-<th>Processus</th>
-</tr>
-
-@foreach($services as $s)
-
-<tr>
-
-<td>{{ $s->nom }}</td>
-
-<td>{{ $s->responsable }}</td>
-
-<td>{{ $s->description }}</td>
-
-<td>
-<a href="/services/{{ $s->id }}/entretiens">
-Entretien
-</a>
-</td>
-
-<td>
-<a href="/missions/{{ $mission->id }}/processus">
-Processus
-</a>
-</td>
-
-</tr>
-
-@endforeach
-
-</table>
-
+        <div class="dgcpt-surface border-[rgba(0,209,255,0.08)] p-4 text-sm text-[#9FB3C8] ring-1 ring-[rgba(0,209,255,0.06)]">
+            <p class="font-semibold text-[#E6EEF8]">SWOT & RACI</p>
+            <p class="mt-1">Prùparation technique en base (<span class="font-mono text-[#00D1FF]">mission_swot_previews</span>, <span class="font-mono text-[#00D1FF]">mission_raci_previews</span>) ù interface dùdiùe Phase 2C.</p>
+        </div>
+    </div>
 </x-app-layout>

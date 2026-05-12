@@ -25,6 +25,19 @@
             <a href="{{ route('entretiens.index', $entretien->service_id) }}" class="dgcpt-btn-outline">← Entretiens du service</a>
         </div>
 
+        @if ($progressPercent !== null)
+            <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-4 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-sm font-semibold text-[#E6EEF8]">Progression questionnaire</p>
+                    <span class="font-mono text-sm text-[#00D1FF]">{{ $progressPercent }}%</span>
+                </div>
+                <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#0A1530]">
+                    <div class="h-full rounded-full bg-gradient-to-r from-[#00A86B] to-[#00D1FF]" style="width: {{ $progressPercent }}%"></div>
+                </div>
+                <p class="mt-2 text-xs text-[#9FB3C8]">Statut entretien : <span class="font-semibold text-[#E6EEF8]">{{ \App\Models\Entretien::statusLabels()[$entretien->status] ?? $entretien->status }}</span> — sauvegarde progressive : enregistrez autant de fois que nécessaire.</p>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('entretiens.dynamic-responses.store', $entretien) }}" class="space-y-8">
             @csrf
 

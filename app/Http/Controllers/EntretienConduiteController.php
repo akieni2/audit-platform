@@ -32,10 +32,13 @@ class EntretienConduiteController extends Controller
             ->get()
             ->keyBy('questionnaire_question_id');
 
+        $progressPercent = $entretien->questionnaireCompletionPercent();
+
         return view('entretiens.conduite', [
             'entretien' => $entretien,
             'template' => $template,
             'existingResponses' => $existing,
+            'progressPercent' => $progressPercent,
         ]);
     }
 
@@ -53,6 +56,8 @@ class EntretienConduiteController extends Controller
 
         $audit = app(SecurityAuditService::class);
         $user = $request->user();
+
+        $previousStatus = $entretien->status;
 
         foreach ($request->validated('responses') as $row) {
             $qid = (int) $row['questionnaire_question_id'];
@@ -106,6 +111,16 @@ class EntretienConduiteController extends Controller
 
                 $audit->riskIdentified($user, $risk, $request);
             }
+        }
+
+        $entretien->update([
+            'status' => Entretien::STATUS_IN_PROGRESS,
+            'conducted_by' => $user?->id,
+            'conducted_at' => $entretien->conducted_at ?? now(),
+        ]);
+
+        if (in_array($previousStatus, [null, '', Entretien::STATUS_DRAFT], true)) {
+            $audit->entretienStarted($user, $entretien->fresh(), $request);
         }
 
         return redirect()

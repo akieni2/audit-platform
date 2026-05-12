@@ -41,4 +41,10 @@ class EntretienPolicy
 
         return $mission !== null && app(\App\Policies\MissionPolicy::class)->governMission($user, $mission);
     }
+
+    /** Marquer l’entretien comme complété (équipe mission / gouvernance). */
+    public function completeEntretien(User $user, Entretien $entretien): bool
+    {
+        return $this->conductQuestionnaire($user, $entretien);
+    }
 }

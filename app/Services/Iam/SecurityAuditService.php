@@ -3,12 +3,15 @@
 namespace App\Services\Iam;
 
 use App\Models\AuditLog;
+use App\Models\DepartmentAuditConsolidation;
 use App\Models\Entretien;
 use App\Models\EntretienResponse;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
+use App\Models\MissionDocument;
 use App\Models\MissionTeamMember;
 use App\Models\QuestionnaireTemplate;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -385,6 +388,98 @@ class SecurityAuditService
             $actor,
             $request,
             ['identified_risk_id' => $risk->id],
+        );
+    }
+
+    public function missionServiceCreated(?User $actor, Service $service, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_service_created',
+            'missions',
+            'Service audité créé — '.$service->nom.' (mission #'.$service->mission_id.')',
+            $actor,
+            $request,
+            ['service_id' => $service->id, 'mission_id' => $service->mission_id],
+        );
+    }
+
+    public function missionServiceUpdated(?User $actor, Service $service, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_service_updated',
+            'missions',
+            'Service audité mis à jour — '.$service->nom.' (mission #'.$service->mission_id.')',
+            $actor,
+            $request,
+            ['service_id' => $service->id, 'mission_id' => $service->mission_id],
+        );
+    }
+
+    public function entretienStarted(?User $actor, Entretien $entretien, Request $request): AuditLog
+    {
+        return $this->log(
+            'entretien_started',
+            'missions',
+            'Entretien démarré — #'.$entretien->id,
+            $actor,
+            $request,
+            ['entretien_id' => $entretien->id, 'mission_id' => $entretien->mission_id, 'service_id' => $entretien->service_id],
+        );
+    }
+
+    public function entretienCompleted(?User $actor, Entretien $entretien, Request $request): AuditLog
+    {
+        return $this->log(
+            'entretien_completed',
+            'missions',
+            'Entretien complété — #'.$entretien->id,
+            $actor,
+            $request,
+            ['entretien_id' => $entretien->id, 'mission_id' => $entretien->mission_id, 'service_id' => $entretien->service_id],
+        );
+    }
+
+    public function documentUploaded(?User $actor, MissionDocument $document, Request $request): AuditLog
+    {
+        return $this->log(
+            'document_uploaded',
+            'missions',
+            'Document mission — '.$document->original_name,
+            $actor,
+            $request,
+            [
+                'mission_document_id' => $document->id,
+                'mission_id' => $document->mission_id,
+                'service_id' => $document->service_id,
+            ],
+        );
+    }
+
+    public function documentDeleted(?User $actor, MissionDocument $document, Request $request): AuditLog
+    {
+        return $this->log(
+            'document_deleted',
+            'missions',
+            'Suppression document — '.$document->original_name,
+            $actor,
+            $request,
+            [
+                'mission_document_id' => $document->id,
+                'mission_id' => $document->mission_id,
+                'service_id' => $document->service_id,
+            ],
+        );
+    }
+
+    public function consolidationGenerated(?User $actor, DepartmentAuditConsolidation $row, Request $request): AuditLog
+    {
+        return $this->log(
+            'consolidation_generated',
+            'missions',
+            'Consolidation départementale — mission #'.$row->mission_id,
+            $actor,
+            $request,
+            ['department_audit_consolidation_id' => $row->id, 'mission_id' => $row->mission_id],
         );
     }
 }

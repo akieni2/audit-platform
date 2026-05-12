@@ -70,6 +70,26 @@ class Mission extends Model
         return $this->hasMany(Service::class);
     }
 
+    public function auditConsolidations()
+    {
+        return $this->hasMany(DepartmentAuditConsolidation::class);
+    }
+
+    public function missionDocuments()
+    {
+        return $this->hasMany(MissionDocument::class);
+    }
+
+    public function swotPreviews()
+    {
+        return $this->hasMany(MissionSwotPreview::class);
+    }
+
+    public function raciPreviews()
+    {
+        return $this->hasMany(MissionRaciPreview::class);
+    }
+
     public function auditeur()
     {
         return $this->belongsTo(User::class,'auditeur_id');
