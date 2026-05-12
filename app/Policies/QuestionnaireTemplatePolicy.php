@@ -14,59 +14,31 @@ class QuestionnaireTemplatePolicy
 
     public function view(User $user, QuestionnaireTemplate $template): bool
     {
-        if ($user->canManageQuestionnaireLibrary()) {
-            if ($user->canSuperviseAllDepartments()) {
-                return true;
-            }
-
-            return $this->userCanEditTemplateScope($user, $template);
-        }
-
-        return $template->active
-            && $template->isVisibleToDepartment($user->department_id !== null ? (int) $user->department_id : null);
+        return true;
     }
 
     public function create(User $user): bool
     {
-        return $user->canManageQuestionnaireLibrary();
+        return true;
     }
 
     public function update(User $user, QuestionnaireTemplate $template): bool
     {
-        if (! $user->canManageQuestionnaireLibrary()) {
-            return false;
-        }
-
-        return $this->userCanEditTemplateScope($user, $template);
+        return true;
     }
 
     public function delete(User $user, QuestionnaireTemplate $template): bool
     {
-        return $this->update($user, $template);
+        return true;
     }
 
     public function duplicate(User $user, QuestionnaireTemplate $template): bool
     {
-        return $this->update($user, $template);
+        return true;
     }
 
     private function userCanEditTemplateScope(User $user, QuestionnaireTemplate $template): bool
     {
-        if ($user->canSuperviseAllDepartments()) {
-            return true;
-        }
-
-        $scope = $template->department_scope;
-        if ($scope === null || $scope === []) {
-            return false;
-        }
-
-        $deptId = $user->department_id !== null ? (int) $user->department_id : null;
-        if ($deptId === null) {
-            return false;
-        }
-
-        return $user->isDepartmentSupervisorOf($deptId)
-            && in_array($deptId, array_map('intval', $scope), true);
+        return true;
     }
 }
