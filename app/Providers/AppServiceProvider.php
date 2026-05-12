@@ -3,9 +3,15 @@
 namespace App\Providers;
 
 use App\Models\Department;
+use App\Models\Entretien;
+use App\Models\IdentifiedRisk;
 use App\Models\Mission;
+use App\Models\QuestionnaireTemplate;
 use App\Models\Risque;
 use App\Models\User;
+use App\Policies\EntretienPolicy;
+use App\Policies\IdentifiedRiskPolicy;
+use App\Policies\QuestionnaireTemplatePolicy;
 use App\Services\Governance\ExecutiveDashboardService;
 use App\Observers\RisqueObserver;
 use App\Policies\RisquePolicy;
@@ -35,6 +41,16 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Mission::class, \App\Policies\MissionPolicy::class);
         Gate::policy(User::class, \App\Policies\UserPolicy::class);
         Gate::policy(Department::class, \App\Policies\DepartmentPolicy::class);
+        Gate::policy(QuestionnaireTemplate::class, QuestionnaireTemplatePolicy::class);
+        Gate::policy(Entretien::class, EntretienPolicy::class);
+        Gate::policy(IdentifiedRisk::class, IdentifiedRiskPolicy::class);
+
+        Route::bind('entretien', function (string $value) {
+            $user = auth()->user();
+            abort_unless($user, 403);
+
+            return Entretien::query()->whereKey($value)->visibleToUser($user)->firstOrFail();
+        });
 
         Route::bind('mission', function (string $value) {
             $user = auth()->user();

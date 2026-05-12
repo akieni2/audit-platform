@@ -4,14 +4,17 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EntretienConduiteController;
+use App\Http\Controllers\EntretienController;
+use App\Http\Controllers\IdentifiedRiskController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionTeamMemberController;
+use App\Http\Controllers\Questionnaires\QuestionnaireTemplateController;
 use App\Http\Controllers\ProcessusController;
 use App\Http\Controllers\ActifController;
 use App\Http\Controllers\RisqueController;
 use App\Http\Controllers\CartographieController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\EntretienController;
 use App\Http\Controllers\ConstatController;
 use App\Http\Controllers\ActionCorrectiveController;
 use App\Http\Controllers\ControleController;
@@ -142,7 +145,30 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/services/{id}/entretiens', [EntretienController::class,'index'])->name('entretiens.index');
 
-    Route::post('/entretiens', [EntretienController::class,'store'])->name('entretiens.store');
+    Route::get('/entretiens/{entretien}/conduite', [EntretienConduiteController::class, 'show'])
+        ->name('entretiens.conduite.show');
+    Route::post('/entretiens/{entretien}/reponses-dynamiques', [EntretienConduiteController::class, 'storeResponses'])
+        ->name('entretiens.dynamic-responses.store');
+    Route::patch('/entretiens/{entretien}/questionnaire', [EntretienController::class, 'attachTemplate'])
+        ->name('entretiens.questionnaire.attach');
+
+    Route::patch('/identified-risks/{identified_risk}/valider', [IdentifiedRiskController::class, 'validateHuman'])
+        ->name('identified-risks.validate');
+
+    Route::post('/entretiens', [EntretienController::class, 'store'])->name('entretiens.store');
+
+    Route::resource('questionnaire-templates', QuestionnaireTemplateController::class)
+        ->except(['show']);
+    Route::post('/questionnaire-templates/{questionnaire_template}/duplicate', [QuestionnaireTemplateController::class, 'duplicate'])
+        ->name('questionnaire-templates.duplicate');
+    Route::post('/questionnaire-templates/{questionnaire_template}/sections', [QuestionnaireTemplateController::class, 'storeSection'])
+        ->name('questionnaire-templates.sections.store');
+    Route::delete('/questionnaire-templates/{questionnaire_template}/sections/{section}', [QuestionnaireTemplateController::class, 'destroySection'])
+        ->name('questionnaire-templates.sections.destroy');
+    Route::post('/questionnaire-templates/{questionnaire_template}/sections/{section}/questions', [QuestionnaireTemplateController::class, 'storeQuestion'])
+        ->name('questionnaire-templates.questions.store');
+    Route::delete('/questionnaire-templates/{questionnaire_template}/sections/{section}/questions/{question}', [QuestionnaireTemplateController::class, 'destroyQuestion'])
+        ->name('questionnaire-templates.questions.destroy');
 
 
     /*

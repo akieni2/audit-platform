@@ -3,8 +3,12 @@
 namespace App\Services\Iam;
 
 use App\Models\AuditLog;
+use App\Models\Entretien;
+use App\Models\EntretienResponse;
+use App\Models\IdentifiedRisk;
 use App\Models\Mission;
 use App\Models\MissionTeamMember;
+use App\Models\QuestionnaireTemplate;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -313,6 +317,74 @@ class SecurityAuditService
             $actor,
             $request,
             ['mission_id' => $mission->id, 'fields' => $fields],
+        );
+    }
+
+    public function questionnaireTemplateCreated(?User $actor, QuestionnaireTemplate $template, Request $request): AuditLog
+    {
+        return $this->log(
+            'questionnaire_template_created',
+            'questionnaires',
+            'Création modèle questionnaire — '.$template->name,
+            $actor,
+            $request,
+            ['questionnaire_template_id' => $template->id, 'slug' => $template->slug],
+        );
+    }
+
+    public function questionnaireTemplateUpdated(?User $actor, QuestionnaireTemplate $template, Request $request): AuditLog
+    {
+        return $this->log(
+            'questionnaire_template_updated',
+            'questionnaires',
+            'Mise à jour modèle questionnaire — '.$template->name,
+            $actor,
+            $request,
+            ['questionnaire_template_id' => $template->id],
+        );
+    }
+
+    public function entretienResponseCreated(?User $actor, Entretien $entretien, EntretienResponse $response, Request $request): AuditLog
+    {
+        return $this->log(
+            'entretien_response_created',
+            'questionnaires',
+            'Réponse entretien dynamique — entretien #'.$entretien->id,
+            $actor,
+            $request,
+            [
+                'entretien_id' => $entretien->id,
+                'entretien_response_id' => $response->id,
+                'questionnaire_question_id' => $response->questionnaire_question_id,
+            ],
+        );
+    }
+
+    public function riskIdentified(?User $actor, IdentifiedRisk $risk, Request $request): AuditLog
+    {
+        return $this->log(
+            'risk_identified',
+            'questionnaires',
+            'Risque identifié — '.$risk->title,
+            $actor,
+            $request,
+            [
+                'identified_risk_id' => $risk->id,
+                'mission_id' => $risk->mission_id,
+                'entretien_id' => $risk->entretien_id,
+            ],
+        );
+    }
+
+    public function riskValidated(?User $actor, IdentifiedRisk $risk, Request $request): AuditLog
+    {
+        return $this->log(
+            'risk_validated',
+            'questionnaires',
+            'Validation humaine risque — '.$risk->title,
+            $actor,
+            $request,
+            ['identified_risk_id' => $risk->id],
         );
     }
 }

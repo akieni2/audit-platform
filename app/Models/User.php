@@ -455,6 +455,24 @@ class User extends Authenticatable
         });
     }
 
+    /** Bibliothèque de questionnaires d’audit (référentiels dynamiques). */
+    public function canManageQuestionnaireLibrary(): bool
+    {
+        return $this->iamBool('manage_questionnaire_library', function () {
+            $this->loadIamRelations();
+
+            if ($this->canSuperviseAllDepartments()) {
+                return true;
+            }
+
+            if ($this->department_id !== null && $this->isDepartmentSupervisorOf((int) $this->department_id)) {
+                return true;
+            }
+
+            return $this->hasPermission('manage_questionnaire_templates');
+        });
+    }
+
     /** Création / modification de missions selon permissions métier. */
     public function canManageMissions(): bool
     {
