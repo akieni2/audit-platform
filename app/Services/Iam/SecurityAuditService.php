@@ -251,4 +251,68 @@ class SecurityAuditService
             ],
         );
     }
+
+    public function missionCreated(User $actor, Mission $mission, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_created',
+            'missions',
+            'Création mission — #'.$mission->id,
+            $actor,
+            $request,
+            ['mission_id' => $mission->id, 'department_id' => $mission->department_id],
+        );
+    }
+
+    public function missionDeadlinesUpdated(User $actor, Mission $mission, Request $request, array $fields): AuditLog
+    {
+        return $this->log(
+            'mission_deadlines_updated',
+            'missions',
+            'Modification délais / période mission — #'.$mission->id,
+            $actor,
+            $request,
+            ['mission_id' => $mission->id, 'fields' => $fields],
+        );
+    }
+
+    public function missionClosed(User $actor, Mission $mission, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_closed',
+            'missions',
+            'Clôture mission (workflow) — #'.$mission->id,
+            $actor,
+            $request,
+            ['mission_id' => $mission->id, 'mission_status' => $mission->mission_status],
+        );
+    }
+
+    public function missionChefChanged(User $actor, Mission $mission, Request $request, ?int $previousUserId, int $newUserId): AuditLog
+    {
+        return $this->log(
+            'mission_chef_changed',
+            'missions',
+            'Changement chef de mission — #'.$mission->id,
+            $actor,
+            $request,
+            [
+                'mission_id' => $mission->id,
+                'previous_auditeur_id' => $previousUserId,
+                'new_auditeur_id' => $newUserId,
+            ],
+        );
+    }
+
+    public function missionOperationalContentUpdated(User $actor, Mission $mission, Request $request, array $fields): AuditLog
+    {
+        return $this->log(
+            'mission_operational_content_updated',
+            'missions',
+            'Mise à jour contenu opérationnel mission — #'.$mission->id,
+            $actor,
+            $request,
+            ['mission_id' => $mission->id, 'fields' => $fields],
+        );
+    }
 }

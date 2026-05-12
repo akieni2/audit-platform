@@ -92,6 +92,14 @@
                 </div>
             </div>
 
+            <div>
+                <label class="dgcpt-label" for="mission-deadline">Échéance (deadline)</label>
+                <input id="mission-deadline" type="date" name="deadline" value="{{ old('deadline') }}" class="dgcpt-input @error('deadline') border-red-500 ring-1 ring-red-500 @enderror" />
+                @error('deadline')
+                    <p class="mt-1 text-sm text-[#FF5A5A]">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="flex flex-wrap gap-3 pt-2">
                 <button type="submit" class="dgcpt-btn-primary">Créer la mission</button>
                 <a href="{{ route('missions.index') }}" class="dgcpt-btn-outline">Annuler</a>

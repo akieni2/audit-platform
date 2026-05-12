@@ -16,7 +16,7 @@ class StoreMissionTeamMemberRequest extends FormRequest
 
         return $mission instanceof Mission
             && $user !== null
-            && $user->can('update', $mission);
+            && $user->can('assignTeamMembers', $mission);
     }
 
     public function rules(): array
@@ -54,9 +54,6 @@ class StoreMissionTeamMemberRequest extends FormRequest
             }
 
             $eligible = $mission->eligibleTeamUsers($actor)->pluck('id');
-            if ($actor->canSuperviseAllDepartments()) {
-                return;
-            }
 
             if (! $eligible->contains($userId)) {
                 $validator->errors()->add(

@@ -57,21 +57,18 @@ class MissionController extends Controller
         return view('missions.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreMissionRequest $request): RedirectResponse
     {
-        $this->authorize('create', Mission::class);
-
         $user = Auth::user();
 
         $mission = Mission::create([
-            'organisation' => $request->organisation,
-            'description' => $request->description,
-            'date_debut' => $request->date_debut,
-            'date_fin' => $request->date_fin,
+            ...$request->validated(),
             'auditeur_id' => Auth::id(),
             'department_id' => $user?->department_id,
             'mission_status' => Mission::STATUS_BROUILLON,
         ]);
+
+        app(SecurityAuditService::class)->missionCreated($request->user(), $mission, $request);
 
         return redirect()->route('missions.show', $mission)->with('status', 'Mission créée.');
     }
@@ -82,7 +79,7 @@ class MissionController extends Controller
 
         $mission->load([
             'workflowEvents.user',
-            'department',
+            'department.supervisor',
             'missionTeamMembers.user',
             'missionTeamMembers.assignedBy',
         ]);
@@ -92,7 +89,7 @@ class MissionController extends Controller
         abort_unless($actor, 403);
 
         $eligibleTeamUsers = collect();
-        if ($actor->can('update', $mission)) {
+        if ($actor->can('assignTeamMembers', $mission)) {
             $existingIds = $mission->missionTeamMembers->pluck('user_id');
             $eligibleTeamUsers = $mission->eligibleTeamUsers($actor)
                 ->whereNotIn('id', $existingIds)
@@ -109,21 +106,35 @@ class MissionController extends Controller
 
     public function edit(Mission $mission): View
     {
-        $this->authorize('update', $mission);
+        $this->authorize('editMission', $mission);
 
         return view('missions.edit', compact('mission'));
     }
 
     public function update(UpdateMissionRequest $request, Mission $mission): RedirectResponse
     {
-        $mission->update($request->validated());
+        $user = $request->user();
+        abort_unless($user, 403);
 
-        app(SecurityAuditService::class)->missionOrdreUpdated(
-            $request->user(),
-            $mission->fresh(),
-            $request,
-            array_keys($request->validated())
-        );
+        $validated = $request->validated();
+        $audit = app(SecurityAuditService::class);
+
+        $mission->update($validated);
+        $fresh = $mission->fresh();
+
+        if ($user->can('governMission', $fresh)) {
+            $deadlineFields = array_values(array_intersect(array_keys($validated), UpdateMissionRequest::deadlineKeys()));
+            if ($deadlineFields !== []) {
+                $audit->missionDeadlinesUpdated($user, $fresh, $request, $deadlineFields);
+            }
+
+            $otherFields = array_values(array_diff(array_keys($validated), UpdateMissionRequest::deadlineKeys()));
+            if ($otherFields !== []) {
+                $audit->missionOrdreUpdated($user, $fresh, $request, $otherFields);
+            }
+        } elseif ($user->can('updateMissionContent', $fresh)) {
+            $audit->missionOperationalContentUpdated($user, $fresh, $request, array_keys($validated));
+        }
 
         return redirect()->route('missions.show', $mission)->with('status', 'Mission mise à jour.');
     }
@@ -139,6 +150,14 @@ class MissionController extends Controller
             $action,
             $request->input('comment')
         );
+
+        if ($action === MissionWorkflowService::ACTION_CLOTURER) {
+            app(SecurityAuditService::class)->missionClosed(
+                $request->user(),
+                $mission->fresh(),
+                $request
+            );
+        }
 
         return redirect()->route('missions.show', $mission)->with('status', 'Décision enregistrée.');
     }

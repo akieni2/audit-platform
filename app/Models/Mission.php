@@ -33,6 +33,7 @@ class Mission extends Model
         'observations_generales',
         'date_debut',
         'date_fin',
+        'deadline',
         'auditeur_id',
         'department_id',
         'mission_type',
@@ -48,6 +49,7 @@ class Mission extends Model
         return [
             'date_debut' => 'date',
             'date_fin' => 'date',
+            'deadline' => 'date',
             'date_ordre_mission' => 'date',
         ];
     }
@@ -105,25 +107,15 @@ class Mission extends Model
      */
     public function eligibleTeamUsers(User $actor): \Illuminate\Database\Eloquent\Collection
     {
-        $query = User::query()
+        $deptId = $this->department_id !== null ? (int) $this->department_id : null;
+        if ($deptId === null) {
+            return User::query()->whereRaw('1 = 0')->get();
+        }
+
+        return User::query()
             ->where('approval_status', 'approved')
-            ->where('active', true);
-
-        if ($actor->canSuperviseAllDepartments()) {
-            return $query->orderBy('name')->orderBy('email')->get();
-        }
-
-        $departmentIds = array_unique(array_filter([
-            $this->department_id ? (int) $this->department_id : null,
-            $this->supervising_department_id ? (int) $this->supervising_department_id : null,
-            $actor->department_id ? (int) $actor->department_id : null,
-        ]));
-
-        if ($departmentIds === []) {
-            return $query->whereRaw('1 = 0')->get();
-        }
-
-        return $query->whereIn('department_id', $departmentIds)
+            ->where('active', true)
+            ->where('department_id', $deptId)
             ->orderBy('name')
             ->orderBy('email')
             ->get();

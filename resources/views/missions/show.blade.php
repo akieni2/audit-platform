@@ -32,10 +32,28 @@
             @endif
         </div>
 
+        @php
+            $chefMembre = $mission->missionTeamMembers->firstWhere('mission_role', \App\Models\MissionTeamMember::ROLE_CHEF_MISSION);
+        @endphp
+
+        <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+            <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Gouvernance institutionnelle</h2>
+            <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                <div>
+                    <dt class="text-[#9FB3C8]">Superviseur propriétaire (pôle)</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->department?->supervisor?->displayName() ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Chef de mission (opérationnel)</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $chefMembre?->user?->displayName() ?? $mission->auditeur?->displayName() ?? '—' }}</dd>
+                </div>
+            </dl>
+        </div>
+
         <div class="dgcpt-surface p-6 shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Ordre de mission</h2>
-                @can('update', $mission)
+                @can('editMission', $mission)
                     <a href="{{ route('missions.edit', $mission) }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">
                         Modifier ordre et fiche
                     </a>
@@ -70,6 +88,10 @@
                     <dt class="text-[#9FB3C8]">Date fin (mission)</dt>
                     <dd class="font-semibold text-[#E6EEF8]">{{ $mission->date_fin instanceof \Carbon\Carbon ? $mission->date_fin->format('d/m/Y') : ($mission->date_fin ?? '—') }}</dd>
                 </div>
+                <div>
+                    <dt class="text-[#9FB3C8]">Échéance (deadline)</dt>
+                    <dd class="font-semibold text-[#E6EEF8]">{{ $mission->deadline instanceof \Carbon\Carbon ? $mission->deadline->format('d/m/Y') : ($mission->deadline ?? '—') }}</dd>
+                </div>
                 <div class="sm:col-span-2">
                     <dt class="text-[#9FB3C8]">Observations générales</dt>
                     <dd class="whitespace-pre-wrap text-[#E6EEF8]">{{ $mission->observations_generales ?: '—' }}</dd>
@@ -94,7 +116,7 @@
                                 <th class="text-left">Rôle mission</th>
                                 <th class="text-left">Désignation</th>
                                 <th class="text-left">Affecté le</th>
-                                @can('update', $mission)
+                                @can('assignTeamMembers', $mission)
                                     <th class="text-right">Actions</th>
                                 @endcan
                             </tr>
@@ -111,7 +133,7 @@
                                     <td class="text-[#9FB3C8]">{{ $missionRoleLabels[$member->mission_role] ?? $member->mission_role }}</td>
                                     <td class="text-[#9FB3C8]">{{ $member->designation ?: '—' }}</td>
                                     <td class="text-[#9FB3C8]">{{ $member->assigned_at?->format('d/m/Y H:i') ?? '—' }}</td>
-                                    @can('update', $mission)
+                                    @can('assignTeamMembers', $mission)
                                         <td class="text-right">
                                             <form method="POST" action="{{ route('missions.team-members.destroy', [$mission, $member]) }}" class="inline" onsubmit="return confirm('Retirer ce membre de l’équipe ?');">
                                                 @csrf
@@ -127,7 +149,7 @@
                 </div>
             @endif
 
-            @can('update', $mission)
+            @can('assignTeamMembers', $mission)
                 @if ($eligibleTeamUsers->isEmpty())
                     <p class="mt-4 text-sm text-[#9FB3C8]">Aucun utilisateur disponible à affecter dans le périmètre autorisé (ou l’équipe est complète).</p>
                 @else
@@ -175,7 +197,7 @@
         <div class="dgcpt-surface p-6 shadow-sm">
             <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Description</h2>
             <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#9FB3C8]">{{ $mission->description ?: '—' }}</p>
-            @can('update', $mission)
+            @can('editMission', $mission)
                 <p class="mt-4">
                     <a href="{{ route('missions.edit', $mission) }}" class="text-sm font-semibold text-[#00D1FF] hover:underline">
                         Modifier les informations

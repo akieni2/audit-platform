@@ -21,6 +21,8 @@ class MissionTeamMemberController extends Controller
                 MissionTeamMember::demoteOtherChefs($mission);
             }
 
+            $previousAuditeurId = $mission->auditeur_id;
+
             $member = MissionTeamMember::query()->create([
                 'mission_id' => $mission->id,
                 'user_id' => (int) $request->validated('user_id'),
@@ -32,6 +34,16 @@ class MissionTeamMemberController extends Controller
             ]);
 
             if ($role === MissionTeamMember::ROLE_CHEF_MISSION) {
+                $newId = (int) $member->user_id;
+                if ((int) $previousAuditeurId !== $newId) {
+                    app(SecurityAuditService::class)->missionChefChanged(
+                        $request->user(),
+                        $mission,
+                        $request,
+                        $previousAuditeurId !== null ? (int) $previousAuditeurId : null,
+                        $newId
+                    );
+                }
                 $mission->update(['auditeur_id' => $member->user_id]);
             }
 
@@ -50,7 +62,7 @@ class MissionTeamMemberController extends Controller
 
     public function destroy(Request $request, Mission $mission, MissionTeamMember $teamMember): RedirectResponse
     {
-        $this->authorize('update', $mission);
+        $this->authorize('assignTeamMembers', $mission);
 
         abort_unless((int) $teamMember->mission_id === (int) $mission->id, 404);
 

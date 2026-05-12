@@ -122,6 +122,55 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    /** Superviseur institutionnel du département (Department::supervisor_user_id). */
+    public function isDepartmentSupervisorOf(?int $departmentId): bool
+    {
+        if ($departmentId === null) {
+            return false;
+        }
+
+        return (int) Department::query()->whereKey($departmentId)->value('supervisor_user_id') === (int) $this->id;
+    }
+
+    /**
+     * Propriétaire institutionnel de mission ou pouvoir national (inspection / super_admin / supervise_global).
+     */
+    public function canGovernMissionInstitutionally(Mission $mission): bool
+    {
+        if ($this->canSuperviseAllDepartments()) {
+            return true;
+        }
+
+        return $this->isDepartmentSupervisorOf($mission->department_id !== null ? (int) $mission->department_id : null);
+    }
+
+    /**
+     * Membre opérationnel autorisé à enrichir le contenu non stratégique (hors délais / département / statut).
+     */
+    public function isMissionOperationalContributor(Mission $mission): bool
+    {
+        $mission->loadMissing('missionTeamMembers');
+
+        $allowed = [
+            MissionTeamMember::ROLE_CHEF_MISSION,
+            MissionTeamMember::ROLE_INSPECTEUR_VERIFICATEUR,
+            MissionTeamMember::ROLE_INSPECTEUR_VERIFICATEUR_ADJOINT,
+            MissionTeamMember::ROLE_AGENT,
+            MissionTeamMember::ROLE_ASSISTANT,
+        ];
+
+        foreach ($mission->missionTeamMembers as $row) {
+            if ((int) $row->user_id !== (int) $this->id) {
+                continue;
+            }
+            if (in_array($row->mission_role, $allowed, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** Rôle institutionnel DGCPT (table roles). */
     public function institutionalRole(): BelongsTo
     {

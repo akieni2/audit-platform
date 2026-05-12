@@ -30,6 +30,8 @@ class MissionOrdreMissionPhase1Test extends TestCase
             'active' => true,
         ]);
 
+        $dept->update(['supervisor_user_id' => $actor->id]);
+
         $auditeur = User::factory()->create([
             'department_id' => $dept->id,
             'approval_status' => 'approved',

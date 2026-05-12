@@ -15,6 +15,8 @@ class MissionTeamMember extends Model
 
     public const ROLE_OBSERVATEUR = 'observateur';
 
+    public const ROLE_AGENT = 'agent';
+
     public const ROLE_EXPERT = 'expert';
 
     public const ROLE_ASSISTANT = 'assistant';
@@ -28,6 +30,7 @@ class MissionTeamMember extends Model
             self::ROLE_CHEF_MISSION,
             self::ROLE_INSPECTEUR_VERIFICATEUR,
             self::ROLE_INSPECTEUR_VERIFICATEUR_ADJOINT,
+            self::ROLE_AGENT,
             self::ROLE_OBSERVATEUR,
             self::ROLE_EXPERT,
             self::ROLE_ASSISTANT,
@@ -43,6 +46,7 @@ class MissionTeamMember extends Model
             self::ROLE_CHEF_MISSION => 'Chef de mission',
             self::ROLE_INSPECTEUR_VERIFICATEUR => 'Inspecteur Vérificateur',
             self::ROLE_INSPECTEUR_VERIFICATEUR_ADJOINT => 'Inspecteur Vérificateur Adjoint',
+            self::ROLE_AGENT => 'Agent',
             self::ROLE_OBSERVATEUR => 'Observateur',
             self::ROLE_EXPERT => 'Expert',
             self::ROLE_ASSISTANT => 'Assistant',

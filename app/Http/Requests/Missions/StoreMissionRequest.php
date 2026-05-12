@@ -25,6 +25,7 @@ class StoreMissionRequest extends FormRequest
             'observations_generales' => ['nullable', 'string'],
             'date_debut' => ['required', 'date'],
             'date_fin' => ['nullable', 'date', 'after_or_equal:date_debut'],
+            'deadline' => ['nullable', 'date'],
         ];
     }
 }
