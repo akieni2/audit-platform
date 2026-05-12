@@ -21,7 +21,8 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['entretien_id', 'questionnaire_question_id']);
+            $table->unique(['entretien_id', 'questionnaire_question_id'],
+    'entretien_question_unique');
         });
     }
 
