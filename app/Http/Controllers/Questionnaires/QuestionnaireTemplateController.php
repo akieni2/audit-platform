@@ -13,47 +13,27 @@ use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 
 class QuestionnaireTemplateController extends Controller
 {
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        $user = Auth::user();
-        abort_unless($user, 403);
-
-        $query = QuestionnaireTemplate::query()->withCount('sections')->orderBy('name');
-
-        if (! $user->canManageQuestionnaireLibrary()) {
-            $query->where('active', true)
-                ->where(function ($q) use ($user) {
-                    $q->whereNull('department_scope')
-                        ->orWhereJsonLength('department_scope', 0);
-                    if ($user->department_id !== null) {
-                        $q->orWhereJsonContains('department_scope', (int) $user->department_id);
-                    }
-                });
-        }
-
-        $templates = $query->paginate(20)->withQueryString();
-
-        return view('questionnaires.templates.index', compact('templates'));
+        return redirect()->route('questionnaire-builder.index');
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        $this->authorize('create', QuestionnaireTemplate::class);
-
-        return view('questionnaires.templates.create');
+        return redirect()->route('questionnaire-builder.index');
     }
 
     public function store(StoreQuestionnaireTemplateRequest $request): RedirectResponse
     {
         $template = QuestionnaireTemplate::query()->create([
             ...$request->validated(),
+            'active' => false,
+            'lifecycle_status' => QuestionnaireTemplate::STATUS_DRAFT,
             'created_by' => $request->user()?->id,
             'updated_by' => $request->user()?->id,
         ]);
@@ -61,23 +41,23 @@ class QuestionnaireTemplateController extends Controller
         app(SecurityAuditService::class)->questionnaireTemplateCreated($request->user(), $template, $request);
 
         return redirect()
-            ->route('questionnaire-templates.edit', $template)
-            ->with('status', 'Modèle de questionnaire créé.');
+            ->route('questionnaire-builder.edit', $template)
+            ->with('status', 'Modèle créé dans le builder officiel.');
     }
 
-    public function edit(QuestionnaireTemplate $questionnaire_template): View
+    public function edit(QuestionnaireTemplate $questionnaire_template): RedirectResponse
     {
-        $this->authorize('view', $questionnaire_template);
-
-        $questionnaire_template->load(['sections.questions' => fn ($q) => $q->orderBy('sort_order')]);
-
-        return view('questionnaires.templates.edit', [
-            'template' => $questionnaire_template,
-        ]);
+        return redirect()->route('questionnaire-builder.edit', $questionnaire_template);
     }
 
     public function update(UpdateQuestionnaireTemplateRequest $request, QuestionnaireTemplate $questionnaire_template): RedirectResponse
     {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'Utilisez le builder officiel pour créer une nouvelle version brouillon.');
+        }
+
         $questionnaire_template->update([
             ...$request->validated(),
             'updated_by' => $request->user()?->id,
@@ -92,6 +72,12 @@ class QuestionnaireTemplateController extends Controller
 
     public function destroy(Request $request, QuestionnaireTemplate $questionnaire_template): RedirectResponse
     {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'L’archivage d’un template publié se fait depuis le builder officiel.');
+        }
+
         $this->authorize('delete', $questionnaire_template);
 
         DB::transaction(function () use ($questionnaire_template) {
@@ -130,6 +116,8 @@ class QuestionnaireTemplateController extends Controller
                 'department_scope' => $questionnaire_template->department_scope,
                 'active' => false,
                 'version' => 1,
+                'lifecycle_status' => QuestionnaireTemplate::STATUS_DRAFT,
+                'source_template_id' => $questionnaire_template->source_template_id ?: $questionnaire_template->id,
                 'created_by' => $request->user()?->id,
                 'updated_by' => $request->user()?->id,
             ]);
@@ -140,6 +128,7 @@ class QuestionnaireTemplateController extends Controller
                     'title' => $section->title,
                     'description' => $section->description,
                     'sort_order' => $section->sort_order,
+                    'source_section_id' => $section->id,
                 ]);
 
                 foreach ($section->questions as $question) {
@@ -158,6 +147,7 @@ class QuestionnaireTemplateController extends Controller
                         'sort_order' => $question->sort_order,
                         'active' => $question->active,
                         'metadata' => $question->metadata,
+                        'source_question_id' => $question->id,
                     ]);
                 }
             }
@@ -168,12 +158,18 @@ class QuestionnaireTemplateController extends Controller
         app(SecurityAuditService::class)->questionnaireTemplateCreated($request->user(), $copy, $request);
 
         return redirect()
-            ->route('questionnaire-templates.edit', $copy)
-            ->with('status', 'Modèle dupliqué (inactif par défaut).');
+            ->route('questionnaire-builder.edit', $copy)
+            ->with('status', 'Modèle dupliqué dans le builder officiel.');
     }
 
     public function storeSection(StoreQuestionnaireSectionRequest $request, QuestionnaireTemplate $questionnaire_template): RedirectResponse
     {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'Les templates publiés se modifient via une nouvelle version brouillon dans le builder officiel.');
+        }
+
         $questionnaire_template->sections()->create($request->validated());
 
         return back()->with('status', 'Section ajoutée.');
@@ -181,6 +177,12 @@ class QuestionnaireTemplateController extends Controller
 
     public function destroySection(Request $request, QuestionnaireTemplate $questionnaire_template, QuestionnaireSection $section): RedirectResponse
     {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'Les templates publiés se modifient via une nouvelle version brouillon dans le builder officiel.');
+        }
+
         $this->authorize('update', $questionnaire_template);
         abort_unless((int) $section->questionnaire_template_id === (int) $questionnaire_template->id, 404);
 
@@ -197,12 +199,15 @@ class QuestionnaireTemplateController extends Controller
         QuestionnaireTemplate $questionnaire_template,
         QuestionnaireSection $section
     ): RedirectResponse {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'Les templates publiés se modifient via une nouvelle version brouillon dans le builder officiel.');
+        }
+
         abort_unless((int) $section->questionnaire_template_id === (int) $questionnaire_template->id, 404);
 
         $data = $request->validated();
-        $data['required'] = $request->boolean('required');
-        $data['allows_observation'] = $request->boolean('allows_observation');
-        $data['allows_risk_detection'] = $request->boolean('allows_risk_detection');
 
         $section->questions()->create($data);
 
@@ -215,6 +220,12 @@ class QuestionnaireTemplateController extends Controller
         QuestionnaireSection $section,
         QuestionnaireQuestion $question
     ): RedirectResponse {
+        if ($questionnaire_template->isImmutable()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $questionnaire_template)
+                ->with('status', 'Les templates publiés se modifient via une nouvelle version brouillon dans le builder officiel.');
+        }
+
         $this->authorize('update', $questionnaire_template);
         abort_unless((int) $section->questionnaire_template_id === (int) $questionnaire_template->id, 404);
         abort_unless((int) $question->questionnaire_section_id === (int) $section->id, 404);
