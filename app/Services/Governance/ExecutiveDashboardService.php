@@ -52,8 +52,8 @@ final class ExecutiveDashboardService
 
         $risquesCritiques = Risque::query()
             ->where(function ($q) {
-                $q->where('criticite_inherent', CriticalityLevel::Critique->value)
-                    ->orWhere('criticite_residuel', CriticalityLevel::Critique->value);
+                $q->where('criticite_inherent', CriticalityLevel::Critical->value)
+                    ->orWhere('criticite_residuel', CriticalityLevel::Critical->value);
             })
             ->count();
 

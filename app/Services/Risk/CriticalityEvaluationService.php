@@ -19,10 +19,10 @@ final class CriticalityEvaluationService
         $score = max(self::SCORE_MIN, min(self::SCORE_MAX, $score));
 
         return match (true) {
-            $score <= 6 => CriticalityLevel::Faible,
-            $score <= 12 => CriticalityLevel::Moyen,
-            $score <= 18 => CriticalityLevel::Eleve,
-            default => CriticalityLevel::Critique,
+            $score <= 6 => CriticalityLevel::Low,
+            $score <= 12 => CriticalityLevel::Medium,
+            $score <= 18 => CriticalityLevel::High,
+            default => CriticalityLevel::Critical,
         };
     }
 
@@ -36,10 +36,10 @@ final class CriticalityEvaluationService
         $score = max(1, min(25, $impact * $probability));
 
         return match ($this->levelFromScore($score)) {
-            CriticalityLevel::Faible => 'green',
-            CriticalityLevel::Moyen => 'yellow',
-            CriticalityLevel::Eleve => 'orange',
-            CriticalityLevel::Critique => 'red',
+            CriticalityLevel::Low => 'green',
+            CriticalityLevel::Medium => 'yellow',
+            CriticalityLevel::High => 'orange',
+            CriticalityLevel::Critical => 'red',
         };
     }
 
@@ -47,10 +47,10 @@ final class CriticalityEvaluationService
     public function heatmapCellClasses(CriticalityLevel $level): string
     {
         return match ($level) {
-            CriticalityLevel::Faible => 'bg-green-500 text-white',
-            CriticalityLevel::Moyen => 'bg-yellow-400 text-slate-900',
-            CriticalityLevel::Eleve => 'bg-orange-500 text-white',
-            CriticalityLevel::Critique => 'bg-red-600 text-white',
+            CriticalityLevel::Low => 'bg-green-500 text-white',
+            CriticalityLevel::Medium => 'bg-yellow-400 text-slate-900',
+            CriticalityLevel::High => 'bg-orange-500 text-white',
+            CriticalityLevel::Critical => 'bg-red-600 text-white',
         };
     }
 }

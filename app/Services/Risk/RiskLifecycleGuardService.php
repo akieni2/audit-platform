@@ -4,64 +4,122 @@ namespace App\Services\Risk;
 
 use App\Domain\Risk\Enums\RiskLifecycleStatus;
 use App\Models\IdentifiedRisk;
+use App\Models\Risque;
 use DomainException;
 
 final class RiskLifecycleGuardService
 {
-    public function ensureCanReview(IdentifiedRisk $identifiedRisk): void
+    public function ensureCanSubmitForReview(IdentifiedRisk $identifiedRisk): void
     {
         $this->ensureTransitionAllowed(
-            $identifiedRisk,
-            [
+            current: $identifiedRisk->lifecycle_status,
+            allowed: [
                 RiskLifecycleStatus::Detected,
-                RiskLifecycleStatus::Reviewed,
-                RiskLifecycleStatus::Qualified,
+                RiskLifecycleStatus::UnderReview,
+                RiskLifecycleStatus::Validated,
             ],
-            'review',
+            operation: 'submit_for_review',
         );
+    }
+
+    public function ensureCanReview(IdentifiedRisk $identifiedRisk): void
+    {
+        $this->ensureCanSubmitForReview($identifiedRisk);
     }
 
     public function ensureCanApprove(IdentifiedRisk $identifiedRisk): void
     {
         $this->ensureTransitionAllowed(
-            $identifiedRisk,
-            [
-                RiskLifecycleStatus::Reviewed,
-                RiskLifecycleStatus::Qualified,
-                RiskLifecycleStatus::Approved,
+            current: $identifiedRisk->lifecycle_status,
+            allowed: [
+                RiskLifecycleStatus::Detected,
+                RiskLifecycleStatus::UnderReview,
+                RiskLifecycleStatus::Validated,
             ],
-            'approve',
+            operation: 'approve',
+        );
+    }
+
+    public function ensureCanReject(IdentifiedRisk $identifiedRisk): void
+    {
+        $this->ensureTransitionAllowed(
+            current: $identifiedRisk->lifecycle_status,
+            allowed: [
+                RiskLifecycleStatus::Detected,
+                RiskLifecycleStatus::UnderReview,
+                RiskLifecycleStatus::Validated,
+            ],
+            operation: 'reject',
         );
     }
 
     public function ensureCanPromote(IdentifiedRisk $identifiedRisk): void
     {
         $this->ensureTransitionAllowed(
-            $identifiedRisk,
-            [
+            current: $identifiedRisk->lifecycle_status,
+            allowed: [
                 RiskLifecycleStatus::Detected,
-                RiskLifecycleStatus::Reviewed,
-                RiskLifecycleStatus::Qualified,
-                RiskLifecycleStatus::Approved,
+                RiskLifecycleStatus::UnderReview,
+                RiskLifecycleStatus::Validated,
                 RiskLifecycleStatus::Promoted,
             ],
-            'promote',
+            operation: 'promote',
+        );
+    }
+
+    /**
+     * Official risk register lifecycle controls.
+     */
+    public function ensureCanMitigate(Risque $risque): void
+    {
+        $this->ensureTransitionAllowed(
+            current: $risque->lifecycle_status,
+            allowed: [
+                RiskLifecycleStatus::Promoted,
+                RiskLifecycleStatus::Mitigated,
+            ],
+            operation: 'mitigate',
+        );
+    }
+
+    public function ensureCanClose(Risque $risque): void
+    {
+        $this->ensureTransitionAllowed(
+            current: $risque->lifecycle_status,
+            allowed: [
+                RiskLifecycleStatus::Promoted,
+                RiskLifecycleStatus::Mitigated,
+                RiskLifecycleStatus::Closed,
+            ],
+            operation: 'close',
+        );
+    }
+
+    public function ensureCanArchive(Risque $risque): void
+    {
+        $this->ensureTransitionAllowed(
+            current: $risque->lifecycle_status,
+            allowed: [
+                RiskLifecycleStatus::Closed,
+                RiskLifecycleStatus::Rejected,
+                RiskLifecycleStatus::Archived,
+            ],
+            operation: 'archive',
         );
     }
 
     /**
      * @param  list<RiskLifecycleStatus>  $allowed
      */
-    private function ensureTransitionAllowed(IdentifiedRisk $identifiedRisk, array $allowed, string $operation): void
+    private function ensureTransitionAllowed(?string $current, array $allowed, string $operation): void
     {
-        $current = RiskLifecycleStatus::tryFrom((string) ($identifiedRisk->lifecycle_status ?: RiskLifecycleStatus::Detected->value))
-            ?? RiskLifecycleStatus::Detected;
+        $currentState = RiskLifecycleStatus::fromMixed($current);
 
-        if (! in_array($current, $allowed, true)) {
+        if (! in_array($currentState, $allowed, true)) {
             throw new DomainException(sprintf(
                 'Transition lifecycle invalide pour %s depuis l’état "%s".',
                 $operation,
-                $current->value
+                $currentState->value
             ));
         }
     }

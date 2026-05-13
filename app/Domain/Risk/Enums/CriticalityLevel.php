@@ -4,10 +4,10 @@ namespace App\Domain\Risk\Enums;
 
 enum CriticalityLevel: string
 {
-    case Faible = 'faible';
-    case Moyen = 'moyen';
-    case Eleve = 'eleve';
-    case Critique = 'critique';
+    case Low = 'low';
+    case Medium = 'medium';
+    case High = 'high';
+    case Critical = 'critical';
 
     /**
      * @return array<string, string>
@@ -15,10 +15,10 @@ enum CriticalityLevel: string
     public static function options(): array
     {
         return [
-            self::Faible->value => self::Faible->label(),
-            self::Moyen->value => self::Moyen->label(),
-            self::Eleve->value => self::Eleve->label(),
-            self::Critique->value => self::Critique->label(),
+            self::Low->value => self::Low->label(),
+            self::Medium->value => self::Medium->label(),
+            self::High->value => self::High->label(),
+            self::Critical->value => self::Critical->label(),
         ];
     }
 
@@ -37,26 +37,50 @@ enum CriticalityLevel: string
 
         return match ($normalized) {
             '', 'n/a', 'na', 'none' => null,
-            'faible', 'bas', 'basse', 'low' => self::Faible,
-            'moyen', 'moyenne', 'medium', 'moderate' => self::Moyen,
-            'eleve', 'elevee', 'high' => self::Eleve,
-            'critique', 'critical' => self::Critique,
+            'faible', 'bas', 'basse', 'low' => self::Low,
+            'moyen', 'moyenne', 'medium', 'moderate' => self::Medium,
+            'eleve', 'elevee', 'haute', 'haut', 'high' => self::High,
+            'critique', 'critical', 'severe', 'very_high', 'very-high' => self::Critical,
             default => self::tryFrom($normalized),
         };
+    }
+
+    public static function legacyMap(): array
+    {
+        return [
+            'faible' => self::Low->value,
+            'moyen' => self::Medium->value,
+            'eleve' => self::High->value,
+            'critique' => self::Critical->value,
+            'low' => self::Low->value,
+            'medium' => self::Medium->value,
+            'high' => self::High->value,
+            'critical' => self::Critical->value,
+        ];
     }
 
     public function label(): string
     {
         return match ($this) {
-            self::Faible => 'Faible',
-            self::Moyen => 'Moyen',
-            self::Eleve => 'Élevé',
-            self::Critique => 'Critique',
+            self::Low => 'Faible',
+            self::Medium => 'Moyen',
+            self::High => 'Élevé',
+            self::Critical => 'Critique',
         };
     }
 
-    public function isCritique(): bool
+    public function color(): string
     {
-        return $this === self::Critique;
+        return match ($this) {
+            self::Low => 'green',
+            self::Medium => 'yellow',
+            self::High => 'orange',
+            self::Critical => 'red',
+        };
+    }
+
+    public function isCritical(): bool
+    {
+        return $this === self::Critical;
     }
 }

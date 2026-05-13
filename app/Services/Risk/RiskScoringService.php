@@ -8,6 +8,7 @@ final class RiskScoringService
 {
     public function __construct(
         private CriticalityEvaluationService $criticality,
+        private RiskScoringEngine $engine,
     ) {}
 
     public function clampScale(?int $value): ?int
@@ -72,25 +73,11 @@ final class RiskScoringService
         int|string|null $impact,
         ?string $criticality = null,
     ): array {
-        $normalizedProbability = $this->normalizeScaleValue($probability);
-        $normalizedImpact = $this->normalizeScaleValue($impact);
-        $normalizedCriticality = CriticalityLevel::fromMixed($criticality);
-
-        if ($normalizedProbability === null || $normalizedImpact === null) {
-            [$fallbackProbability, $fallbackImpact] = $this->fallbackCoordinates($normalizedCriticality);
-            $normalizedProbability ??= $fallbackProbability;
-            $normalizedImpact ??= $fallbackImpact;
-        }
-
-        $score = (int) $this->score($normalizedImpact, $normalizedProbability);
-        $level = $this->criticality->levelFromScore($score);
-
-        return [
-            'probability' => $normalizedProbability,
-            'impact' => $normalizedImpact,
-            'score' => $score,
-            'criticality' => $level->value,
-        ];
+        return $this->engine->inherent(
+            probability: $probability,
+            impact: $impact,
+            criticality: $criticality,
+        );
     }
 
     /**
@@ -101,18 +88,11 @@ final class RiskScoringService
         int $probabilityInherent,
         float $coefficient,
     ): array {
-        $scoreInherent = max(1, min(25, $impactInherent * $probabilityInherent));
-        $scoreResidual = max(1, min(25, (int) round($scoreInherent * $coefficient)));
-        $impactResidual = $this->clampScale($impactInherent) ?? 1;
-        $probabilityResidual = max(1, min(5, (int) ceil($scoreResidual / max(1, $impactResidual))));
-        $level = $this->criticality->levelFromScore($scoreResidual);
-
-        return [
-            'probability' => $probabilityResidual,
-            'impact' => $impactResidual,
-            'score' => $scoreResidual,
-            'criticality' => $level->value,
-        ];
+        return $this->engine->residualFromCoefficient(
+            impactInherent: $impactInherent,
+            probabilityInherent: $probabilityInherent,
+            coefficient: $coefficient,
+        );
     }
 
     /**
@@ -121,10 +101,10 @@ final class RiskScoringService
     private function fallbackCoordinates(?CriticalityLevel $criticality): array
     {
         return match ($criticality) {
-            CriticalityLevel::Faible => [2, 2],
-            CriticalityLevel::Moyen => [3, 3],
-            CriticalityLevel::Eleve => [4, 4],
-            CriticalityLevel::Critique => [5, 4],
+            CriticalityLevel::Low => [2, 2],
+            CriticalityLevel::Medium => [3, 3],
+            CriticalityLevel::High => [4, 4],
+            CriticalityLevel::Critical => [5, 4],
             null => [3, 3],
         };
     }

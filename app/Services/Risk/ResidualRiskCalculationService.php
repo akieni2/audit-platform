@@ -37,15 +37,19 @@ final class ResidualRiskCalculationService
         );
 
         $risque->score_residuel = $residual['score'];
+        $risque->residual_score = $residual['score'];
         $risque->impact_residuel = $residual['impact'];
         $risque->probabilite_residuel = $residual['probability'];
         $risque->criticite_residuel = $residual['criticality'];
+        $risque->criticality = $residual['criticality'];
+        $risque->heatmap_x = $residual['heatmap_x'];
+        $risque->heatmap_y = $residual['heatmap_y'];
 
         $risque->saveQuietly();
 
         $risque->genererPlanActionAutomatique();
 
-        if ($risque->criticite_residuel === CriticalityLevel::Critique->value) {
+        if ($risque->criticite_residuel === CriticalityLevel::Critical->value) {
             $risque->loadMissing('actif.processus.mission');
             $mission = optional($risque->actif?->processus)->mission;
             if ($mission) {

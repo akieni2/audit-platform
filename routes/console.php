@@ -60,7 +60,7 @@ Artisan::command('platform:integrity-audit', function () {
     $legacyCriticalityCount = Schema::hasTable('identified_risks')
         ? DB::table('identified_risks')
             ->whereNotNull('criticality')
-            ->whereNotIn('criticality', ['faible', 'moyen', 'eleve', 'critique'])
+            ->whereNotIn('criticality', ['low', 'medium', 'high', 'critical'])
             ->count()
         : 0;
 

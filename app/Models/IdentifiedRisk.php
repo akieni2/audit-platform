@@ -26,12 +26,21 @@ class IdentifiedRisk extends Model
         'recommendation',
         'ai_generated',
         'validated_by_human',
+        'submitted_for_review_at',
         'reviewed_by',
+        'review_notes',
         'reviewed_at',
         'approved_by',
+        'approval_notes',
         'approved_at',
+        'rejected_by',
+        'rejected_at',
+        'rejection_notes',
         'promoted_at',
         'promotion_notes',
+        'owner_user_id',
+        'owner_department_id',
+        'metadata',
         'created_by',
     ];
 
@@ -40,9 +49,12 @@ class IdentifiedRisk extends Model
         return [
             'ai_generated' => 'boolean',
             'validated_by_human' => 'boolean',
+            'submitted_for_review_at' => 'datetime',
             'reviewed_at' => 'datetime',
             'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
             'promoted_at' => 'datetime',
+            'metadata' => 'array',
         ];
     }
 
@@ -51,9 +63,7 @@ class IdentifiedRisk extends Model
      */
     public static function lifecycleLabels(): array
     {
-        return collect(RiskLifecycleStatus::cases())
-            ->mapWithKeys(fn (RiskLifecycleStatus $status) => [$status->value => $status->label()])
-            ->all();
+        return RiskLifecycleStatus::labels();
     }
 
     public static function normalizeCriticality(?string $value): ?string
@@ -64,6 +74,11 @@ class IdentifiedRisk extends Model
     public function criticalityLabel(): ?string
     {
         return CriticalityLevel::fromMixed($this->criticality)?->label();
+    }
+
+    public function lifecycleLabel(): string
+    {
+        return RiskLifecycleStatus::fromMixed($this->lifecycle_status)->label();
     }
 
     public function mission(): BelongsTo
@@ -99,6 +114,21 @@ class IdentifiedRisk extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by')->withTrashed();
+    }
+
+    public function rejector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by')->withTrashed();
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_user_id')->withTrashed();
+    }
+
+    public function ownerDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'owner_department_id');
     }
 
     public function promotedRisk(): HasOne

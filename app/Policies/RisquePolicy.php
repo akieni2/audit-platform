@@ -42,7 +42,7 @@ class RisquePolicy
 
     private function isCritical(Risque $risque): bool
     {
-        return $risque->criticite_inherent === CriticalityLevel::Critique->value
-            || $risque->criticite_residuel === CriticalityLevel::Critique->value;
+        return $risque->criticite_inherent === CriticalityLevel::Critical->value
+            || $risque->criticite_residuel === CriticalityLevel::Critical->value;
     }
 }

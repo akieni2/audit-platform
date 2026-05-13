@@ -113,7 +113,7 @@ final class MissionGovernanceService
             'risks_count' => IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
             'risks_critical' => IdentifiedRisk::query()
                 ->where('mission_id', $mission->id)
-                ->where('criticality', CriticalityLevel::Critique->value)
+                ->where('criticality', CriticalityLevel::Critical->value)
                 ->count(),
             'official_risks_count' => (int) ($projection?->official_count ?? 0),
             'official_risks_critical' => (int) ($projection?->official_critical_count ?? 0),

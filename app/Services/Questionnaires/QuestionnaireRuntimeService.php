@@ -5,6 +5,7 @@ namespace App\Services\Questionnaires;
 use App\Domain\Questionnaires\Events\EntretienResponsesRecorded;
 use App\Domain\Questionnaires\Events\QuestionnaireSnapshotCaptured;
 use App\Domain\Risk\Enums\RiskLifecycleStatus;
+use App\Domain\Risk\Events\RiskDetected;
 use App\Models\Entretien;
 use App\Models\EntretienResponse;
 use App\Models\IdentifiedRisk;
@@ -435,6 +436,13 @@ final class QuestionnaireRuntimeService
             actor: $request->user(),
             missionId: $entretien->mission_id,
             idempotencyKey: 'identified-risk:'.$signature,
+        );
+        RiskDetected::dispatch(
+            'identified_risk',
+            $risk->id,
+            $entretien->mission_id,
+            null,
+            $request->user()?->id,
         );
 
         return $risk->fresh();

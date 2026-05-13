@@ -208,7 +208,7 @@ class Mission extends Model
         }
 
         // Récupérer risques critiques de la mission
-        $risquesCritiques = Risque::where('criticite_residuel', CriticalityLevel::Critique->value)
+        $risquesCritiques = Risque::where('criticite_residuel', CriticalityLevel::Critical->value)
             ->whereHas('actif.processus', function($q){
                 $q->where('mission_id',$this->id);
             })

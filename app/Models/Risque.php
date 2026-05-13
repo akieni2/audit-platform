@@ -17,20 +17,42 @@ class Risque extends Model
     protected $fillable = [
         'actif_id',
         'identified_risk_id',
+        'source_identified_risk_id',
+        'source_entretien_id',
+        'source_question_id',
         'description',
+        'risk_uuid',
+        'risk_reference',
+        'promotion_signature',
         'impact_inherent',
         'probabilite_inherent',
         'score_inherent',
+        'inherent_score',
         'impact_residuel',
         'probabilite_residuel',
         'score_residuel',
+        'residual_score',
         'niveau',
         'proprietaire',
         'departement',
         'date_revue',
+        'detected_at',
+        'reviewed_at',
+        'promoted_at',
+        'closed_at',
+        'archived_at',
         'plan_mitigation',
         'statut_risque',
         'lifecycle_status',
+        'criticality',
+        'heatmap_x',
+        'heatmap_y',
+        'owner_user_id',
+        'reviewed_by',
+        'promoted_by',
+        'approval_notes',
+        'closure_notes',
+        'metadata',
         'criticite_inherent',
         'criticite_residuel',
         'source_department_id',
@@ -47,6 +69,12 @@ class Risque extends Model
     {
         return [
             'date_revue' => 'date',
+            'detected_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+            'promoted_at' => 'datetime',
+            'closed_at' => 'datetime',
+            'archived_at' => 'datetime',
+            'metadata' => 'array',
             'shared' => 'boolean',
             'cross_department' => 'boolean',
             'escalated' => 'boolean',
@@ -66,7 +94,11 @@ class Risque extends Model
             $risque->probabilite_inherent = $package['probability'];
             $risque->impact_inherent = $package['impact'];
             $risque->score_inherent = $package['score'];
+            $risque->inherent_score = $package['score'];
             $risque->criticite_inherent = $package['criticality'];
+            $risque->criticality ??= $risque->criticite_residuel ?: $package['criticality'];
+            $risque->heatmap_x ??= $package['heatmap_x'];
+            $risque->heatmap_y ??= $package['heatmap_y'];
             $risque->lifecycle_status ??= RiskLifecycleStatus::Promoted->value;
         });
     }
@@ -79,6 +111,11 @@ class Risque extends Model
     public function identifiedRisk(): BelongsTo
     {
         return $this->belongsTo(IdentifiedRisk::class);
+    }
+
+    public function sourceIdentifiedRisk(): BelongsTo
+    {
+        return $this->belongsTo(IdentifiedRisk::class, 'source_identified_risk_id');
     }
 
     public function controles(): HasMany
@@ -104,6 +141,38 @@ class Risque extends Model
     public function ownerDepartment(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'owner_department_id');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_user_id')->withTrashed();
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by')->withTrashed();
+    }
+
+    public function promoter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'promoted_by')->withTrashed();
+    }
+
+    public function getMissionIdAttribute(): ?int
+    {
+        $this->loadMissing('actif.processus');
+
+        return $this->actif?->processus?->mission_id;
+    }
+
+    public function lifecycleLabel(): string
+    {
+        return RiskLifecycleStatus::fromMixed($this->lifecycle_status)->label();
+    }
+
+    public function criticalityLabel(): ?string
+    {
+        return CriticalityLevel::fromMixed($this->criticality ?: $this->criticite_residuel ?: $this->criticite_inherent)?->label();
     }
 
     /**
@@ -182,7 +251,7 @@ class Risque extends Model
                 'description' => $rec->description,
                 'responsable' => '? d?finir',
                 'date_echeance' => now()->addDays(
-                    $this->criticite_residuel === CriticalityLevel::Critique->value ? 7 : 30
+                    $this->criticite_residuel === CriticalityLevel::Critical->value ? 7 : 30
                 ),
                 'statut' => 'ouvert',
             ]);

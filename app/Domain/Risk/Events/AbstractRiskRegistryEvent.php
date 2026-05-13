@@ -3,13 +3,11 @@
 namespace App\Domain\Risk\Events;
 
 use App\Contracts\Runtime\StructuredBusinessEvent;
-use App\Models\IdentifiedRisk;
-use App\Models\Risque;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-class RiskPromoted implements StructuredBusinessEvent
+abstract class AbstractRiskRegistryEvent implements StructuredBusinessEvent
 {
     use Dispatchable;
     use SerializesModels;
@@ -17,30 +15,25 @@ class RiskPromoted implements StructuredBusinessEvent
     public bool $afterCommit = true;
 
     public function __construct(
-        public IdentifiedRisk $identifiedRisk,
-        public Risque $risque,
-        public ?string $correlationId = null,
-        public ?int $actorId = null,
+        public string $aggregateTypeValue,
+        public int|string|null $aggregateIdValue,
+        public ?int $missionId = null,
         public ?string $riskUuid = null,
+        public ?int $actorId = null,
+        public ?string $correlationId = null,
         public ?string $causationId = null,
     ) {
         $this->correlationId ??= (string) Str::uuid();
-        $this->riskUuid ??= $this->risque->risk_uuid;
-    }
-
-    public function eventName(): string
-    {
-        return 'risk.promoted';
     }
 
     public function aggregateType(): string
     {
-        return 'identified_risk';
+        return $this->aggregateTypeValue;
     }
 
     public function aggregateId(): int|string|null
     {
-        return $this->identifiedRisk->id;
+        return $this->aggregateIdValue;
     }
 
     public function context(): array
@@ -49,8 +42,7 @@ class RiskPromoted implements StructuredBusinessEvent
             'correlation_id' => $this->correlationId,
             'causation_id' => $this->causationId,
             'actor_id' => $this->actorId,
-            'mission_id' => $this->identifiedRisk->mission_id,
-            'risque_id' => $this->risque->id,
+            'mission_id' => $this->missionId,
             'risk_uuid' => $this->riskUuid,
         ];
     }
