@@ -1,0 +1,815 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R] /Count 7 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 3496 >>
+stream
+BT
+/F2 18 Tf
+1 0 0 1 48 792 Tm
+(Journal detaille des modifications de la session) Tj
+/F1 10 Tf
+1 0 0 1 48 749 Tm
+(Projet: `audit-platform`) Tj
+/F1 10 Tf
+1 0 0 1 48 726 Tm
+(Branche de destination: `main`) Tj
+/F1 10 Tf
+1 0 0 1 48 703 Tm
+(Perimetre: ce journal couvre uniquement les commits que nous avons effectivement crees et pousses) Tj
+/F1 10 Tf
+1 0 0 1 48 688 Tm
+(pendant cette session:) Tj
+/F1 10 Tf
+1 0 0 1 48 665 Tm
+(? `ac9bc06` - Phase 1.5 questionnaires dynamiques) Tj
+/F1 10 Tf
+1 0 0 1 48 650 Tm
+(? `9b27832` - Phase 2 services, entretiens structures, documents, consolidation) Tj
+/F1 10 Tf
+1 0 0 1 48 635 Tm
+(? `ca21d0d` - correctif bootstrap Horizon) Tj
+/F1 10 Tf
+1 0 0 1 48 612 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 589 Tm
+(Commit `ac9bc06`) Tj
+/F1 10 Tf
+1 0 0 1 48 560 Tm
+(Message: `feat\(questionnaires\): bibliothèque dynamique, conduite entretien et risques identifiés`) Tj
+/F1 10 Tf
+1 0 0 1 48 537 Tm
+(Objet: mise en place de la bibliotheque de questionnaires institutionnels, des entretiens) Tj
+/F1 10 Tf
+1 0 0 1 48 522 Tm
+(dynamiques relies aux services, du stockage relationnel des reponses et de la premiere couche de) Tj
+/F1 10 Tf
+1 0 0 1 48 507 Tm
+(risques identifies.) Tj
+/F2 12 Tf
+1 0 0 1 48 484 Tm
+(Fichiers modifies) Tj
+/F1 10 Tf
+1 0 0 1 48 458 Tm
+(? `app/Http/Controllers/EntretienConduiteController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 443 Tm
+(Affichage de la conduite dynamique d'entretien, chargement du template, sauvegarde des reponses) Tj
+/F1 10 Tf
+1 0 0 1 48 428 Tm
+(ligne par ligne et creation conditionnelle de risques identifies.) Tj
+/F1 10 Tf
+1 0 0 1 48 405 Tm
+(? `app/Http/Controllers/EntretienController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(Ajout du support des entretiens dynamiques: choix optionnel de template, rattachement d'un) Tj
+/F1 10 Tf
+1 0 0 1 48 375 Tm
+(questionnaire a un entretien et adaptation de la liste des entretiens.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(? `app/Http/Controllers/IdentifiedRiskController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 337 Tm
+(  Ajout d'une action de validation humaine des risques identifies.) Tj
+/F1 10 Tf
+1 0 0 1 48 314 Tm
+(? `app/Http/Controllers/Questionnaires/QuestionnaireTemplateController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 299 Tm
+(Creation du CRUD complet des templates, duplication, gestion des sections et des questions) Tj
+/F1 10 Tf
+1 0 0 1 48 284 Tm
+(dynamiques.) Tj
+/F1 10 Tf
+1 0 0 1 48 261 Tm
+(? `app/Http/Requests/Questionnaires/StoreEntretienDynamicResponsesRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 246 Tm
+(Validation des reponses d'entretien structurees, du stockage JSON partiel et du bloc de risque) Tj
+/F1 10 Tf
+1 0 0 1 48 231 Tm
+(structure.) Tj
+/F1 10 Tf
+1 0 0 1 48 208 Tm
+(? `app/Http/Requests/Questionnaires/StoreQuestionnaireQuestionRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 193 Tm
+(  Validation des questions dynamiques et des types de question supportes.) Tj
+/F1 10 Tf
+1 0 0 1 48 170 Tm
+(? `app/Http/Requests/Questionnaires/StoreQuestionnaireSectionRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 155 Tm
+(  Validation de creation des sections de questionnaire.) Tj
+/F1 10 Tf
+1 0 0 1 48 132 Tm
+(? `app/Http/Requests/Questionnaires/StoreQuestionnaireTemplateRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 117 Tm
+(  Validation de creation des templates, generation du slug et normalisation du flag `active`.) Tj
+/F1 10 Tf
+1 0 0 1 48 94 Tm
+(? `app/Http/Requests/Questionnaires/UpdateQuestionnaireTemplateRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 79 Tm
+(  Validation de mise a jour des templates et correction de la gestion du champ `active`.) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 3741 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? `app/Models/Entretien.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(Extension du modele existant pour y rattacher un template, les reponses dynamiques et les risques) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(identifies.) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(? `app/Models/EntretienResponse.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(  Nouveau modele pour stocker chaque reponse d'entretien comme enregistrement requetable.) Tj
+/F1 10 Tf
+1 0 0 1 48 701 Tm
+(? `app/Models/IdentifiedRisk.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 686 Tm
+(  Nouveau modele pour porter les risques detectes a partir des reponses.) Tj
+/F1 10 Tf
+1 0 0 1 48 663 Tm
+(? `app/Models/QuestionnaireQuestion.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 648 Tm
+(Nouveau modele de question dynamique avec types supportes, metadata, niveau de risque et) Tj
+/F1 10 Tf
+1 0 0 1 48 633 Tm
+(activation.) Tj
+/F1 10 Tf
+1 0 0 1 48 610 Tm
+(? `app/Models/QuestionnaireSection.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 595 Tm
+(  Nouveau modele pour structurer les questionnaires en sections ordonnees.) Tj
+/F1 10 Tf
+1 0 0 1 48 572 Tm
+(? `app/Models/QuestionnaireTemplate.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 557 Tm
+(Nouveau modele de template avec versioning, visibilite departementale et referentiel reutilisable.) Tj
+/F1 10 Tf
+1 0 0 1 48 534 Tm
+(? `app/Models/User.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 519 Tm
+(Ajout d'un helper de gouvernance pour savoir si l'utilisateur peut administrer la bibliotheque des) Tj
+/F1 10 Tf
+1 0 0 1 48 504 Tm
+(questionnaires.) Tj
+/F1 10 Tf
+1 0 0 1 48 481 Tm
+(? `app/Policies/EntretienPolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 466 Tm
+(  Ajout des regles d'acces pour conduire un questionnaire dynamique et rattacher un template.) Tj
+/F1 10 Tf
+1 0 0 1 48 443 Tm
+(? `app/Policies/IdentifiedRiskPolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 428 Tm
+(  Ajout des regles d'acces pour la validation humaine des risques identifies.) Tj
+/F1 10 Tf
+1 0 0 1 48 405 Tm
+(? `app/Policies/QuestionnaireTemplatePolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(Regles completes de consultation, creation, mise a jour, suppression et duplication des templates) Tj
+/F1 10 Tf
+1 0 0 1 48 375 Tm
+(selon le perimetre IAM.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(? `app/Providers/AppServiceProvider.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 337 Tm
+(Enregistrement des nouvelles policies et binding route-model pour `entretien` avec isolation des) Tj
+/F1 10 Tf
+1 0 0 1 48 322 Tm
+(donnees.) Tj
+/F1 10 Tf
+1 0 0 1 48 299 Tm
+(? `app/Services/Iam/SecurityAuditService.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 284 Tm
+(Ajout des evenements de journalisation: creation/mise a jour de template, creation de reponse) Tj
+/F1 10 Tf
+1 0 0 1 48 269 Tm
+(d'entretien, creation et validation de risque.) Tj
+/F1 10 Tf
+1 0 0 1 48 246 Tm
+(? `database/migrations/2026_05_15_140000_create_questionnaire_templates_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 231 Tm
+(  Creation de la table des templates de questionnaire avec versioning et soft deletes.) Tj
+/F1 10 Tf
+1 0 0 1 48 208 Tm
+(? `database/migrations/2026_05_15_140001_create_questionnaire_sections_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 193 Tm
+(  Creation de la table des sections de questionnaire.) Tj
+/F1 10 Tf
+1 0 0 1 48 170 Tm
+(? `database/migrations/2026_05_15_140002_create_questionnaire_questions_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 155 Tm
+(  Creation de la table des questions dynamiques avec metadata et soft deletes.) Tj
+/F1 10 Tf
+1 0 0 1 48 132 Tm
+(?) Tj
+/F1 10 Tf
+1 0 0 1 48 117 Tm
+(`database/migrations/2026_05_15_140003_add_questionnaire_template_id_to_entretiens_table.ph-) Tj
+/F1 10 Tf
+1 0 0 1 48 102 Tm
+(p`) Tj
+/F1 10 Tf
+1 0 0 1 48 87 Tm
+(  Ajout de la cle de liaison entre entretien et template de questionnaire.) Tj
+/F1 10 Tf
+1 0 0 1 48 64 Tm
+(? `database/migrations/2026_05_15_140004_create_entretien_responses_table.php`) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3599 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  Creation du stockage relationnel des reponses d'entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 769 Tm
+(? `database/migrations/2026_05_15_140005_create_identified_risks_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 754 Tm
+(  Creation de la table des risques identifies relies a mission, service, entretien et question.) Tj
+/F1 10 Tf
+1 0 0 1 48 731 Tm
+(? `resources/views/entretiens/conduite.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 716 Tm
+(  Nouvelle interface DGCPT de conduite d'entretien dynamique par sections et types de question.) Tj
+/F1 10 Tf
+1 0 0 1 48 693 Tm
+(? `resources/views/entretiens/index.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 678 Tm
+(  Refonte DGCPT de la creation et de la liste des entretiens avec support des templates.) Tj
+/F1 10 Tf
+1 0 0 1 48 655 Tm
+(? `resources/views/layouts/partials/sidebar-navigation.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 640 Tm
+(  Ajout de l'entree de navigation vers la bibliotheque de questionnaires.) Tj
+/F1 10 Tf
+1 0 0 1 48 617 Tm
+(? `resources/views/questionnaires/templates/create.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 602 Tm
+(  Ecran de creation de template.) Tj
+/F1 10 Tf
+1 0 0 1 48 579 Tm
+(? `resources/views/questionnaires/templates/edit.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 564 Tm
+(  Ecran de gestion detaillee d'un template, de ses sections et de ses questions.) Tj
+/F1 10 Tf
+1 0 0 1 48 541 Tm
+(? `resources/views/questionnaires/templates/index.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 526 Tm
+(  Ecran de liste de la bibliotheque des questionnaires.) Tj
+/F1 10 Tf
+1 0 0 1 48 503 Tm
+(? `routes/web.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 488 Tm
+(Declaration des routes de templates, sections, questions, conduite, reponses dynamiques,) Tj
+/F1 10 Tf
+1 0 0 1 48 473 Tm
+(rattachement de template et validation des risques.) Tj
+/F1 10 Tf
+1 0 0 1 48 450 Tm
+(? `tests/Feature/Questionnaires/QuestionnaireDynamicFlowTest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 435 Tm
+(  Test de bout en bout du flux template -> section -> question -> entretien -> reponse -> risque.) Tj
+/F2 12 Tf
+1 0 0 1 48 412 Tm
+(Resultat metier) Tj
+/F1 10 Tf
+1 0 0 1 48 386 Tm
+(? questionnaires desormais geres comme referentiels dynamiques;) Tj
+/F1 10 Tf
+1 0 0 1 48 371 Tm
+(? reponses stockees de facon relationnelle et exploitable;) Tj
+/F1 10 Tf
+1 0 0 1 48 356 Tm
+(? socle pose pour detection de risques, consolidation et IA.) Tj
+/F1 10 Tf
+1 0 0 1 48 333 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 310 Tm
+(Commit `9b27832`) Tj
+/F1 10 Tf
+1 0 0 1 48 281 Tm
+(Message: `feat\(missions\): Phase 2 services audités, documents, consolidation et entretiens) Tj
+/F1 10 Tf
+1 0 0 1 48 266 Tm
+(structurés`) Tj
+/F1 10 Tf
+1 0 0 1 48 243 Tm
+(Objet: structuration operationnelle des missions autour des services audites, des entretiens) Tj
+/F1 10 Tf
+1 0 0 1 48 228 Tm
+(enrichis, du porte-documents par service et de la consolidation departementale.) Tj
+/F2 12 Tf
+1 0 0 1 48 205 Tm
+(Fichiers modifies) Tj
+/F1 10 Tf
+1 0 0 1 48 179 Tm
+(? `app/Http/Controllers/DepartmentAuditConsolidationController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 164 Tm
+(Nouveau controleur de creation d'une consolidation departementale a partir des donnees de mission.) Tj
+/F1 10 Tf
+1 0 0 1 48 141 Tm
+(? `app/Http/Controllers/EntretienConduiteController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 126 Tm
+(Passage des entretiens en `in_progress`, calcul de progression et journalisation du demarrage lors) Tj
+/F1 10 Tf
+1 0 0 1 48 111 Tm
+(de la conduite dynamique.) Tj
+/F1 10 Tf
+1 0 0 1 48 88 Tm
+(? `app/Http/Controllers/EntretienController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 73 Tm
+(  Enrichissement des entretiens avec statuts, metadonnees de conduite et action de completion.) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 3534 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? `app/Http/Controllers/MissionController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(Ajout des KPI de mission \(services, entretiens, risques, documents, progression\) dans la fiche) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(mission.) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(? `app/Http/Controllers/MissionDocumentController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(Nouveau controleur pour lister, televerser et supprimer les documents rattaches a un service de) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(mission.) Tj
+/F1 10 Tf
+1 0 0 1 48 686 Tm
+(? `app/Http/Controllers/ServiceController.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 671 Tm
+(Refonte du controleur pour gerer les services audites de facon mission-scopee, avec index,) Tj
+/F1 10 Tf
+1 0 0 1 48 656 Tm
+(creation, edition, mise a jour et archivage.) Tj
+/F1 10 Tf
+1 0 0 1 48 633 Tm
+(? `app/Http/Requests/Services/StoreDepartmentAuditConsolidationRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 618 Tm
+(  Validation de creation des consolidations departementales.) Tj
+/F1 10 Tf
+1 0 0 1 48 595 Tm
+(? `app/Http/Requests/Services/StoreMissionDocumentRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 580 Tm
+(  Validation des uploads documentaires \(types, taille, description, categorie\).) Tj
+/F1 10 Tf
+1 0 0 1 48 557 Tm
+(? `app/Http/Requests/Services/StoreMissionServiceRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 542 Tm
+(  Validation de creation d'un service audite.) Tj
+/F1 10 Tf
+1 0 0 1 48 519 Tm
+(? `app/Http/Requests/Services/UpdateMissionServiceRequest.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 504 Tm
+(  Validation de mise a jour d'un service audite.) Tj
+/F1 10 Tf
+1 0 0 1 48 481 Tm
+(? `app/Models/DepartmentAuditConsolidation.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 466 Tm
+(  Nouveau modele de synthese departementale.) Tj
+/F1 10 Tf
+1 0 0 1 48 443 Tm
+(? `app/Models/Entretien.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 428 Tm
+(Enrichissement du modele avec statuts, conducteur, interviewe, date de conduite et calcul de) Tj
+/F1 10 Tf
+1 0 0 1 48 413 Tm
+(progression.) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(? `app/Models/Mission.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 375 Tm
+(  Ajout des relations vers consolidations, documents et placeholders SWOT/RACI.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(? `app/Models/MissionDocument.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 337 Tm
+(  Nouveau modele de documents de mission relies au service et a l'entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 314 Tm
+(? `app/Models/MissionRaciPreview.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 299 Tm
+(  Placeholder technique pour preparer la future matrice RACI.) Tj
+/F1 10 Tf
+1 0 0 1 48 276 Tm
+(? `app/Models/MissionService.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 261 Tm
+(  Alias metier de `Service` pour introduire progressivement le concept de service audite.) Tj
+/F1 10 Tf
+1 0 0 1 48 238 Tm
+(? `app/Models/MissionSwotPreview.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 223 Tm
+(  Placeholder technique pour preparer la future structure SWOT.) Tj
+/F1 10 Tf
+1 0 0 1 48 200 Tm
+(? `app/Models/Service.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 185 Tm
+(Enrichissement du modele existant: responsable IAM ou libre, niveau de risque, priorite, statut) Tj
+/F1 10 Tf
+1 0 0 1 48 170 Tm
+(audit, metadata, soft deletes, relations documents/risques/entretiens.) Tj
+/F1 10 Tf
+1 0 0 1 48 147 Tm
+(? `app/Policies/DepartmentAuditConsolidationPolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 132 Tm
+(  Regles d'acces pour creer et consulter les consolidations.) Tj
+/F1 10 Tf
+1 0 0 1 48 109 Tm
+(? `app/Policies/EntretienPolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 94 Tm
+(  Ajout de la capacite a completer un entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 71 Tm
+(? `app/Policies/MissionDocumentPolicy.php`) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 3718 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  Regles d'acces pour les documents de mission.) Tj
+/F1 10 Tf
+1 0 0 1 48 769 Tm
+(? `app/Policies/MissionPolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 754 Tm
+(  Ajout de `manageServices` pour distinguer la gouvernance des services audites.) Tj
+/F1 10 Tf
+1 0 0 1 48 731 Tm
+(? `app/Policies/ServicePolicy.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 716 Tm
+(  Regles d'acces des services audites, y compris contribution terrain et gouvernance.) Tj
+/F1 10 Tf
+1 0 0 1 48 693 Tm
+(? `app/Providers/AppServiceProvider.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 678 Tm
+(Enregistrement des policies Phase 2 et route-bindings securises pour `service` et) Tj
+/F1 10 Tf
+1 0 0 1 48 663 Tm
+(`mission_document`.) Tj
+/F1 10 Tf
+1 0 0 1 48 640 Tm
+(? `app/Services/Iam/SecurityAuditService.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 625 Tm
+(Journalisation des evenements Phase 2: service cree/mis a jour, entretien demarre/complete,) Tj
+/F1 10 Tf
+1 0 0 1 48 610 Tm
+(document ajoute/supprime, consolidation generee.) Tj
+/F1 10 Tf
+1 0 0 1 48 587 Tm
+(? `database/migrations/2026_05_16_100000_phase2_enrich_services_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 572 Tm
+(  Enrichissement de la table `services` avec les champs metier et soft deletes.) Tj
+/F1 10 Tf
+1 0 0 1 48 549 Tm
+(? `database/migrations/2026_05_16_100001_phase2_enrich_entretiens_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 534 Tm
+(  Enrichissement de la table `entretiens` avec conducteur, statut, validation et synthese.) Tj
+/F1 10 Tf
+1 0 0 1 48 511 Tm
+(? `database/migrations/2026_05_16_100002_create_department_audit_consolidations_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 496 Tm
+(  Creation de la table des consolidations departementales.) Tj
+/F1 10 Tf
+1 0 0 1 48 473 Tm
+(? `database/migrations/2026_05_16_100003_create_mission_documents_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 458 Tm
+(  Creation du porte-documents relationnel par mission/service/entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 435 Tm
+(? `database/migrations/2026_05_16_100004_create_mission_swot_previews_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 420 Tm
+(  Creation de la table placeholder SWOT.) Tj
+/F1 10 Tf
+1 0 0 1 48 397 Tm
+(? `database/migrations/2026_05_16_100005_create_mission_raci_previews_table.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 382 Tm
+(  Creation de la table placeholder RACI.) Tj
+/F1 10 Tf
+1 0 0 1 48 359 Tm
+(? `resources/views/entretiens/conduite.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 344 Tm
+(  Ajout de l'affichage de progression et du statut pendant la conduite de l'entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 321 Tm
+(? `resources/views/entretiens/index.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 306 Tm
+(  Ajout de la colonne statut et de l'action de completion d'entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 283 Tm
+(? `resources/views/missions/show.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 268 Tm
+(  Ajout des cartes KPI mission, du formulaire de consolidation et du rappel SWOT/RACI.) Tj
+/F1 10 Tf
+1 0 0 1 48 245 Tm
+(? `resources/views/services/documents/index.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 230 Tm
+(  Nouvelle vue DGCPT du porte-documents par service.) Tj
+/F1 10 Tf
+1 0 0 1 48 207 Tm
+(? `resources/views/services/edit.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 192 Tm
+(  Nouvelle vue DGCPT d'edition des services audites.) Tj
+/F1 10 Tf
+1 0 0 1 48 169 Tm
+(? `resources/views/services/index.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 154 Tm
+(Nouvelle vue DGCPT de pilotage des services audites avec progression, risques, documents et) Tj
+/F1 10 Tf
+1 0 0 1 48 139 Tm
+(actions.) Tj
+/F1 10 Tf
+1 0 0 1 48 116 Tm
+(? `routes/web.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 101 Tm
+(Ajout des routes mission-scopees pour services, documents, consolidation et completion) Tj
+/F1 10 Tf
+1 0 0 1 48 86 Tm
+(d'entretien.) Tj
+/F1 10 Tf
+1 0 0 1 48 63 Tm
+(? `tests/Feature/Missions/Phase2MissionServicesTest.php`) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 2901 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  Tests fonctionnels de creation de service, restrictions de policy et creation de consolidation.) Tj
+/F2 12 Tf
+1 0 0 1 48 769 Tm
+(Resultat metier) Tj
+/F1 10 Tf
+1 0 0 1 48 743 Tm
+(? la mission n'est plus seulement un conteneur global;) Tj
+/F1 10 Tf
+1 0 0 1 48 728 Tm
+(? les services deviennent des unites auditees a part entiere;) Tj
+/F1 10 Tf
+1 0 0 1 48 713 Tm
+(? les documents et la consolidation sont desormais structures;) Tj
+/F1 10 Tf
+1 0 0 1 48 698 Tm
+(? la plateforme est prete pour SWOT, RACI, rapports par service et IA de synthese.) Tj
+/F1 10 Tf
+1 0 0 1 48 675 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 652 Tm
+(Commit `ca21d0d`) Tj
+/F1 10 Tf
+1 0 0 1 48 623 Tm
+(Message: `fix\(bootstrap\): n'enregistrer Horizon que si laravel/horizon est présent dans vendor`) Tj
+/F1 10 Tf
+1 0 0 1 48 600 Tm
+(Objet: correction de l'environnement local pour eviter l'erreur `Class) Tj
+/F1 10 Tf
+1 0 0 1 48 585 Tm
+("Laravel\\Horizon\\HorizonApplicationServiceProvider" not found` lorsque le package n'est pas) Tj
+/F1 10 Tf
+1 0 0 1 48 570 Tm
+(present dans `vendor`.) Tj
+/F2 12 Tf
+1 0 0 1 48 547 Tm
+(Fichier modifie) Tj
+/F1 10 Tf
+1 0 0 1 48 521 Tm
+(? `bootstrap/providers.php`) Tj
+/F1 10 Tf
+1 0 0 1 48 506 Tm
+(Enregistrement conditionnel du provider Horizon avec `class_exists\(...\)` afin de ne pas bloquer) Tj
+/F1 10 Tf
+1 0 0 1 48 491 Tm
+(les commandes artisan sur un poste local ou un environnement incomplet, sans casser la) Tj
+/F1 10 Tf
+1 0 0 1 48 476 Tm
+(compatibilite Ubuntu ni la production.) Tj
+/F2 12 Tf
+1 0 0 1 48 453 Tm
+(Resultat technique) Tj
+/F1 10 Tf
+1 0 0 1 48 427 Tm
+(? artisan ne depend plus d'un `vendor/laravel/horizon` present au moment du bootstrap;) Tj
+/F1 10 Tf
+1 0 0 1 48 412 Tm
+(? le comportement reste compatible avec un environnement ou Horizon est bien installe.) Tj
+/F1 10 Tf
+1 0 0 1 48 389 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 366 Tm
+(Synthese finale) Tj
+/F2 12 Tf
+1 0 0 1 48 337 Tm
+(Commits crees et pousses pendant la session) Tj
+/F1 10 Tf
+1 0 0 1 48 311 Tm
+(? `ac9bc06`) Tj
+/F1 10 Tf
+1 0 0 1 48 296 Tm
+(? `9b27832`) Tj
+/F1 10 Tf
+1 0 0 1 48 281 Tm
+(? `ca21d0d`) Tj
+/F2 12 Tf
+1 0 0 1 48 258 Tm
+(Axes couverts) Tj
+/F1 10 Tf
+1 0 0 1 48 232 Tm
+(? questionnaires dynamiques institutionnels;) Tj
+/F1 10 Tf
+1 0 0 1 48 217 Tm
+(? entretiens structures et progressifs;) Tj
+/F1 10 Tf
+1 0 0 1 48 202 Tm
+(? risques identifies et validation humaine;) Tj
+/F1 10 Tf
+1 0 0 1 48 187 Tm
+(? services audites comme unite metier;) Tj
+/F1 10 Tf
+1 0 0 1 48 172 Tm
+(? documents par service;) Tj
+/F1 10 Tf
+1 0 0 1 48 157 Tm
+(? consolidation departementale;) Tj
+/F1 10 Tf
+1 0 0 1 48 142 Tm
+(? preparation SWOT / RACI;) Tj
+/F1 10 Tf
+1 0 0 1 48 127 Tm
+(? correction de bootstrap Horizon pour l'environnement local.) Tj
+/F2 12 Tf
+1 0 0 1 48 104 Tm
+(Etat de livraison) Tj
+/F1 10 Tf
+1 0 0 1 48 78 Tm
+(? branche cible: `main`) Tj
+/F1 10 Tf
+1 0 0 1 48 63 Tm
+(? destination: `origin/main`) Tj
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 67 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? commits pushes avec succes) Tj
+ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 17 0 R >>
+endobj
+xref
+0 19
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000162 00000 n 
+0000000259 00000 n 
+0000000361 00000 n 
+0000003909 00000 n 
+0000004045 00000 n 
+0000007838 00000 n 
+0000007974 00000 n 
+0000011625 00000 n 
+0000011762 00000 n 
+0000015349 00000 n 
+0000015487 00000 n 
+0000019258 00000 n 
+0000019396 00000 n 
+0000022350 00000 n 
+0000022488 00000 n 
+0000022606 00000 n 
+trailer
+<< /Size 19 /Root 1 0 R >>
+startxref
+22744
+%%EOF
