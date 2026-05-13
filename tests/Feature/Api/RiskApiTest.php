@@ -84,6 +84,7 @@ class RiskApiTest extends TestCase
             ->assertJsonStructure([
                 'mission_id',
                 'heatmap',
+                'heatmap_residual',
                 'dashboard' => [
                     'critical_count',
                     'top_risques',

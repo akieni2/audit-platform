@@ -166,6 +166,8 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::patch('/identified-risks/{identified_risk}/valider', [IdentifiedRiskController::class, 'validateHuman'])
         ->name('identified-risks.validate');
+    Route::patch('/identified-risks/{identified_risk}/promote', [IdentifiedRiskController::class, 'promote'])
+        ->name('identified-risks.promote');
 
     Route::post('/entretiens', [EntretienController::class, 'store'])->name('entretiens.store');
 

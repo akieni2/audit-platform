@@ -83,4 +83,21 @@ final class EloquentRiskRepository implements RiskRepositoryInterface
 
         return $counts;
     }
+
+    public function residualHeatmapCounts(int $missionId): array
+    {
+        $risques = Risque::query()
+            ->whereHas('actif.processus.mission', fn ($q) => $q->where('missions.id', $missionId))
+            ->whereNotNull('impact_residuel')
+            ->whereNotNull('probabilite_residuel')
+            ->get(['impact_residuel', 'probabilite_residuel']);
+
+        $counts = [];
+        foreach ($risques as $risque) {
+            $key = $risque->impact_residuel.'-'.$risque->probabilite_residuel;
+            $counts[$key] = ($counts[$key] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
 }

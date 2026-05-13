@@ -15,6 +15,7 @@ class RiskResource extends JsonResource
         return [
             'id' => $this->id,
             'actif_id' => $this->actif_id,
+            'identified_risk_id' => $this->identified_risk_id,
             'description' => $this->description,
             'impact_inherent' => $this->impact_inherent,
             'probabilite_inherent' => $this->probabilite_inherent,
@@ -29,6 +30,7 @@ class RiskResource extends JsonResource
             'date_revue' => $this->date_revue?->format('Y-m-d'),
             'plan_mitigation' => $this->plan_mitigation,
             'statut_risque' => $this->statut_risque,
+            'lifecycle_status' => $this->lifecycle_status,
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }

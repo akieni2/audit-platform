@@ -9,7 +9,7 @@ use App\Http\Resources\RiskResource;
 use App\Models\Mission;
 use App\Models\Risque;
 use App\Repositories\Contracts\RiskRepositoryInterface;
-use App\Services\Risk\CriticalityEvaluationService;
+use App\Services\Risk\HeatmapProjectionService;
 use App\Services\Risk\RiskDashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ class RiskController extends Controller
     public function __construct(
         private RiskRepositoryInterface $riskRepository,
         private RiskDashboardService $dashboard,
-        private CriticalityEvaluationService $criticality,
+        private HeatmapProjectionService $heatmaps,
     ) {}
 
     public function indexForMission(Request $request, Mission $mission): AnonymousResourceCollection
@@ -37,31 +37,41 @@ class RiskController extends Controller
         $this->authorize('view', $mission);
 
         $missionId = (int) $mission->id;
-        $heatmapCounts = $this->riskRepository->inherentHeatmapCounts($missionId);
-        $matrix = [];
-        for ($prob = 5; $prob >= 1; $prob--) {
-            $row = [];
-            for ($impact = 1; $impact <= 5; $impact++) {
-                $score = $impact * $prob;
-                $level = $this->criticality->levelFromScore($score);
-                $key = $impact.'-'.$prob;
-                $row[] = [
-                    'impact' => $impact,
-                    'probabilite' => $prob,
-                    'score_cellule' => $score,
-                    'criticite' => $level->value,
-                    'count' => $heatmapCounts[$key] ?? 0,
-                    'heatmap_color' => $this->criticality->heatmapTintForCoordinates($impact, $prob),
-                ];
-            }
-            $matrix[] = $row;
-        }
+        $inherentHeatmap = $this->heatmaps->inherentForMission($missionId);
+        $residualHeatmap = $this->heatmaps->residualForMission($missionId);
 
         $snapshot = $this->dashboard->snapshot($missionId);
 
         return response()->json([
             'mission_id' => $missionId,
-            'heatmap' => $matrix,
+            'heatmap' => array_map(
+                fn (array $row) => array_map(
+                    fn (array $cell) => [
+                        'impact' => $cell['impact'],
+                        'probabilite' => $cell['probabilite'],
+                        'score_cellule' => $cell['score'],
+                        'criticite' => $cell['criticite'],
+                        'count' => $cell['count'],
+                        'heatmap_color' => $cell['heatmap_color'],
+                    ],
+                    $row
+                ),
+                $inherentHeatmap['matrix']
+            ),
+            'heatmap_residual' => array_map(
+                fn (array $row) => array_map(
+                    fn (array $cell) => [
+                        'impact' => $cell['impact'],
+                        'probabilite' => $cell['probabilite'],
+                        'score_cellule' => $cell['score'],
+                        'criticite' => $cell['criticite'],
+                        'count' => $cell['count'],
+                        'heatmap_color' => $cell['heatmap_color'],
+                    ],
+                    $row
+                ),
+                $residualHeatmap['matrix']
+            ),
             'dashboard' => [
                 'critical_count' => $snapshot['critical_count'],
                 'top_risques' => RiskResource::collection($snapshot['top_risks'])

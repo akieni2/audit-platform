@@ -25,8 +25,13 @@ use App\Policies\RisquePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Repositories\EloquentRiskRepository;
 use App\Support\DgcptPasswordRules;
+use App\Domain\Questionnaires\Events\EntretienResponsesRecorded;
+use App\Domain\Missions\Events\MissionGovernanceTransitioned;
+use App\Domain\Risk\Events\RiskPromoted;
+use App\Listeners\RefreshMissionRiskProjection;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -115,6 +120,12 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Mission::deleted(function (): void {
+            ExecutiveDashboardService::flushNationalKpisCache();
+        });
+
+        Event::listen(EntretienResponsesRecorded::class, RefreshMissionRiskProjection::class);
+        Event::listen(RiskPromoted::class, RefreshMissionRiskProjection::class);
+        Event::listen(MissionGovernanceTransitioned::class, function (): void {
             ExecutiveDashboardService::flushNationalKpisCache();
         });
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Risk;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Models\Risque;
 
 /**
@@ -10,12 +11,11 @@ use App\Models\Risque;
 final class ResidualRiskCalculationService
 {
     public function __construct(
-        private CriticalityEvaluationService $criticality,
+        private RiskScoringService $scoring,
     ) {}
 
     public function apply(Risque $risque): void
     {
-        $scoreInherent = (int) $risque->score_inherent;
         $risque->load('controles');
         $controle = $risque->controles->first();
 
@@ -30,22 +30,22 @@ final class ResidualRiskCalculationService
             default => 1.0,
         };
 
-        $scoreResiduel = (int) round($scoreInherent * $coef);
+        $residual = $this->scoring->packageResidualFromCoefficient(
+            (int) $risque->impact_inherent,
+            (int) $risque->probabilite_inherent,
+            $coef,
+        );
 
-        $risque->score_residuel = $scoreResiduel;
-        $risque->impact_residuel = $risque->impact_inherent;
-
-        if ((int) $risque->impact_inherent > 0) {
-            $risque->probabilite_residuel = (int) ceil($scoreResiduel / $risque->impact_inherent);
-        }
-
-        $risque->criticite_residuel = $this->criticality->levelFromScore($scoreResiduel)->value;
+        $risque->score_residuel = $residual['score'];
+        $risque->impact_residuel = $residual['impact'];
+        $risque->probabilite_residuel = $residual['probability'];
+        $risque->criticite_residuel = $residual['criticality'];
 
         $risque->saveQuietly();
 
         $risque->genererPlanActionAutomatique();
 
-        if ($scoreResiduel >= 16) {
+        if ($risque->criticite_residuel === CriticalityLevel::Critique->value) {
             $risque->loadMissing('actif.processus.mission');
             $mission = optional($risque->actif?->processus)->mission;
             if ($mission) {

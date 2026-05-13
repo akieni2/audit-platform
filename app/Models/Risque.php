@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
-use App\Services\Risk\CriticalityEvaluationService;
+use App\Domain\Risk\Enums\CriticalityLevel;
+use App\Domain\Risk\Enums\RiskLifecycleStatus;
+use App\Services\Risk\MissionRiskProjectionService;
 use App\Services\Risk\ResidualRiskCalculationService;
+use App\Services\Risk\RiskScoringService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +16,7 @@ class Risque extends Model
 {
     protected $fillable = [
         'actif_id',
+        'identified_risk_id',
         'description',
         'impact_inherent',
         'probabilite_inherent',
@@ -26,6 +30,7 @@ class Risque extends Model
         'date_revue',
         'plan_mitigation',
         'statut_risque',
+        'lifecycle_status',
         'criticite_inherent',
         'criticite_residuel',
         'source_department_id',
@@ -51,15 +56,29 @@ class Risque extends Model
     protected static function booted(): void
     {
         static::saving(function (Risque $risque): void {
-            $risque->score_inherent = (int) $risque->impact_inherent * (int) $risque->probabilite_inherent;
-            $evaluator = app(CriticalityEvaluationService::class);
-            $risque->criticite_inherent = $evaluator->levelFromScore($risque->score_inherent)->value;
+            $scoring = app(RiskScoringService::class);
+            $package = $scoring->packageInherent(
+                $risque->probabilite_inherent,
+                $risque->impact_inherent,
+                $risque->criticite_inherent,
+            );
+
+            $risque->probabilite_inherent = $package['probability'];
+            $risque->impact_inherent = $package['impact'];
+            $risque->score_inherent = $package['score'];
+            $risque->criticite_inherent = $package['criticality'];
+            $risque->lifecycle_status ??= RiskLifecycleStatus::Promoted->value;
         });
     }
 
     public function actif(): BelongsTo
     {
         return $this->belongsTo(Actif::class);
+    }
+
+    public function identifiedRisk(): BelongsTo
+    {
+        return $this->belongsTo(IdentifiedRisk::class);
     }
 
     public function controles(): HasMany
@@ -88,7 +107,7 @@ class Risque extends Model
     }
 
     /**
-     * Risques du dùpartement, partagùs/transverses, ou rattachùs ù une mission visible.
+     * Risques du d?partement, partag?s/transverses, ou rattach?s ? une mission visible.
      *
      * @param  Builder<Risque>  $query
      * @return Builder<Risque>
@@ -131,6 +150,12 @@ class Risque extends Model
     public function calculerRisqueResiduel(): void
     {
         app(ResidualRiskCalculationService::class)->apply($this);
+
+        $this->loadMissing('actif.processus.mission');
+        $missionId = $this->actif?->processus?->mission_id;
+        if ($missionId !== null) {
+            app(MissionRiskProjectionService::class)->refreshForMissionId((int) $missionId);
+        }
     }
 
     /*
@@ -155,9 +180,9 @@ class Risque extends Model
             ActionCorrective::create([
                 'risque_id' => $this->id,
                 'description' => $rec->description,
-                'responsable' => '¿ dÈfinir',
+                'responsable' => '? d?finir',
                 'date_echeance' => now()->addDays(
-                    ($this->score_residuel ?? 0) >= 16 ? 7 : 30
+                    $this->criticite_residuel === CriticalityLevel::Critique->value ? 7 : 30
                 ),
                 'statut' => 'ouvert',
             ]);

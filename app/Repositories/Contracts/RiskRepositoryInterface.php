@@ -35,4 +35,11 @@ interface RiskRepositoryInterface
      * @return array<string, int>
      */
     public function inherentHeatmapCounts(int $missionId): array;
+
+    /**
+     * Grille heatmap 5×5 : clé "impact-prob" => nombre de risques (residual).
+     *
+     * @return array<string, int>
+     */
+    public function residualHeatmapCounts(int $missionId): array;
 }

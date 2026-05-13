@@ -11,6 +11,7 @@ use App\Models\Mission;
 use App\Models\MissionDocument;
 use App\Models\MissionTeamMember;
 use App\Models\QuestionnaireTemplate;
+use App\Models\Risque;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -388,6 +389,22 @@ class SecurityAuditService
             $actor,
             $request,
             ['identified_risk_id' => $risk->id],
+        );
+    }
+
+    public function riskPromoted(?User $actor, IdentifiedRisk $identifiedRisk, Risque $risque, Request $request): AuditLog
+    {
+        return $this->log(
+            'risk_promoted',
+            'risques',
+            'Promotion risque vers registre officiel — '.$identifiedRisk->title,
+            $actor,
+            $request,
+            [
+                'identified_risk_id' => $identifiedRisk->id,
+                'risque_id' => $risque->id,
+                'mission_id' => $identifiedRisk->mission_id,
+            ],
         );
     }
 

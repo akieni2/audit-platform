@@ -14,4 +14,9 @@ class IdentifiedRiskPolicy
         return $risk->mission !== null
             && app(MissionPolicy::class)->governMission($user, $risk->mission);
     }
+
+    public function promote(User $user, IdentifiedRisk $risk): bool
+    {
+        return $this->validateHuman($user, $risk);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Risque;
 use App\Services\Governance\CrossDepartmentRiskRoutingService;
 use App\Services\Governance\ExecutiveDashboardService;
+use App\Services\Risk\MissionRiskProjectionService;
 
 class RisqueObserver
 {
@@ -12,6 +13,7 @@ class RisqueObserver
     {
         app(CrossDepartmentRiskRoutingService::class)->analyzeAndRoute($risque->fresh());
         ExecutiveDashboardService::flushNationalKpisCache();
+        $this->refreshMissionProjection($risque);
     }
 
     public function updated(Risque $risque): void
@@ -20,5 +22,15 @@ class RisqueObserver
             app(CrossDepartmentRiskRoutingService::class)->analyzeAndRoute($risque->fresh());
         }
         ExecutiveDashboardService::flushNationalKpisCache();
+        $this->refreshMissionProjection($risque);
+    }
+
+    private function refreshMissionProjection(Risque $risque): void
+    {
+        $risque->loadMissing('actif.processus.mission');
+        $missionId = $risque->actif?->processus?->mission_id;
+        if ($missionId !== null) {
+            app(MissionRiskProjectionService::class)->refreshForMissionId((int) $missionId);
+        }
     }
 }
