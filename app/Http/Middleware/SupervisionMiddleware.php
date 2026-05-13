@@ -18,7 +18,7 @@ class SupervisionMiddleware
             abort(403);
         }
 
-        if ($user->role === 'admin') {
+        if ($user->isAdmin()) {
             return $next($request);
         }
 

@@ -82,8 +82,8 @@
                 <div>
                     <label class="dgcpt-label" for="audit_status">Statut audit</label>
                     <select id="audit_status" name="audit_status" class="dgcpt-input">
-                        @foreach (['pending' => 'En attente', 'in_audit' => 'En audit', 'audited' => 'Audité', 'closed' => 'Clôturé'] as $val => $lab)
-                            <option value="{{ $val }}" @selected(old('audit_status', $service->audit_status ?? 'pending') === $val)>{{ $lab }}</option>
+                        @foreach (\App\Models\Service::auditStatusLabels() as $val => $lab)
+                            <option value="{{ $val }}" @selected(old('audit_status', $service->audit_status ?? \App\Models\Service::AUDIT_STATUS_PENDING) === $val)>{{ $lab }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesVisibleResources;
+use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Http\Requests\Missions\StoreMissionRequest;
 use App\Http\Requests\Missions\UpdateMissionRequest;
 use App\Http\Requests\MissionWorkflowRequest;
@@ -101,15 +102,21 @@ class MissionController extends Controller
         }
 
         $missionDocumentsAvailable = Schema::hasTable('mission_documents');
+        $entretienStatusAvailable = Schema::hasColumn('entretiens', 'status');
 
         $missionStats = [
             'services_count' => $mission->services()->count(),
             'entretiens_total' => Entretien::query()->where('mission_id', $mission->id)->count(),
-            'entretiens_done' => 0,
+            'entretiens_done' => $entretienStatusAvailable
+                ? Entretien::query()
+                    ->where('mission_id', $mission->id)
+                    ->whereIn('status', [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED])
+                    ->count()
+                : 0,
             'risks_count' => IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
             'risks_critical' => IdentifiedRisk::query()
                 ->where('mission_id', $mission->id)
-                ->whereIn('criticality', ['Critique', 'critique', 'High', 'high', 'Élevée', 'élevée', 'Elevée', 'elevée'])
+                ->where('criticality', CriticalityLevel::Critique->value)
                 ->count(),
             'documents_count' => $missionDocumentsAvailable
                 ? MissionDocument::query()->where('mission_id', $mission->id)->count()

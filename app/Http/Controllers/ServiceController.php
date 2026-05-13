@@ -27,8 +27,11 @@ class ServiceController extends Controller
             ->where('mission_id', $mission->id)
             ->with([
                 'chefServiceUser',
-                'entretiens.questionnaireTemplate.sections.questions' => fn ($q) => $q->where('active', true),
-                'entretiens.questionnaireResponses',
+                'entretiens' => fn ($q) => $q
+                    ->withCount('questionnaireResponses')
+                    ->with([
+                        'questionnaireTemplate.sections.questions' => fn ($qq) => $qq->where('active', true),
+                    ]),
             ])
             ->withCount([
                 'entretiens',

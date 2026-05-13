@@ -43,7 +43,7 @@ class MissionDocument extends Model
 
     public function service(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class)->withTrashed();
     }
 
     public function entretien(): BelongsTo
@@ -53,6 +53,6 @@ class MissionDocument extends Model
 
     public function uploader(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'uploaded_by');
+        return $this->belongsTo(User::class, 'uploaded_by')->withTrashed();
     }
 }

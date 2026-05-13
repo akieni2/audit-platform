@@ -5,9 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
 {
+    use SoftDeletes;
+
+    public const AUDIT_STATUS_PENDING = 'pending';
+
+    public const AUDIT_STATUS_IN_AUDIT = 'in_audit';
+
+    public const AUDIT_STATUS_AUDITED = 'audited';
+
+    public const AUDIT_STATUS_CLOSED = 'closed';
+
     protected $fillable = [
         'mission_id',
         'code',
@@ -37,6 +48,32 @@ class Service extends Model
         ];
     }
 
+    /**
+     * @return list<string>
+     */
+    public static function auditStatuses(): array
+    {
+        return [
+            self::AUDIT_STATUS_PENDING,
+            self::AUDIT_STATUS_IN_AUDIT,
+            self::AUDIT_STATUS_AUDITED,
+            self::AUDIT_STATUS_CLOSED,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function auditStatusLabels(): array
+    {
+        return [
+            self::AUDIT_STATUS_PENDING => 'En attente',
+            self::AUDIT_STATUS_IN_AUDIT => 'En audit',
+            self::AUDIT_STATUS_AUDITED => 'Audité',
+            self::AUDIT_STATUS_CLOSED => 'Clôturé',
+        ];
+    }
+
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
@@ -44,7 +81,7 @@ class Service extends Model
 
     public function chefServiceUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'chef_service_user_id');
+        return $this->belongsTo(User::class, 'chef_service_user_id')->withTrashed();
     }
 
     public function entretiens(): HasMany

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,6 +33,16 @@ class IdentifiedRisk extends Model
         ];
     }
 
+    public static function normalizeCriticality(?string $value): ?string
+    {
+        return CriticalityLevel::fromMixed($value)?->value;
+    }
+
+    public function criticalityLabel(): ?string
+    {
+        return CriticalityLevel::fromMixed($this->criticality)?->label();
+    }
+
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
@@ -39,7 +50,7 @@ class IdentifiedRisk extends Model
 
     public function service(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class)->withTrashed();
     }
 
     public function entretien(): BelongsTo
@@ -49,11 +60,11 @@ class IdentifiedRisk extends Model
 
     public function questionnaireQuestion(): BelongsTo
     {
-        return $this->belongsTo(QuestionnaireQuestion::class);
+        return $this->belongsTo(QuestionnaireQuestion::class)->withTrashed();
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 }

@@ -32,7 +32,7 @@ class AppLayout extends Component
 
         $canManageEnrollments = $user !== null && Gate::forUser($user)->allows('manageEnrollmentRequests');
         $pendingEnrollmentsCount = $canManageEnrollments
-            ? User::query()->where('approval_status', 'pending')->count()
+            ? User::query()->where('approval_status', User::APPROVAL_STATUS_PENDING)->count()
             : 0;
 
         return view('layouts.app', [

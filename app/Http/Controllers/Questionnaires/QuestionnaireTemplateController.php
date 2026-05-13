@@ -94,7 +94,16 @@ class QuestionnaireTemplateController extends Controller
     {
         $this->authorize('delete', $questionnaire_template);
 
-        $questionnaire_template->delete();
+        DB::transaction(function () use ($questionnaire_template) {
+            $questionnaire_template->load('sections.questions');
+
+            foreach ($questionnaire_template->sections as $section) {
+                $section->questions()->delete();
+                $section->delete();
+            }
+
+            $questionnaire_template->delete();
+        });
 
         return redirect()
             ->route('questionnaire-templates.index')
@@ -175,9 +184,12 @@ class QuestionnaireTemplateController extends Controller
         $this->authorize('update', $questionnaire_template);
         abort_unless((int) $section->questionnaire_template_id === (int) $questionnaire_template->id, 404);
 
-        $section->delete();
+        DB::transaction(function () use ($section) {
+            $section->questions()->delete();
+            $section->delete();
+        });
 
-        return back()->with('status', 'Section supprimée.');
+        return back()->with('status', 'Section archivée.');
     }
 
     public function storeQuestion(

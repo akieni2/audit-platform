@@ -17,21 +17,21 @@ class EnrollmentApprovalController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = $request->query('status', 'pending');
-        if (! in_array($status, ['pending', 'rejected', 'all'], true)) {
-            $status = 'pending';
+        $status = $request->query('status', User::APPROVAL_STATUS_PENDING);
+        if (! in_array($status, [User::APPROVAL_STATUS_PENDING, User::APPROVAL_STATUS_REJECTED, 'all'], true)) {
+            $status = User::APPROVAL_STATUS_PENDING;
         }
 
         $query = User::query()
             ->with(['registrationRequestedDepartment', 'institutionalRole', 'department'])
             ->orderByDesc('created_at');
 
-        if ($status === 'pending') {
-            $query->where('approval_status', 'pending');
-        } elseif ($status === 'rejected') {
-            $query->where('approval_status', 'rejected');
+        if ($status === User::APPROVAL_STATUS_PENDING) {
+            $query->where('approval_status', User::APPROVAL_STATUS_PENDING);
+        } elseif ($status === User::APPROVAL_STATUS_REJECTED) {
+            $query->where('approval_status', User::APPROVAL_STATUS_REJECTED);
         } else {
-            $query->whereIn('approval_status', ['pending', 'rejected']);
+            $query->whereIn('approval_status', [User::APPROVAL_STATUS_PENDING, User::APPROVAL_STATUS_REJECTED]);
         }
 
         $users = $query->paginate(25)->withQueryString();
@@ -41,7 +41,7 @@ class EnrollmentApprovalController extends Controller
 
     public function pendingCount(): JsonResponse
     {
-        $count = User::query()->where('approval_status', 'pending')->count();
+        $count = User::query()->where('approval_status', User::APPROVAL_STATUS_PENDING)->count();
 
         return response()->json(['count' => $count]);
     }
@@ -68,7 +68,7 @@ class EnrollmentApprovalController extends Controller
 
         $user->update([
             'active' => true,
-            'approval_status' => 'approved',
+            'approval_status' => User::APPROVAL_STATUS_APPROVED,
             'approved_at' => now(),
             'approved_by' => $request->user()->id,
             'role_id' => $request->validated('role_id'),
@@ -77,7 +77,7 @@ class EnrollmentApprovalController extends Controller
 
         $user->notify(new AccountApprovedNotification);
 
-        return redirect()->route('admin.enrollments.index', ['status' => 'pending'])
+        return redirect()->route('admin.enrollments.index', ['status' => User::APPROVAL_STATUS_PENDING])
             ->with('status', 'Compte approuvé et activé. Un email a été envoyé au demandeur.');
     }
 
@@ -90,12 +90,12 @@ class EnrollmentApprovalController extends Controller
 
         $user->update([
             'active' => false,
-            'approval_status' => 'rejected',
+            'approval_status' => User::APPROVAL_STATUS_REJECTED,
             'approved_at' => now(),
             'approved_by' => $request->user()->id,
         ]);
 
-        return redirect()->route('admin.enrollments.index', ['status' => 'rejected'])
+        return redirect()->route('admin.enrollments.index', ['status' => User::APPROVAL_STATUS_REJECTED])
             ->with('status', 'Demande rejetée.');
     }
 }

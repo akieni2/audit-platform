@@ -75,12 +75,19 @@ class DashboardController extends Controller
             ->whereHas('mission', fn ($q) => $this->applyMissionDashboardScope($q, $user, $focusDepartmentId))
             ->get();
 
+        $riskCountsByMission = collect();
+        $missionIds = $services->pluck('mission_id')->filter()->unique()->values();
+        if ($missionIds->isNotEmpty()) {
+            $riskCountsByMission = (clone $risquesVisible)
+                ->whereHas('actif.processus', fn ($q) => $q->whereIn('mission_id', $missionIds))
+                ->with('actif.processus')
+                ->get()
+                ->groupBy(fn ($risque) => $risque->actif?->processus?->mission_id)
+                ->map->count();
+        }
+
         foreach ($services as $service) {
-            $service->risques_count = (clone $risquesVisible)
-                ->whereHas('actif.processus', function ($q) use ($service) {
-                    $q->where('mission_id', $service->mission_id);
-                })
-                ->count();
+            $service->risques_count = (int) ($riskCountsByMission->get($service->mission_id, 0));
         }
 
         $departments = Department::query()

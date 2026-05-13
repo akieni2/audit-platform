@@ -16,7 +16,7 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        if (Auth::user()->role !== $role) {
+        if (!Auth::user()->hasLegacyRole((string) $role)) {
             abort(403, 'Accès non autorisé');
         }
 

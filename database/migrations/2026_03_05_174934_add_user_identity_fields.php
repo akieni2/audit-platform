@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::table('users', function (Blueprint $table) {
-
-    $table->string('prenom')->nullable()->after('name');
-    $table->string('fonction')->nullable()->after('prenom');
-
-});
-
+        Schema::table('users', function (Blueprint $table) {
+            if (! Schema::hasColumn('users', 'prenom')) {
+                $table->string('prenom')->nullable()->after('name');
+            }
+            if (! Schema::hasColumn('users', 'fonction')) {
+                $table->string('fonction')->nullable()->after('prenom');
+            }
+        });
     }
 
     /**
@@ -25,11 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-     Schema::table('users', function (Blueprint $table) {
-
-   $table->dropColumn('prenom');
-   $table->dropColumn('fonction');
-
-});
-}
+        // No-op on rollback: these columns are created by an earlier migration
+        // and this historical compatibility migration must not remove them.
+    }
 };

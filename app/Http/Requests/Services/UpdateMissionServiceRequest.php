@@ -45,7 +45,7 @@ class UpdateMissionServiceRequest extends FormRequest
             'observations' => ['nullable', 'string'],
             'audit_priority' => ['nullable', 'string', 'max:32'],
             'risk_level' => ['nullable', 'string', 'max:32'],
-            'audit_status' => ['nullable', 'string', 'max:32', Rule::in(['pending', 'in_audit', 'audited', 'closed'])],
+            'audit_status' => ['nullable', 'string', 'max:32', Rule::in(Service::auditStatuses())],
             'metadata' => ['nullable', 'array'],
         ];
     }

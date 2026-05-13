@@ -1,6 +1,7 @@
 <x-app-layout>
     @php
         use App\Models\QuestionnaireQuestion;
+        $criticalityOptions = \App\Domain\Risk\Enums\CriticalityLevel::options();
         /** @var \App\Models\Entretien $entretien */
         /** @var \App\Models\QuestionnaireTemplate $template */
         /** @var \Illuminate\Support\Collection<int, \App\Models\EntretienResponse> $existingResponses */
@@ -186,7 +187,12 @@
                                                 </div>
                                                 <div>
                                                     <label class="dgcpt-label">Criticité</label>
-                                                    <input name="{{ $namePrefix }}[answer_json][criticality]" type="text" value="{{ old($oldKey.'.answer_json.criticality', $j['criticality'] ?? '') }}" class="dgcpt-input" />
+                                                    <select name="{{ $namePrefix }}[answer_json][criticality]" class="dgcpt-input">
+                                                        <option value="">Sélectionner</option>
+                                                        @foreach ($criticalityOptions as $value => $label)
+                                                            <option value="{{ $value }}" @selected(old($oldKey.'.answer_json.criticality', $j['criticality'] ?? '') === $value)>{{ $label }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                                 <div class="sm:col-span-2">
                                                     <label class="dgcpt-label">Recommandation (terrain)</label>
@@ -213,7 +219,12 @@
                                                         </div>
                                                         <div>
                                                             <label class="dgcpt-label">Criticité</label>
-                                                            <input name="{{ $namePrefix }}[identified_risk][criticality]" type="text" value="{{ old($oldKey.'.identified_risk.criticality', $irOld['criticality'] ?? '') }}" class="dgcpt-input" />
+                                                            <select name="{{ $namePrefix }}[identified_risk][criticality]" class="dgcpt-input">
+                                                                <option value="">Sélectionner</option>
+                                                                @foreach ($criticalityOptions as $value => $label)
+                                                                    <option value="{{ $value }}" @selected(old($oldKey.'.identified_risk.criticality', $irOld['criticality'] ?? '') === $value)>{{ $label }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         </div>
                                                         <div>
                                                             <label class="dgcpt-label">Probabilité</label>
@@ -258,7 +269,12 @@
                                                     <textarea name="{{ $namePrefix }}[identified_risk][description]" rows="2" class="dgcpt-textarea w-full" placeholder="Description">{{ old($oldKey.'.identified_risk.description') }}</textarea>
                                                 </div>
                                                 <input name="{{ $namePrefix }}[identified_risk][category]" type="text" placeholder="Catégorie" value="{{ old($oldKey.'.identified_risk.category', $question->risk_category) }}" class="dgcpt-input" />
-                                                <input name="{{ $namePrefix }}[identified_risk][criticality]" type="text" placeholder="Criticité" value="{{ old($oldKey.'.identified_risk.criticality') }}" class="dgcpt-input" />
+                                                <select name="{{ $namePrefix }}[identified_risk][criticality]" class="dgcpt-input">
+                                                    <option value="">Criticité</option>
+                                                    @foreach ($criticalityOptions as $value => $label)
+                                                        <option value="{{ $value }}" @selected(old($oldKey.'.identified_risk.criticality') === $value)>{{ $label }}</option>
+                                                    @endforeach
+                                                </select>
                                                 <input name="{{ $namePrefix }}[identified_risk][probability]" type="text" placeholder="Probabilité" value="{{ old($oldKey.'.identified_risk.probability') }}" class="dgcpt-input" />
                                                 <input name="{{ $namePrefix }}[identified_risk][impact]" type="text" placeholder="Impact" value="{{ old($oldKey.'.identified_risk.impact') }}" class="dgcpt-input" />
                                                 <div class="sm:col-span-2">

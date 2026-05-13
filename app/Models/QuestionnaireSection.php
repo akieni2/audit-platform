@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuestionnaireSection extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'questionnaire_template_id',
         'title',
@@ -24,7 +27,7 @@ class QuestionnaireSection extends Model
 
     public function template(): BelongsTo
     {
-        return $this->belongsTo(QuestionnaireTemplate::class, 'questionnaire_template_id');
+        return $this->belongsTo(QuestionnaireTemplate::class, 'questionnaire_template_id')->withTrashed();
     }
 
     public function questions(): HasMany

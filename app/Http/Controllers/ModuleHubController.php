@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Mission;
 use App\Models\Questionnaire;
+use App\Models\QuestionnaireTemplate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 
@@ -187,13 +188,19 @@ class ModuleHubController extends Controller
     /** Page provisoire : liste des questionnaires (pas de CRUD dédié dans l’app). */
     public function questionnaires(): View
     {
-        $items = Questionnaire::query()
+        $templates = QuestionnaireTemplate::query()
+            ->with(['sections.questions'])
+            ->orderBy('name')
+            ->get();
+
+        $legacyItems = Questionnaire::query()
             ->withCount('questions')
             ->orderBy('titre')
             ->get();
 
         return view('modules.questionnaires', [
-            'items' => $items,
+            'templates' => $templates,
+            'legacyItems' => $legacyItems,
         ]);
     }
 

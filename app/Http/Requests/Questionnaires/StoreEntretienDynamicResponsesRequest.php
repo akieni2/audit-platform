@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Questionnaires;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Models\Entretien;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -34,8 +35,17 @@ class StoreEntretienDynamicResponsesRequest extends FormRequest
                     default => null,
                 };
                 unset($row['answer_tri']);
-                $rows[$i] = $row;
             }
+
+            if (isset($row['answer_json']['criticality']) && is_string($row['answer_json']['criticality'])) {
+                $row['answer_json']['criticality'] = CriticalityLevel::fromMixed($row['answer_json']['criticality'])?->value;
+            }
+
+            if (isset($row['identified_risk']['criticality']) && is_string($row['identified_risk']['criticality'])) {
+                $row['identified_risk']['criticality'] = CriticalityLevel::fromMixed($row['identified_risk']['criticality'])?->value;
+            }
+
+            $rows[$i] = $row;
         }
 
         $this->merge(['responses' => $rows]);

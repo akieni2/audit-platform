@@ -22,6 +22,20 @@ class Mission extends Model
         'mission_status' => self::STATUS_BROUILLON,
     ];
 
+    /**
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_BROUILLON => 'Brouillon',
+            self::STATUS_EN_COURS => 'En cours',
+            self::STATUS_CLOTUREE => 'Clôturée',
+            self::STATUS_VALIDEE_IS => 'Validée IS',
+            self::STATUS_VALIDEE_COPRI => 'Validée COPRI',
+        ];
+    }
+
     protected $fillable = [
         'organisation',
         'reference',
@@ -92,7 +106,7 @@ class Mission extends Model
 
     public function auditeur()
     {
-        return $this->belongsTo(User::class,'auditeur_id');
+        return $this->belongsTo(User::class, 'auditeur_id')->withTrashed();
     }
 
     public function department()
@@ -133,7 +147,7 @@ class Mission extends Model
         }
 
         return User::query()
-            ->where('approval_status', 'approved')
+            ->where('approval_status', User::APPROVAL_STATUS_APPROVED)
             ->where('active', true)
             ->where('department_id', $deptId)
             ->orderBy('name')

@@ -75,7 +75,7 @@ class QuestionnaireQuestion extends Model
 
     public function section(): BelongsTo
     {
-        return $this->belongsTo(QuestionnaireSection::class, 'questionnaire_section_id');
+        return $this->belongsTo(QuestionnaireSection::class, 'questionnaire_section_id')->withTrashed();
     }
 
     public function entretienResponses(): HasMany

@@ -59,17 +59,17 @@ class Entretien extends Model
 
     public function service()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class)->withTrashed();
     }
 
     public function questionnaireTemplate()
     {
-        return $this->belongsTo(QuestionnaireTemplate::class, 'questionnaire_template_id');
+        return $this->belongsTo(QuestionnaireTemplate::class, 'questionnaire_template_id')->withTrashed();
     }
 
     public function conductor()
     {
-        return $this->belongsTo(User::class, 'conducted_by');
+        return $this->belongsTo(User::class, 'conducted_by')->withTrashed();
     }
 
     /** Réponses au questionnaire dynamique (Phase 1.5). */
@@ -103,6 +103,7 @@ class Entretien extends Model
         });
     }
 
+    /** Réponses legacy conservées pour compatibilité transitoire. */
     public function reponses()
     {
         return $this->hasMany(Reponse::class);
@@ -140,7 +141,11 @@ class Entretien extends Model
             return null;
         }
 
-        $answered = (int) $this->questionnaireResponses()->count();
+        $answered = match (true) {
+            array_key_exists('questionnaire_responses_count', $this->getAttributes()) => (int) $this->getAttribute('questionnaire_responses_count'),
+            $this->relationLoaded('questionnaireResponses') => $this->questionnaireResponses->count(),
+            default => (int) $this->questionnaireResponses()->count(),
+        };
 
         return (int) min(100, max(0, (int) round(100 * $answered / $total)));
     }

@@ -72,7 +72,7 @@ class RegisteredUserController extends Controller
             'matricule' => $validated['matricule'] ?? null,
             'registration_requested_department_id' => $validated['registration_requested_department_id'],
             'active' => false,
-            'approval_status' => 'pending',
+            'approval_status' => User::APPROVAL_STATUS_PENDING,
             'role_id' => null,
         ]);
 

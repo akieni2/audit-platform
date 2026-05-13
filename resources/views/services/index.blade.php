@@ -105,7 +105,11 @@
                                 <td class="text-center font-mono text-[#E6EEF8]">{{ $s->identified_risks_count }}</td>
                                 <td class="text-center font-mono text-[#E6EEF8]">{{ $s->mission_documents_count }}</td>
                                 <td class="text-[#9FB3C8]">{{ $avgProgress !== null ? $avgProgress.'%' : 'ù' }}</td>
-                                <td><span class="rounded border border-[rgba(0,209,255,0.25)] px-2 py-0.5 text-xs">{{ $s->audit_status ?? 'pending' }}</span></td>
+                                <td>
+                                    <span class="rounded border border-[rgba(0,209,255,0.25)] px-2 py-0.5 text-xs">
+                                        {{ \App\Models\Service::auditStatusLabels()[$s->audit_status ?? \App\Models\Service::AUDIT_STATUS_PENDING] ?? ($s->audit_status ?? \App\Models\Service::AUDIT_STATUS_PENDING) }}
+                                    </span>
+                                </td>
                                 <td class="text-right">
                                     <div class="flex flex-col items-end gap-1">
                                         <a href="{{ route('missions.services.edit', [$mission, $s]) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>

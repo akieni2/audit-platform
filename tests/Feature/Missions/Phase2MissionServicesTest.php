@@ -5,6 +5,7 @@ namespace Tests\Feature\Missions;
 use App\Models\Department;
 use App\Models\Mission;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -126,6 +127,35 @@ class Phase2MissionServicesTest extends TestCase
 
         $this->assertDatabaseHas('department_audit_consolidations', [
             'mission_id' => $mission->id,
+        ]);
+    }
+
+    public function test_service_destroy_archives_row_with_soft_delete(): void
+    {
+        $dept = $this->department();
+        $supervisor = $this->supervisor($dept);
+
+        $mission = Mission::query()->create([
+            'organisation' => 'Org archive',
+            'description' => 'd',
+            'date_debut' => Carbon::today(),
+            'date_fin' => null,
+            'auditeur_id' => $supervisor->id,
+            'department_id' => $dept->id,
+            'mission_status' => Mission::STATUS_BROUILLON,
+        ]);
+
+        $service = Service::query()->create([
+            'mission_id' => $mission->id,
+            'nom' => 'Service à archiver',
+        ]);
+
+        $this->actingAs($supervisor)
+            ->delete(route('missions.services.destroy', [$mission, $service]))
+            ->assertRedirect();
+
+        $this->assertSoftDeleted('services', [
+            'id' => $service->id,
         ]);
     }
 }

@@ -54,6 +54,9 @@ class EntretienConduiteController extends Controller
         $allowedIds = $entretien->questionnaireTemplate?->sections
             ->flatMap(fn ($s) => $s->questions->pluck('id'))
             ->all() ?? [];
+        $questionsById = $entretien->questionnaireTemplate?->sections
+            ->flatMap(fn ($section) => $section->questions)
+            ->keyBy('id') ?? collect();
 
         $audit = app(SecurityAuditService::class);
         $user = $request->user();
@@ -67,7 +70,9 @@ class EntretienConduiteController extends Controller
                 abort(422, 'Question hors modèle attaché à l’entretien.');
             }
 
-            $question = QuestionnaireQuestion::query()->findOrFail($qid);
+            /** @var QuestionnaireQuestion|null $question */
+            $question = $questionsById->get($qid);
+            abort_unless($question instanceof QuestionnaireQuestion, 422, 'Question introuvable pour le modèle attaché.');
 
             $payload = [
                 'answer_boolean' => array_key_exists('answer_boolean', $row) ? $row['answer_boolean'] : null,

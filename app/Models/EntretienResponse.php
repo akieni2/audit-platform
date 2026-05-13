@@ -35,11 +35,11 @@ class EntretienResponse extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(QuestionnaireQuestion::class, 'questionnaire_question_id');
+        return $this->belongsTo(QuestionnaireQuestion::class, 'questionnaire_question_id')->withTrashed();
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 }

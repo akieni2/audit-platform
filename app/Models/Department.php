@@ -28,7 +28,7 @@ class Department extends Model
 
     public function supervisor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'supervisor_user_id');
+        return $this->belongsTo(User::class, 'supervisor_user_id')->withTrashed();
     }
 
     public function users(): HasMany

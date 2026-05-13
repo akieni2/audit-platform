@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\Entretien;
-use App\Models\Question;
 use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
 use Carbon\Carbon;
@@ -31,8 +30,6 @@ class EntretienController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        $questions = Question::query()->orderBy('id')->get();
-
         $templateChoices = collect();
         if ($mission !== null && Auth::user()?->can('governMission', $mission)) {
             $deptId = $mission->department_id !== null ? (int) $mission->department_id : null;
@@ -49,7 +46,7 @@ class EntretienController extends Controller
                 ->get();
         }
 
-        return view('entretiens.index', compact('service', 'entretiens', 'questions', 'templateChoices', 'mission'));
+        return view('entretiens.index', compact('service', 'entretiens', 'templateChoices', 'mission'));
     }
 
     public function store(Request $request): RedirectResponse

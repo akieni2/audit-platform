@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\UserRoles;
 use Closure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,12 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+
+    public const APPROVAL_STATUS_PENDING = 'pending';
+
+    public const APPROVAL_STATUS_APPROVED = 'approved';
+
+    public const APPROVAL_STATUS_REJECTED = 'rejected';
 
     protected $fillable = [
         'name',
@@ -75,17 +82,17 @@ class User extends Authenticatable
 
     public function isApproved(): bool
     {
-        return $this->approval_status === 'approved';
+        return $this->approval_status === self::APPROVAL_STATUS_APPROVED;
     }
 
     public function isPendingApproval(): bool
     {
-        return $this->approval_status === 'pending';
+        return $this->approval_status === self::APPROVAL_STATUS_PENDING;
     }
 
     public function isEnrollmentRejected(): bool
     {
-        return $this->approval_status === 'rejected';
+        return $this->approval_status === self::APPROVAL_STATUS_REJECTED;
     }
 
     public function approver(): BelongsTo
@@ -107,7 +114,7 @@ class User extends Authenticatable
     public function scopeInstitutionalSuperAdmins($query)
     {
         return $query
-            ->where('approval_status', 'approved')
+            ->where('approval_status', self::APPROVAL_STATUS_APPROVED)
             ->where('active', true)
             ->whereHas('institutionalRole', fn ($q) => $q->where('slug', 'super_admin'));
     }
@@ -245,7 +252,17 @@ class User extends Authenticatable
 
     protected function isLegacyAdminRole(): bool
     {
-        return strtolower((string) ($this->role ?? '')) === 'admin';
+        return $this->hasLegacyRole(UserRoles::ADMIN);
+    }
+
+    public function legacyRole(): string
+    {
+        return strtolower(trim((string) ($this->role ?? '')));
+    }
+
+    public function hasLegacyRole(string $role): bool
+    {
+        return $this->legacyRole() === strtolower(trim($role));
     }
 
     public function hasPermission(string $slug): bool
@@ -324,19 +341,19 @@ class User extends Authenticatable
 
     public function isAuditeur(): bool
     {
-        return $this->role === 'auditeur';
+        return $this->hasLegacyRole(UserRoles::AUDITEUR);
     }
 
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return $this->hasLegacyRole(UserRoles::MANAGER);
     }
 
     public function isRiskManager(): bool
     {
         $this->loadIamRelations();
 
-        return $this->role === 'risk_manager'
+        return $this->hasLegacyRole(UserRoles::RISK_MANAGER)
             || $this->institutionalRole?->slug === 'risk_manager';
     }
 

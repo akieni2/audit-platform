@@ -6,21 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Questionnaire extends Model
+class AuditPlan extends Model
 {
     protected $fillable = [
-        'entretien_id',
+        'mission_id',
         'titre',
         'description',
+        'niveau',
     ];
 
-    public function entretien(): BelongsTo
+    public function mission(): BelongsTo
     {
-        return $this->belongsTo(Entretien::class);
+        return $this->belongsTo(Mission::class);
     }
 
-    public function questions(): HasMany
+    public function programmes(): HasMany
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(AuditProgramme::class);
     }
 }
