@@ -21,6 +21,8 @@
 
 <li><a href="{{ route('module.risques') }}">Risques</a></li>
 
+<li><a href="{{ route('risks.review-board') }}">Review board</a></li>
+
 <li><a href="{{ route('module.actions') }}">Actions correctives</a></li>
 
 <li><a href="{{ route('questionnaire-builder.index') }}">Questionnaires</a></li>

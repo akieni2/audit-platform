@@ -27,6 +27,8 @@ use App\Repositories\EloquentRiskRepository;
 use App\Support\DgcptPasswordRules;
 use App\Domain\Questionnaires\Events\EntretienResponsesRecorded;
 use App\Domain\Missions\Events\MissionGovernanceTransitioned;
+use App\Domain\Risk\Events\RiskClosed;
+use App\Domain\Risk\Events\RiskMitigated;
 use App\Domain\Risk\Events\RiskPromoted;
 use App\Listeners\RefreshMissionRiskProjection;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -128,6 +130,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(MissionGovernanceTransitioned::class, function (): void {
             ExecutiveDashboardService::flushNationalKpisCache();
         });
+        Event::listen(RiskPromoted::class, fn (): void => ExecutiveDashboardService::flushNationalKpisCache());
+        Event::listen(RiskMitigated::class, fn (): void => ExecutiveDashboardService::flushNationalKpisCache());
+        Event::listen(RiskClosed::class, fn (): void => ExecutiveDashboardService::flushNationalKpisCache());
 
         if (class_exists(\Laravel\Horizon\Horizon::class)) {
             \Laravel\Horizon\Horizon::auth(function ($request) {

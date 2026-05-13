@@ -9,6 +9,7 @@ final class HeatmapProjectionService
     public function __construct(
         private RiskRepositoryInterface $risks,
         private CriticalityEvaluationService $criticality,
+        private EnterpriseHeatmapService $enterprise,
     ) {}
 
     /**
@@ -28,7 +29,8 @@ final class HeatmapProjectionService
      */
     public function inherentForMission(int $missionId): array
     {
-        $counts = $this->risks->inherentHeatmapCounts($missionId);
+        $snapshot = $this->enterprise->mission($missionId);
+        $counts = $snapshot['combined']['counts'];
 
         return [
             'counts' => $counts,

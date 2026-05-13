@@ -17,6 +17,9 @@
                 Criticitù = impact ù probabilitù (1ù25). Seuils : Faible ?6, Moyen 7ù12, ùlevù 13ù18, Critique ?19.
                 Le risque rùsiduel est recalculù aprùs enregistrement d'un contrùle (efficacitù faible / moyenne / forte).
             </p>
+            <p class="mt-2 text-sm text-[#9BDCFF]">
+                Toute nouvelle saisie passe d?sormais par la cha?ne canonique <strong>IdentifiedRisk -> validation -> promotion -> Risque</strong> pour conserver la compatibilit? du module legacy.
+            </p>
         </div>
 
         <div>
@@ -97,9 +100,9 @@
                             <tr>
                                 <td>{{ $r->description }}</td>
                                 <td class="text-center">{{ $r->score_inherent }}</td>
-                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? 'ù' }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::fromMixed($r->criticite_inherent)?->label() ?? 'ù' }}</td>
                                 <td class="text-center">{{ $r->score_residuel ?? 'ù' }}</td>
-                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? 'ù' }}</td>
+                                <td class="text-center">{{ \App\Domain\Risk\Enums\CriticalityLevel::fromMixed($r->criticite_residuel)?->label() ?? 'ù' }}</td>
                                 <td>{{ $r->proprietaire ?? 'ù' }}</td>
                                 <td>{{ $r->departement ?? 'ù' }}</td>
                                 <td>{{ \App\Domain\Risk\Enums\RiskStatus::tryFrom($r->statut_risque ?? '')?->label() ?? $r->statut_risque }}</td>

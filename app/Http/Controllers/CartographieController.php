@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mission;
-use App\Repositories\Contracts\RiskRepositoryInterface;
-use App\Services\Risk\HeatmapProjectionService;
-use App\Services\Risk\RiskDashboardService;
+use App\Services\Risk\EnterpriseHeatmapService;
+use App\Services\Risk\MissionRiskDashboardService;
+use App\Services\Risk\RiskRegistryQueryService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CartographieController extends Controller
 {
     public function __construct(
-        private RiskRepositoryInterface $riskRepository,
-        private RiskDashboardService $dashboard,
-        private HeatmapProjectionService $heatmaps,
+        private RiskRegistryQueryService $riskRegistry,
+        private MissionRiskDashboardService $dashboard,
+        private EnterpriseHeatmapService $heatmaps,
     ) {}
 
     public function select(): View
@@ -34,18 +34,21 @@ class CartographieController extends Controller
 
         $id = $mission->id;
 
-        $risques = $this->riskRepository->forMission($id);
-        $heatmap = $this->heatmaps->inherentForMission($id);
-        $residualHeatmap = $this->heatmaps->residualForMission($id);
-
         $snapshot = $this->dashboard->snapshot($id);
+        $heatmap = $snapshot['heatmap']['combined'];
+        $residualHeatmap = $snapshot['heatmap']['residual'];
+        $officialRisks = $this->riskRegistry->registry(['mission_id' => $id]);
 
         return view('cartographie.index', [
             'mission' => $mission,
-            'risques' => $risques,
+            'risques' => $officialRisks,
             'heatmapRows' => $heatmap['matrix'],
             'residualHeatmapRows' => $residualHeatmap['matrix'],
-            'dashboard' => $snapshot,
+            'dashboard' => [
+                ...$snapshot,
+                'critical_count' => $snapshot['critical_open'],
+                'top_risks' => $officialRisks->take(10),
+            ],
         ]);
     }
 }

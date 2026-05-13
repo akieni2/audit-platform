@@ -175,6 +175,11 @@
             <span class="ni" aria-hidden="true">※</span>
             Risques
         </a>
+        <a class="nav-link {{ request()->routeIs('risks.review-board') ? 'active' : '' }}"
+           href="{{ route('risks.review-board') }}">
+            <span class="ni" aria-hidden="true">◌</span>
+            Review board
+        </a>
 
         <p class="nav-section-title">Suivi</p>
         <a class="nav-link {{ request()->routeIs('module.actions') ? 'active' : '' }}"

@@ -105,11 +105,11 @@
                         <td style="padding:8px;">{{ \Illuminate\Support\Str::limit($r->description, 48) }}</td>
                         <td style="padding:8px;text-align:center;">{{ $r->impact_inherent }}x{{ $r->probabilite_inherent }}</td>
                         <td style="padding:8px;text-align:center;">
-                            {{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_inherent ?? '')?->label() ?? '—' }}
+                            {{ \App\Domain\Risk\Enums\CriticalityLevel::fromMixed($r->criticite_inherent)?->label() ?? '—' }}
                         </td>
                         <td style="padding:8px;text-align:center;">{{ $r->score_residuel ?? '—' }}</td>
                         <td style="padding:8px;text-align:center;">
-                            {{ \App\Domain\Risk\Enums\CriticalityLevel::tryFrom($r->criticite_residuel ?? '')?->label() ?? '—' }}
+                            {{ \App\Domain\Risk\Enums\CriticalityLevel::fromMixed($r->criticite_residuel)?->label() ?? '—' }}
                         </td>
                         <td style="padding:8px;">{{ $r->proprietaire ?? '—' }}</td>
                         <td style="padding:8px;">{{ $r->departement ?? '—' }}</td>

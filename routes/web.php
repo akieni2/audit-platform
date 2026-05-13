@@ -35,6 +35,7 @@ use App\Http\Controllers\NotificationUnreadController;
 use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
+use App\Http\Controllers\RiskReviewBoardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -167,6 +168,12 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::patch('/identified-risks/{identified_risk}/valider', [IdentifiedRiskController::class, 'validateHuman'])
         ->name('identified-risks.validate');
+    Route::patch('/identified-risks/{identified_risk}/submit-review', [IdentifiedRiskController::class, 'submitForReview'])
+        ->name('identified-risks.submit-review');
+    Route::patch('/identified-risks/{identified_risk}/approve', [IdentifiedRiskController::class, 'approve'])
+        ->name('identified-risks.approve');
+    Route::patch('/identified-risks/{identified_risk}/reject', [IdentifiedRiskController::class, 'reject'])
+        ->name('identified-risks.reject');
     Route::patch('/identified-risks/{identified_risk}/promote', [IdentifiedRiskController::class, 'promote'])
         ->name('identified-risks.promote');
 
@@ -250,6 +257,16 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::patch('/risques/{risque}', [RisqueController::class, 'update'])
         ->name('risques.update');
+    Route::patch('/risques/{risque}/owner', [RisqueController::class, 'assignOwner'])
+        ->name('risques.assign-owner');
+    Route::patch('/risques/{risque}/mitigate', [RisqueController::class, 'mitigate'])
+        ->name('risques.mitigate');
+    Route::patch('/risques/{risque}/close', [RisqueController::class, 'close'])
+        ->name('risques.close');
+    Route::patch('/risques/{risque}/archive', [RisqueController::class, 'archive'])
+        ->name('risques.archive');
+    Route::get('/risks/review-board', [RiskReviewBoardController::class, 'index'])
+        ->name('risks.review-board');
 
 
     /*

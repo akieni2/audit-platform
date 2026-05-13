@@ -2,13 +2,13 @@
 
 namespace App\Services\Risk;
 
-use App\Repositories\Contracts\RiskRepositoryInterface;
 use Illuminate\Support\Collection;
 
 final class RiskDashboardService
 {
     public function __construct(
-        private RiskRepositoryInterface $risks,
+        private MissionRiskDashboardService $missions,
+        private RiskRegistryQueryService $registry,
     ) {}
 
     /**
@@ -21,11 +21,13 @@ final class RiskDashboardService
      */
     public function snapshot(int $missionId): array
     {
+        $snapshot = $this->missions->snapshot($missionId);
+
         return [
-            'critical_count' => $this->risks->countCriticalForMission($missionId),
-            'top_risks' => $this->risks->topByInherentScore($missionId, 10),
-            'monthly' => $this->risks->monthlyCreationCounts($missionId),
-            'by_department' => $this->risks->countsByDepartment($missionId),
+            'critical_count' => $snapshot['critical_open'],
+            'top_risks' => $this->registry->registry(['mission_id' => $missionId])->take(10),
+            'monthly' => $snapshot['monthly'],
+            'by_department' => $snapshot['by_department'],
         ];
     }
 }

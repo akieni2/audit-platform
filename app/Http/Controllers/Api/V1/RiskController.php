@@ -8,9 +8,10 @@ use App\Http\Requests\UpdateRisqueRequest;
 use App\Http\Resources\RiskResource;
 use App\Models\Mission;
 use App\Models\Risque;
-use App\Repositories\Contracts\RiskRepositoryInterface;
-use App\Services\Risk\HeatmapProjectionService;
-use App\Services\Risk\RiskDashboardService;
+use App\Services\Risk\EnterpriseHeatmapService;
+use App\Services\Risk\MissionRiskDashboardService;
+use App\Services\Risk\RiskRegistryPromotionService;
+use App\Services\Risk\RiskRegistryQueryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -18,16 +19,17 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class RiskController extends Controller
 {
     public function __construct(
-        private RiskRepositoryInterface $riskRepository,
-        private RiskDashboardService $dashboard,
-        private HeatmapProjectionService $heatmaps,
+        private RiskRegistryQueryService $riskRegistry,
+        private MissionRiskDashboardService $dashboard,
+        private EnterpriseHeatmapService $heatmaps,
+        private RiskRegistryPromotionService $registry,
     ) {}
 
     public function indexForMission(Request $request, Mission $mission): AnonymousResourceCollection
     {
         $this->authorize('view', $mission);
 
-        $risques = $this->riskRepository->forMission((int) $mission->id);
+        $risques = $this->riskRegistry->registry(['mission_id' => (int) $mission->id]);
 
         return RiskResource::collection($risques);
     }
@@ -37,10 +39,9 @@ class RiskController extends Controller
         $this->authorize('view', $mission);
 
         $missionId = (int) $mission->id;
-        $inherentHeatmap = $this->heatmaps->inherentForMission($missionId);
-        $residualHeatmap = $this->heatmaps->residualForMission($missionId);
-
         $snapshot = $this->dashboard->snapshot($missionId);
+        $inherentHeatmap = $snapshot['heatmap']['combined'];
+        $residualHeatmap = $snapshot['heatmap']['residual'];
 
         return response()->json([
             'mission_id' => $missionId,
@@ -73,11 +74,13 @@ class RiskController extends Controller
                 $residualHeatmap['matrix']
             ),
             'dashboard' => [
-                'critical_count' => $snapshot['critical_count'],
-                'top_risques' => RiskResource::collection($snapshot['top_risks'])
+                'critical_count' => $snapshot['critical_open'],
+                'top_risques' => RiskResource::collection($this->riskRegistry->registry(['mission_id' => $missionId])->take(10))
                     ->toArray(request()),
                 'monthly_creation' => $snapshot['monthly'],
                 'by_department' => $snapshot['by_department'],
+                'lifecycle' => $snapshot['lifecycle'],
+                'criticality' => $snapshot['criticality'],
             ],
         ]);
     }
@@ -94,8 +97,7 @@ class RiskController extends Controller
         $data = $request->validated();
         $data['statut_risque'] = $data['statut_risque'] ?? 'identifie';
 
-        $risque = Risque::create($data);
-        $risque->calculerRisqueResiduel();
+        $risque = $this->registry->ingestLegacySubmission($data, $request->user());
 
         return (new RiskResource($risque->fresh(['controles'])))
             ->response()

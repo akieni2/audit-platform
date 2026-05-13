@@ -50,16 +50,16 @@ final class MissionRiskProjectionService
 
         $counts = [
             'intake_detected_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Detected->value)->count(),
-            'intake_reviewed_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Reviewed->value)->count(),
-            'intake_qualified_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Qualified->value)->count(),
-            'intake_approved_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Approved->value)->count(),
+            'intake_reviewed_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::UnderReview->value)->count(),
+            'intake_qualified_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Rejected->value)->count(),
+            'intake_approved_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Validated->value)->count(),
             'intake_promoted_count' => $intake->where('lifecycle_status', RiskLifecycleStatus::Promoted->value)->count(),
             'official_count' => (clone $official)->count(),
             'official_critical_count' => (clone $official)
-                ->where('criticite_inherent', CriticalityLevel::Critique->value)
+                ->where('criticite_inherent', CriticalityLevel::Critical->value)
                 ->count(),
             'official_residual_critical_count' => (clone $official)
-                ->where('criticite_residuel', CriticalityLevel::Critique->value)
+                ->where('criticite_residuel', CriticalityLevel::Critical->value)
                 ->count(),
         ];
 
