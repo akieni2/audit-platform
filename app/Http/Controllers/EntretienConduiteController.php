@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Questionnaires\StoreEntretienDynamicResponsesRequest;
 use App\Models\Entretien;
-use App\Models\EntretienResponse;
-use App\Models\IdentifiedRisk;
-use App\Models\QuestionnaireQuestion;
-use App\Services\Iam\SecurityAuditService;
+use App\Services\Questionnaires\QuestionnaireRuntimeService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class EntretienConduiteController extends Controller
 {
@@ -18,124 +15,33 @@ class EntretienConduiteController extends Controller
     {
         $this->authorize('conductQuestionnaire', $entretien);
 
-        $entretien->load([
-            'mission',
-            'service',
-            'questionnaireTemplate.sections.questions' => fn ($q) => $q->where('active', true)->orderBy('sort_order'),
-        ]);
+        abort_unless($entretien->questionnaire_template_id !== null || ! empty($entretien->questionnaire_snapshot), 404);
 
-        abort_unless($entretien->questionnaire_template_id !== null, 404);
-
-        $template = $entretien->questionnaireTemplate;
-        abort_unless($template !== null && $template->active, 404);
-
-        $existing = $entretien->questionnaireResponses()
-            ->get()
-            ->keyBy('questionnaire_question_id');
-
-        $progressPercent = $entretien->questionnaireCompletionPercent();
+        try {
+            $runtime = app(QuestionnaireRuntimeService::class)->buildViewData($entretien);
+        } catch (InvalidArgumentException $exception) {
+            abort(404, $exception->getMessage());
+        }
 
         return view('entretiens.conduite', [
             'entretien' => $entretien,
-            'template' => $template,
-            'existingResponses' => $existing,
-            'progressPercent' => $progressPercent,
+            'template' => $runtime['template'],
+            'existingResponses' => $runtime['existingResponses'],
+            'progressPercent' => $runtime['progressPercent'],
         ]);
     }
 
     public function storeResponses(StoreEntretienDynamicResponsesRequest $request, Entretien $entretien): RedirectResponse
     {
-        $entretien->load([
-            'mission',
-            'service',
-            'questionnaireTemplate.sections.questions' => fn ($q) => $q->where('active', true)->orderBy('sort_order'),
-        ]);
-
-        $allowedIds = $entretien->questionnaireTemplate?->sections
-            ->flatMap(fn ($s) => $s->questions->pluck('id'))
-            ->all() ?? [];
-        $questionsById = $entretien->questionnaireTemplate?->sections
-            ->flatMap(fn ($section) => $section->questions)
-            ->keyBy('id') ?? collect();
-
-        $audit = app(SecurityAuditService::class);
-        $user = $request->user();
-
-        $statusColumnAvailable = Schema::hasColumn('entretiens', 'status');
-        $previousStatus = $statusColumnAvailable ? $entretien->status : null;
-
-        foreach ($request->validated('responses') as $row) {
-            $qid = (int) $row['questionnaire_question_id'];
-            if (! in_array($qid, $allowedIds, true)) {
-                abort(422, 'Question hors modèle attaché à l’entretien.');
-            }
-
-            /** @var QuestionnaireQuestion|null $question */
-            $question = $questionsById->get($qid);
-            abort_unless($question instanceof QuestionnaireQuestion, 422, 'Question introuvable pour le modèle attaché.');
-
-            $payload = [
-                'answer_boolean' => array_key_exists('answer_boolean', $row) ? $row['answer_boolean'] : null,
-                'answer_text' => $row['answer_text'] ?? null,
-                'answer_json' => $row['answer_json'] ?? null,
-                'observation' => $row['observation'] ?? null,
-                'uploaded_documents_metadata' => $row['uploaded_documents_metadata'] ?? null,
-                'detected_risk' => $row['detected_risk'] ?? null,
-                'created_by' => $user?->id,
-            ];
-
-            $response = EntretienResponse::query()->updateOrCreate(
-                [
-                    'entretien_id' => $entretien->id,
-                    'questionnaire_question_id' => $qid,
-                ],
-                $payload
+        try {
+            app(QuestionnaireRuntimeService::class)->recordResponses(
+                $entretien,
+                $request->validated('responses'),
+                $request->user(),
+                $request,
             );
-
-            $audit->entretienResponseCreated($user, $entretien, $response, $request);
-
-            if (! empty($row['identified_risk']) && is_array($row['identified_risk']) && $question->allows_risk_detection) {
-                $ir = $row['identified_risk'];
-                if (empty($ir['title']) || ! is_string($ir['title'])) {
-                    continue;
-                }
-                $risk = IdentifiedRisk::query()->create([
-                    'mission_id' => $entretien->mission_id,
-                    'service_id' => $entretien->service_id,
-                    'entretien_id' => $entretien->id,
-                    'questionnaire_question_id' => $qid,
-                    'title' => $ir['title'],
-                    'description' => $ir['description'] ?? null,
-                    'category' => $ir['category'] ?? $question->risk_category,
-                    'probability' => $ir['probability'] ?? null,
-                    'impact' => $ir['impact'] ?? null,
-                    'criticality' => $ir['criticality'] ?? null,
-                    'recommendation' => $ir['recommendation'] ?? null,
-                    'ai_generated' => false,
-                    'validated_by_human' => false,
-                    'created_by' => $user?->id,
-                ]);
-
-                $audit->riskIdentified($user, $risk, $request);
-            }
-        }
-
-        $entretienUpdate = [];
-        if ($statusColumnAvailable) {
-            $entretienUpdate['status'] = Entretien::STATUS_IN_PROGRESS;
-        }
-        if (Schema::hasColumn('entretiens', 'conducted_by')) {
-            $entretienUpdate['conducted_by'] = $user?->id;
-        }
-        if (Schema::hasColumn('entretiens', 'conducted_at')) {
-            $entretienUpdate['conducted_at'] = $entretien->conducted_at ?? now();
-        }
-        if ($entretienUpdate !== []) {
-            $entretien->update($entretienUpdate);
-        }
-
-        if ($statusColumnAvailable && in_array($previousStatus, [null, '', Entretien::STATUS_DRAFT], true)) {
-            $audit->entretienStarted($user, $entretien->fresh(), $request);
+        } catch (InvalidArgumentException $exception) {
+            abort(422, $exception->getMessage());
         }
 
         return redirect()

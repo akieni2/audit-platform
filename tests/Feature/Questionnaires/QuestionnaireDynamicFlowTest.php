@@ -114,6 +114,11 @@ class QuestionnaireDynamicFlowTest extends TestCase
 
         $this->get(route('entretiens.conduite.show', $entretien))->assertOk();
 
+        $this->assertDatabaseHas('entretiens', [
+            'id' => $entretien->id,
+            'questionnaire_snapshot_version' => 1,
+        ]);
+
         $save = $this->post(route('entretiens.dynamic-responses.store', $entretien), [
             'responses' => [
                 [
@@ -207,11 +212,34 @@ class QuestionnaireDynamicFlowTest extends TestCase
             ],
         ])->assertRedirect();
 
+        $this->actingAs($user)->post(route('entretiens.dynamic-responses.store', $entretien), [
+            'responses' => [
+                [
+                    'questionnaire_question_id' => $question->id,
+                    'answer_text' => 'Anomalie constatée',
+                    'identified_risk' => [
+                        'title' => 'Absence de contrôle',
+                        'description' => 'Détail',
+                        'category' => 'Contrôle interne',
+                        'criticality' => 'Moyenne',
+                    ],
+                ],
+            ],
+        ])->assertRedirect();
+
         $this->assertDatabaseHas('identified_risks', [
             'mission_id' => $mission->id,
             'entretien_id' => $entretien->id,
             'title' => 'Absence de contrôle',
             'criticality' => 'moyen',
+        ]);
+
+        $this->assertDatabaseCount('identified_risks', 1);
+        $this->assertDatabaseHas('identified_risks', [
+            'mission_id' => $mission->id,
+            'entretien_id' => $entretien->id,
+            'title' => 'Absence de contrôle',
+            'lifecycle_status' => 'detected',
         ]);
     }
 }

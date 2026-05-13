@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ResolvesVisibleResources;
 use App\Models\Entretien;
 use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
+use App\Services\Questionnaires\QuestionnaireRuntimeService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -104,7 +105,11 @@ class EntretienController extends Controller
             $payload['conducted_by'] = Auth::id();
         }
 
-        Entretien::query()->create($payload);
+        $entretien = Entretien::query()->create($payload);
+
+        if ($entretien->questionnaire_template_id !== null) {
+            app(QuestionnaireRuntimeService::class)->ensureSnapshot($entretien->fresh());
+        }
 
         return back()->with('status', 'Entretien enregistré.');
     }
@@ -147,6 +152,7 @@ class EntretienController extends Controller
         );
 
         $entretien->update(['questionnaire_template_id' => $tpl->id]);
+        app(QuestionnaireRuntimeService::class)->ensureSnapshot($entretien->fresh(), true);
 
         return back()->with('status', 'Modèle de questionnaire rattaché.');
     }

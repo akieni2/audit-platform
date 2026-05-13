@@ -21,6 +21,10 @@ class Entretien extends Model
         'mission_id',
         'service_id',
         'questionnaire_template_id',
+        'questionnaire_snapshot',
+        'questionnaire_snapshot_version',
+        'questionnaire_snapshot_hash',
+        'questionnaire_snapshot_taken_at',
         'conducted_by',
         'interviewed_person',
         'interviewed_role',
@@ -41,7 +45,9 @@ class Entretien extends Model
     protected function casts(): array
     {
         return [
+            'questionnaire_snapshot' => 'array',
             'conducted_at' => 'datetime',
+            'questionnaire_snapshot_taken_at' => 'datetime',
             'date_entretien' => 'date',
         ];
     }
@@ -123,20 +129,29 @@ class Entretien extends Model
     /** Progression questionnaire dynamique (0–100), ou null si sans modèle. */
     public function questionnaireCompletionPercent(): ?int
     {
-        if ($this->questionnaire_template_id === null) {
+        if ($this->questionnaire_template_id === null && empty($this->questionnaire_snapshot)) {
             return null;
         }
 
-        $this->loadMissing([
-            'questionnaireTemplate.sections.questions' => fn ($q) => $q->where('active', true),
-        ]);
+        $total = 0;
 
-        $template = $this->questionnaireTemplate;
-        if ($template === null) {
-            return null;
+        if (is_array($this->questionnaire_snapshot) && isset($this->questionnaire_snapshot['template']['sections'])) {
+            $total = collect($this->questionnaire_snapshot['template']['sections'])
+                ->sum(fn ($section) => count($section['questions'] ?? []));
         }
 
-        $total = (int) $template->sections->sum(fn ($section) => $section->questions->count());
+        if ($total === 0) {
+            $this->loadMissing([
+                'questionnaireTemplate.sections.questions' => fn ($q) => $q->where('active', true),
+            ]);
+
+            $template = $this->questionnaireTemplate;
+            if ($template === null) {
+                return null;
+            }
+
+            $total = (int) $template->sections->sum(fn ($section) => $section->questions->count());
+        }
         if ($total === 0) {
             return null;
         }

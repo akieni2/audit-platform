@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Domain\Risk\Enums\CriticalityLevel;
+use App\Domain\Risk\Enums\RiskLifecycleStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class IdentifiedRisk extends Model
 {
@@ -13,15 +15,23 @@ class IdentifiedRisk extends Model
         'service_id',
         'entretien_id',
         'questionnaire_question_id',
+        'source_signature',
         'title',
         'description',
         'category',
         'probability',
         'impact',
         'criticality',
+        'lifecycle_status',
         'recommendation',
         'ai_generated',
         'validated_by_human',
+        'reviewed_by',
+        'reviewed_at',
+        'approved_by',
+        'approved_at',
+        'promoted_at',
+        'promotion_notes',
         'created_by',
     ];
 
@@ -30,7 +40,20 @@ class IdentifiedRisk extends Model
         return [
             'ai_generated' => 'boolean',
             'validated_by_human' => 'boolean',
+            'reviewed_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'promoted_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function lifecycleLabels(): array
+    {
+        return collect(RiskLifecycleStatus::cases())
+            ->mapWithKeys(fn (RiskLifecycleStatus $status) => [$status->value => $status->label()])
+            ->all();
     }
 
     public static function normalizeCriticality(?string $value): ?string
@@ -66,5 +89,20 @@ class IdentifiedRisk extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by')->withTrashed();
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by')->withTrashed();
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by')->withTrashed();
+    }
+
+    public function promotedRisk(): HasOne
+    {
+        return $this->hasOne(Risque::class, 'identified_risk_id');
     }
 }
