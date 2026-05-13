@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ResolvesVisibleResources;
-use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Http\Requests\Missions\StoreMissionRequest;
 use App\Http\Requests\Missions\UpdateMissionRequest;
 use App\Http\Requests\MissionWorkflowRequest;
-use App\Models\Entretien;
-use App\Models\IdentifiedRisk;
 use App\Models\Mission;
-use App\Models\MissionDocument;
-use App\Models\MissionTeamMember;
 use App\Services\Iam\SecurityAuditService;
+use App\Services\Missions\MissionGovernanceService;
 use App\Services\Missions\MissionWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class MissionController extends Controller
@@ -89,48 +84,19 @@ class MissionController extends Controller
             'missionTeamMembers.assignedBy',
         ]);
 
-        $workflow = app(MissionWorkflowService::class);
+        $governance = app(MissionGovernanceService::class);
         $actor = Auth::user();
         abort_unless($actor, 403);
 
-        $eligibleTeamUsers = collect();
-        if ($actor->can('assignTeamMembers', $mission)) {
-            $existingIds = $mission->missionTeamMembers->pluck('user_id');
-            $eligibleTeamUsers = $mission->eligibleTeamUsers($actor)
-                ->whereNotIn('id', $existingIds)
-                ->values();
-        }
-
-        $missionDocumentsAvailable = Schema::hasTable('mission_documents');
-        $entretienStatusAvailable = Schema::hasColumn('entretiens', 'status');
-
-        $missionStats = [
-            'services_count' => $mission->services()->count(),
-            'entretiens_total' => Entretien::query()->where('mission_id', $mission->id)->count(),
-            'entretiens_done' => $entretienStatusAvailable
-                ? Entretien::query()
-                    ->where('mission_id', $mission->id)
-                    ->whereIn('status', [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED])
-                    ->count()
-                : 0,
-            'risks_count' => IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
-            'risks_critical' => IdentifiedRisk::query()
-                ->where('mission_id', $mission->id)
-                ->where('criticality', CriticalityLevel::Critique->value)
-                ->count(),
-            'documents_count' => $missionDocumentsAvailable
-                ? MissionDocument::query()->where('mission_id', $mission->id)->count()
-                : 0,
-        ];
-        $missionProgressPercent = $missionStats['entretiens_total'] > 0
-            ? (int) min(100, max(0, (int) round(100 * $missionStats['entretiens_done'] / $missionStats['entretiens_total'])))
-            : null;
+        $eligibleTeamUsers = $governance->eligibleTeamUsers($actor, $mission);
+        $missionStats = $governance->missionStats($mission);
+        $missionProgressPercent = $governance->missionProgressPercent($missionStats);
 
         return view('missions.show', [
             'mission' => $mission,
-            'allowedActions' => $workflow->allowedActions($actor, $mission),
+            'allowedActions' => $governance->allowedActions($actor, $mission),
             'eligibleTeamUsers' => $eligibleTeamUsers,
-            'missionRoleLabels' => MissionTeamMember::missionRoleLabels(),
+            'missionRoleLabels' => $governance->missionRoleLabels(),
             'missionStats' => $missionStats,
             'missionProgressPercent' => $missionProgressPercent,
         ]);
@@ -176,7 +142,7 @@ class MissionController extends Controller
         $action = $request->validated('action');
         $this->authorize('transition', [$mission, $action]);
 
-        app(MissionWorkflowService::class)->transition(
+        app(MissionGovernanceService::class)->transition(
             Auth::user(),
             $mission,
             $action,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -104,6 +105,11 @@ class Mission extends Model
         return $this->hasMany(MissionRaciPreview::class);
     }
 
+    public function riskProjection()
+    {
+        return $this->hasOne(MissionRiskProjection::class);
+    }
+
     public function auditeur()
     {
         return $this->belongsTo(User::class, 'auditeur_id')->withTrashed();
@@ -202,7 +208,7 @@ class Mission extends Model
         }
 
         // Récupérer risques critiques de la mission
-        $risquesCritiques = Risque::where('score_residuel','>=',16)
+        $risquesCritiques = Risque::where('criticite_residuel', CriticalityLevel::Critique->value)
             ->whereHas('actif.processus', function($q){
                 $q->where('mission_id',$this->id);
             })

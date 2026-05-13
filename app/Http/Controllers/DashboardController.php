@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Models\ActionCorrective;
 use App\Models\Department;
 use App\Models\Entretien;
@@ -57,7 +58,12 @@ class DashboardController extends Controller
         $risquesVisible = $this->risquesForDashboard($user, $focusDepartmentId);
         $risques = (clone $risquesVisible)->count();
 
-        $risquesCritiques = (clone $risquesVisible)->where('score_residuel', '>=', 16)->count();
+        $risquesCritiques = (clone $risquesVisible)
+            ->where(function ($q) {
+                $q->where('criticite_inherent', CriticalityLevel::Critique->value)
+                    ->orWhere('criticite_residuel', CriticalityLevel::Critique->value);
+            })
+            ->count();
 
         $actionsOuvertes = ActionCorrective::query()
             ->where('statut', 'ouvert')

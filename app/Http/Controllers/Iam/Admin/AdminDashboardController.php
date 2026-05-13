@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Iam\Admin;
 
+use App\Domain\Risk\Enums\CriticalityLevel;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Department;
@@ -64,7 +65,12 @@ class AdminDashboardController extends Controller
             })
             ->count();
 
-        $risquesCritiques = Risque::query()->where('score_residuel', '>=', 16)->count();
+        $risquesCritiques = Risque::query()
+            ->where(function ($q) {
+                $q->where('criticite_inherent', CriticalityLevel::Critique->value)
+                    ->orWhere('criticite_residuel', CriticalityLevel::Critique->value);
+            })
+            ->count();
 
         return view('iam.admin.dashboard', [
             'stats' => [
