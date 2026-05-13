@@ -62,7 +62,7 @@ class RiskPromotionServiceTest extends TestCase
             'category' => 'Controle interne',
             'probability' => '4',
             'impact' => '5',
-            'criticality' => 'critique',
+            'criticality' => 'critical',
             'created_by' => $user->id,
         ]);
 
@@ -82,7 +82,7 @@ class RiskPromotionServiceTest extends TestCase
             'id' => $risque->id,
             'identified_risk_id' => $identifiedRisk->id,
             'lifecycle_status' => 'promoted',
-            'criticite_inherent' => 'critique',
+            'criticite_inherent' => 'critical',
         ]);
 
         $this->assertDatabaseHas('identified_risks', [

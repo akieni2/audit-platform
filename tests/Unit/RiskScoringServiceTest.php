@@ -19,7 +19,7 @@ class RiskScoringServiceTest extends TestCase
         $this->assertSame(4, $package['probability']);
         $this->assertSame(3, $package['impact']);
         $this->assertSame(12, $package['score']);
-        $this->assertSame('moyen', $package['criticality']);
+        $this->assertSame('medium', $package['criticality']);
     }
 
     public function test_it_builds_residual_scores_from_control_coefficient(): void
@@ -31,6 +31,6 @@ class RiskScoringServiceTest extends TestCase
         $this->assertSame(5, $package['impact']);
         $this->assertSame(1, $package['probability']);
         $this->assertSame(5, $package['score']);
-        $this->assertSame('faible', $package['criticality']);
+        $this->assertSame('low', $package['criticality']);
     }
 }

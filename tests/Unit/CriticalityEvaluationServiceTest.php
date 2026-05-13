@@ -18,14 +18,14 @@ class CriticalityEvaluationServiceTest extends TestCase
 
     public function test_levels_follow_score_thresholds(): void
     {
-        $this->assertSame(CriticalityLevel::Faible, $this->service->levelFromScore(1));
-        $this->assertSame(CriticalityLevel::Faible, $this->service->levelFromScore(6));
-        $this->assertSame(CriticalityLevel::Moyen, $this->service->levelFromScore(7));
-        $this->assertSame(CriticalityLevel::Moyen, $this->service->levelFromScore(12));
-        $this->assertSame(CriticalityLevel::Eleve, $this->service->levelFromScore(13));
-        $this->assertSame(CriticalityLevel::Eleve, $this->service->levelFromScore(18));
-        $this->assertSame(CriticalityLevel::Critique, $this->service->levelFromScore(19));
-        $this->assertSame(CriticalityLevel::Critique, $this->service->levelFromScore(25));
+        $this->assertSame(CriticalityLevel::Low, $this->service->levelFromScore(1));
+        $this->assertSame(CriticalityLevel::Low, $this->service->levelFromScore(6));
+        $this->assertSame(CriticalityLevel::Medium, $this->service->levelFromScore(7));
+        $this->assertSame(CriticalityLevel::Medium, $this->service->levelFromScore(12));
+        $this->assertSame(CriticalityLevel::High, $this->service->levelFromScore(13));
+        $this->assertSame(CriticalityLevel::High, $this->service->levelFromScore(18));
+        $this->assertSame(CriticalityLevel::Critical, $this->service->levelFromScore(19));
+        $this->assertSame(CriticalityLevel::Critical, $this->service->levelFromScore(25));
     }
 
     public function test_heatmap_tint_matches_levels(): void

@@ -95,7 +95,7 @@ class RiskLifecycleAndIdempotenceTest extends TestCase
             'category' => 'Controle',
             'probability' => '4',
             'impact' => '4',
-            'criticality' => 'eleve',
+            'criticality' => 'high',
             'validated_by_human' => false,
             'lifecycle_status' => RiskLifecycleStatus::Detected->value,
             'created_by' => $user->id,

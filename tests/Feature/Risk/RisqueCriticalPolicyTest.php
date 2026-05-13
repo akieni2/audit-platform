@@ -51,7 +51,7 @@ class RisqueCriticalPolicyTest extends TestCase
         $auditeur = User::factory()->create(['role' => 'auditeur']);
         $risque = $this->seedRiskChain($auditeur);
 
-        $this->assertSame('critique', $risque->fresh()->criticite_inherent);
+        $this->assertSame('critical', $risque->fresh()->criticite_inherent);
 
         $response = $this->actingAs($auditeur)->patch(route('risques.update', $risque), [
             'description' => 'Modifié',
@@ -91,7 +91,7 @@ class RisqueCriticalPolicyTest extends TestCase
             'probabilite_inherent' => 2,
         ]);
 
-        $this->assertSame('faible', $risque->fresh()->criticite_inherent);
+        $this->assertSame('low', $risque->fresh()->criticite_inherent);
 
         $response = $this->actingAs($auditeur)->patch(route('risques.update', $risque), [
             'description' => 'OK non critique',
