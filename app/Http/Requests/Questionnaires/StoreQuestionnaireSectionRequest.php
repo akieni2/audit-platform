@@ -9,7 +9,7 @@ class StoreQuestionnaireSectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $t = $this->route('questionnaire_template');
+        $t = $this->route('template') ?? $this->route('questionnaire_template');
 
         return $t instanceof QuestionnaireTemplate
             && $this->user()?->can('update', $t);

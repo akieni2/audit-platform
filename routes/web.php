@@ -34,6 +34,7 @@ use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\NotificationUnreadController;
 use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\QuestionnaireBuilderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +184,25 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('questionnaire-templates.questions.store');
     Route::delete('/questionnaire-templates/{questionnaire_template}/sections/{section}/questions/{question}', [QuestionnaireTemplateController::class, 'destroyQuestion'])
         ->name('questionnaire-templates.questions.destroy');
+
+    Route::prefix('questionnaire-builder')
+        ->name('questionnaire-builder.')
+        ->group(function () {
+            Route::get('/', [QuestionnaireBuilderController::class, 'index'])->name('index');
+            Route::get('/{template}/edit', [QuestionnaireBuilderController::class, 'edit'])->name('edit');
+            Route::post('/templates', [QuestionnaireBuilderController::class, 'storeTemplate'])->name('templates.store');
+            Route::patch('/templates/{template}', [QuestionnaireBuilderController::class, 'updateTemplate'])->name('templates.update');
+            Route::post('/{template}/sections', [QuestionnaireBuilderController::class, 'storeSection'])->name('sections.store');
+            Route::patch('/sections/{section}', [QuestionnaireBuilderController::class, 'updateSection'])->name('sections.update');
+            Route::delete('/sections/{section}', [QuestionnaireBuilderController::class, 'destroySection'])->name('sections.destroy');
+            Route::post('/sections/{section}/questions', [QuestionnaireBuilderController::class, 'storeQuestion'])->name('questions.store');
+            Route::patch('/questions/{question}', [QuestionnaireBuilderController::class, 'updateQuestion'])->name('questions.update');
+            Route::delete('/questions/{question}', [QuestionnaireBuilderController::class, 'destroyQuestion'])->name('questions.destroy');
+            Route::post('/questions/reorder', [QuestionnaireBuilderController::class, 'reorderQuestions'])->name('questions.reorder');
+            Route::post('/sections/reorder', [QuestionnaireBuilderController::class, 'reorderSections'])->name('sections.reorder');
+            Route::post('/templates/{template}/publish', [QuestionnaireBuilderController::class, 'publish'])->name('templates.publish');
+            Route::post('/templates/{template}/archive', [QuestionnaireBuilderController::class, 'archive'])->name('templates.archive');
+        });
 
 
     /*

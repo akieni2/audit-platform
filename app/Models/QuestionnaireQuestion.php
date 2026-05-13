@@ -11,6 +11,10 @@ class QuestionnaireQuestion extends Model
 {
     use SoftDeletes;
 
+    public const TYPE_TEXT = 'text';
+
+    public const TYPE_BOOLEAN = 'boolean';
+
     public const TYPE_BOOLEAN_NA = 'boolean_na';
 
     public const TYPE_TEXTAREA = 'textarea';
@@ -33,6 +37,8 @@ class QuestionnaireQuestion extends Model
     public static function questionTypes(): array
     {
         return [
+            self::TYPE_TEXT,
+            self::TYPE_BOOLEAN,
             self::TYPE_BOOLEAN_NA,
             self::TYPE_TEXTAREA,
             self::TYPE_SELECT,
@@ -42,6 +48,30 @@ class QuestionnaireQuestion extends Model
             self::TYPE_NUMBER,
             self::TYPE_RISK_CAPTURE,
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function questionTypeLabels(): array
+    {
+        return [
+            self::TYPE_TEXT => 'Texte court',
+            self::TYPE_TEXTAREA => 'Texte long',
+            self::TYPE_BOOLEAN => 'Oui / Non',
+            self::TYPE_BOOLEAN_NA => 'Oui / Non / N.A.',
+            self::TYPE_SELECT => 'Liste déroulante',
+            self::TYPE_RADIO => 'Choix unique',
+            self::TYPE_CHECKBOX => 'Choix multiple',
+            self::TYPE_NUMBER => 'Nombre',
+            self::TYPE_DATE => 'Date',
+            self::TYPE_RISK_CAPTURE => 'Capture de risque',
+        ];
+    }
+
+    public function questionTypeLabel(): string
+    {
+        return self::questionTypeLabels()[$this->question_type] ?? $this->question_type;
     }
 
     protected $fillable = [
@@ -59,6 +89,7 @@ class QuestionnaireQuestion extends Model
         'sort_order',
         'active',
         'metadata',
+        'source_question_id',
     ];
 
     protected function casts(): array
@@ -70,12 +101,18 @@ class QuestionnaireQuestion extends Model
             'active' => 'boolean',
             'sort_order' => 'integer',
             'metadata' => 'array',
+            'source_question_id' => 'integer',
         ];
     }
 
     public function section(): BelongsTo
     {
         return $this->belongsTo(QuestionnaireSection::class, 'questionnaire_section_id')->withTrashed();
+    }
+
+    public function sourceQuestion(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'source_question_id')->withTrashed();
     }
 
     public function entretienResponses(): HasMany

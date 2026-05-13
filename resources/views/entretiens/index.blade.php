@@ -27,7 +27,7 @@
                     </p>
                 @endif
             </div>
-            <a href="{{ route('questionnaire-templates.index') }}" class="dgcpt-btn-outline text-sm">Bibliothèque questionnaires</a>
+            <a href="{{ route('questionnaire-builder.index') }}" class="dgcpt-btn-outline text-sm">Questionnaire Builder</a>
         </div>
 
         <div class="dgcpt-surface p-6 shadow-sm">

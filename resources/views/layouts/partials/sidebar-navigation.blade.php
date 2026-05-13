@@ -150,8 +150,8 @@
         </a>
 
         <p class="nav-section-title">Analyse</p>
-        <a class="nav-link {{ request()->routeIs('questionnaire-templates.*') ? 'active' : '' }}"
-           href="{{ route('questionnaire-templates.index') }}">
+        <a class="nav-link {{ request()->routeIs('questionnaire-builder.*') || request()->routeIs('questionnaire-templates.*') ? 'active' : '' }}"
+           href="{{ route('questionnaire-builder.index') }}">
             <span class="ni" aria-hidden="true">≋</span>
             Questionnaires
         </a>

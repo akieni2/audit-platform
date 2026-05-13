@@ -16,18 +16,25 @@ class QuestionnaireSection extends Model
         'title',
         'description',
         'sort_order',
+        'source_section_id',
     ];
 
     protected function casts(): array
     {
         return [
             'sort_order' => 'integer',
+            'source_section_id' => 'integer',
         ];
     }
 
     public function template(): BelongsTo
     {
         return $this->belongsTo(QuestionnaireTemplate::class, 'questionnaire_template_id')->withTrashed();
+    }
+
+    public function sourceSection(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'source_section_id')->withTrashed();
     }
 
     public function questions(): HasMany

@@ -348,6 +348,37 @@ class SecurityAuditService
         );
     }
 
+    public function questionnaireTemplatePublished(?User $actor, QuestionnaireTemplate $template, Request $request): AuditLog
+    {
+        return $this->log(
+            'questionnaire_template_published',
+            'questionnaires',
+            'Publication modèle questionnaire — '.$template->name,
+            $actor,
+            $request,
+            [
+                'questionnaire_template_id' => $template->id,
+                'version' => $template->version,
+                'signature_hash' => $template->signature_hash,
+            ],
+        );
+    }
+
+    public function questionnaireTemplateArchived(?User $actor, QuestionnaireTemplate $template, Request $request): AuditLog
+    {
+        return $this->log(
+            'questionnaire_template_archived',
+            'questionnaires',
+            'Archivage modèle questionnaire — '.$template->name,
+            $actor,
+            $request,
+            [
+                'questionnaire_template_id' => $template->id,
+                'version' => $template->version,
+            ],
+        );
+    }
+
     public function entretienResponseCreated(?User $actor, Entretien $entretien, EntretienResponse $response, Request $request): AuditLog
     {
         return $this->log(

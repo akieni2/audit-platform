@@ -8,7 +8,7 @@
     <p style="margin-bottom:20px;">
         <a href="{{ route('module.entretiens') }}" style="color:#2563eb;">← Entretiens par mission</a>
         <span style="color:#94a3b8;"> · </span>
-        <a href="{{ route('questionnaire-templates.index') }}" style="color:#2563eb;">Bibliothèque dynamique</a>
+        <a href="{{ route('questionnaire-builder.index') }}" style="color:#2563eb;">Builder officiel</a>
     </p>
 
     <h3 style="margin-bottom:10px;">Bibliothèque dynamique</h3>
