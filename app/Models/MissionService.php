@@ -8,4 +8,5 @@ namespace App\Models;
  */
 class MissionService extends Service
 {
+    protected $table = 'services';
 }

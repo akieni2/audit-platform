@@ -16,6 +16,7 @@ use App\Services\Missions\MissionWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class MissionController extends Controller
@@ -99,19 +100,20 @@ class MissionController extends Controller
                 ->values();
         }
 
+        $missionDocumentsAvailable = Schema::hasTable('mission_documents');
+
         $missionStats = [
-            'services_count' => $mission->services()->where('active', true)->count(),
+            'services_count' => $mission->services()->count(),
             'entretiens_total' => Entretien::query()->where('mission_id', $mission->id)->count(),
-            'entretiens_done' => Entretien::query()
-                ->where('mission_id', $mission->id)
-                ->whereIn('status', [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED])
-                ->count(),
+            'entretiens_done' => 0,
             'risks_count' => IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
             'risks_critical' => IdentifiedRisk::query()
                 ->where('mission_id', $mission->id)
                 ->whereIn('criticality', ['Critique', 'critique', 'High', 'high', 'Élevée', 'élevée', 'Elevée', 'elevée'])
                 ->count(),
-            'documents_count' => MissionDocument::query()->where('mission_id', $mission->id)->count(),
+            'documents_count' => $missionDocumentsAvailable
+                ? MissionDocument::query()->where('mission_id', $mission->id)->count()
+                : 0,
         ];
         $missionProgressPercent = $missionStats['entretiens_total'] > 0
             ? (int) min(100, max(0, (int) round(100 * $missionStats['entretiens_done'] / $missionStats['entretiens_total'])))

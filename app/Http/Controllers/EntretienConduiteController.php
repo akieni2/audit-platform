@@ -9,6 +9,7 @@ use App\Models\IdentifiedRisk;
 use App\Models\QuestionnaireQuestion;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class EntretienConduiteController extends Controller
@@ -57,7 +58,8 @@ class EntretienConduiteController extends Controller
         $audit = app(SecurityAuditService::class);
         $user = $request->user();
 
-        $previousStatus = $entretien->status;
+        $statusColumnAvailable = Schema::hasColumn('entretiens', 'status');
+        $previousStatus = $statusColumnAvailable ? $entretien->status : null;
 
         foreach ($request->validated('responses') as $row) {
             $qid = (int) $row['questionnaire_question_id'];
@@ -113,13 +115,21 @@ class EntretienConduiteController extends Controller
             }
         }
 
-        $entretien->update([
-            'status' => Entretien::STATUS_IN_PROGRESS,
-            'conducted_by' => $user?->id,
-            'conducted_at' => $entretien->conducted_at ?? now(),
-        ]);
+        $entretienUpdate = [];
+        if ($statusColumnAvailable) {
+            $entretienUpdate['status'] = Entretien::STATUS_IN_PROGRESS;
+        }
+        if (Schema::hasColumn('entretiens', 'conducted_by')) {
+            $entretienUpdate['conducted_by'] = $user?->id;
+        }
+        if (Schema::hasColumn('entretiens', 'conducted_at')) {
+            $entretienUpdate['conducted_at'] = $entretien->conducted_at ?? now();
+        }
+        if ($entretienUpdate !== []) {
+            $entretien->update($entretienUpdate);
+        }
 
-        if (in_array($previousStatus, [null, '', Entretien::STATUS_DRAFT], true)) {
+        if ($statusColumnAvailable && in_array($previousStatus, [null, '', Entretien::STATUS_DRAFT], true)) {
             $audit->entretienStarted($user, $entretien->fresh(), $request);
         }
 

@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class EntretienController extends Controller
@@ -78,7 +79,7 @@ class EntretienController extends Controller
             ? Carbon::parse((string) $request->date_entretien)->startOfDay()
             : null;
 
-        Entretien::query()->create([
+        $payload = [
             'mission_id' => $service->mission_id,
             'service_id' => $service->id,
             'questionnaire_template_id' => $templateId !== null && $templateId !== '' ? (int) $templateId : null,
@@ -88,12 +89,25 @@ class EntretienController extends Controller
             'auditeur' => $request->auditeur,
             'date_entretien' => $request->date_entretien,
             'notes' => $request->notes,
-            'status' => Entretien::STATUS_DRAFT,
-            'interviewed_person' => $request->responsable_nom,
-            'interviewed_role' => $request->role,
-            'conducted_at' => $conductedAt,
-            'conducted_by' => Auth::id(),
-        ]);
+        ];
+
+        if (Schema::hasColumn('entretiens', 'status')) {
+            $payload['status'] = Entretien::STATUS_DRAFT;
+        }
+        if (Schema::hasColumn('entretiens', 'interviewed_person')) {
+            $payload['interviewed_person'] = $request->responsable_nom;
+        }
+        if (Schema::hasColumn('entretiens', 'interviewed_role')) {
+            $payload['interviewed_role'] = $request->role;
+        }
+        if (Schema::hasColumn('entretiens', 'conducted_at')) {
+            $payload['conducted_at'] = $conductedAt;
+        }
+        if (Schema::hasColumn('entretiens', 'conducted_by')) {
+            $payload['conducted_by'] = Auth::id();
+        }
+
+        Entretien::query()->create($payload);
 
         return back()->with('status', 'Entretien enregistré.');
     }
@@ -102,13 +116,15 @@ class EntretienController extends Controller
     {
         $this->authorize('completeEntretien', $entretien);
 
-        $previous = $entretien->status;
-        $entretien->update([
-            'status' => Entretien::STATUS_COMPLETED,
-        ]);
+        if (Schema::hasColumn('entretiens', 'status')) {
+            $previous = $entretien->status;
+            $entretien->update([
+                'status' => Entretien::STATUS_COMPLETED,
+            ]);
 
-        if (! in_array($previous, [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED], true)) {
-            app(SecurityAuditService::class)->entretienCompleted($request->user(), $entretien->fresh(), $request);
+            if (! in_array($previous, [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED], true)) {
+                app(SecurityAuditService::class)->entretienCompleted($request->user(), $entretien->fresh(), $request);
+            }
         }
 
         return back()->with('status', 'Entretien marqué comme complété.');

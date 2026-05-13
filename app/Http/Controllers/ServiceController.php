@@ -10,6 +10,7 @@ use App\Models\MissionService;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class ServiceController extends Controller
@@ -20,7 +21,9 @@ class ServiceController extends Controller
     {
         $this->authorize('view', $mission);
 
-        $services = MissionService::query()
+        $documentsTableAvailable = Schema::hasTable('mission_documents');
+
+        $query = MissionService::query()
             ->where('mission_id', $mission->id)
             ->with([
                 'chefServiceUser',
@@ -30,10 +33,18 @@ class ServiceController extends Controller
             ->withCount([
                 'entretiens',
                 'identifiedRisks',
-                'missionDocuments',
             ])
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+
+        if ($documentsTableAvailable) {
+            $query->withCount('missionDocuments');
+        }
+
+        $services = $query->get();
+
+        if (! $documentsTableAvailable) {
+            $services->each(fn ($service) => $service->setAttribute('mission_documents_count', 0));
+        }
 
         return view('services.index', [
             'mission' => $mission,

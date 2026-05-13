@@ -10,6 +10,7 @@ use App\Models\Mission;
 use App\Models\MissionDocument;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 
 class DepartmentAuditConsolidationController extends Controller
 {
@@ -17,10 +18,12 @@ class DepartmentAuditConsolidationController extends Controller
     {
         $autoFindings = sprintf(
             "Services audités : %d\nEntretiens : %d\nRisques identifiés : %d\nDocuments : %d\n",
-            $mission->services()->where('active', true)->count(),
+            $mission->services()->count(),
             Entretien::query()->where('mission_id', $mission->id)->count(),
             IdentifiedRisk::query()->where('mission_id', $mission->id)->count(),
-            MissionDocument::query()->where('mission_id', $mission->id)->count(),
+            Schema::hasTable('mission_documents')
+                ? MissionDocument::query()->where('mission_id', $mission->id)->count()
+                : 0,
         );
 
         $row = DepartmentAuditConsolidation::query()->create([

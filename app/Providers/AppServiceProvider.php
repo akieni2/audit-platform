@@ -30,6 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -60,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             abort_unless($user, 403);
 
-            return Service::query()
+            return MissionService::query()
                 ->whereKey($value)
                 ->whereHas('mission', fn ($q) => $q->visibleToUser($user))
                 ->firstOrFail();
@@ -69,6 +70,7 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('mission_document', function (string $value) {
             $user = auth()->user();
             abort_unless($user, 403);
+            abort_unless(Schema::hasTable('mission_documents'), 404);
 
             return MissionDocument::query()
                 ->whereKey($value)

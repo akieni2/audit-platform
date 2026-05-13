@@ -8,7 +8,9 @@ use App\Models\MissionDocument;
 use App\Models\MissionService;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class MissionDocumentController extends Controller
@@ -18,13 +20,26 @@ class MissionDocumentController extends Controller
         abort_unless((int) $service->mission_id === (int) $mission->id, 404);
         $this->authorize('view', $mission);
 
-        $documents = MissionDocument::query()
-            ->where('mission_id', $mission->id)
-            ->where('service_id', $service->id)
-            ->with('uploader')
-            ->orderByDesc('id')
-            ->paginate(20)
-            ->withQueryString();
+        if (! Schema::hasTable('mission_documents')) {
+            $documents = new LengthAwarePaginator(
+                collect(),
+                0,
+                20,
+                LengthAwarePaginator::resolveCurrentPage(),
+                [
+                    'path' => $request->url(),
+                    'query' => $request->query(),
+                ]
+            );
+        } else {
+            $documents = MissionDocument::query()
+                ->where('mission_id', $mission->id)
+                ->where('service_id', $service->id)
+                ->with('uploader')
+                ->orderByDesc('id')
+                ->paginate(20)
+                ->withQueryString();
+        }
 
         return view('services.documents.index', compact('mission', 'service', 'documents'));
     }
@@ -32,6 +47,10 @@ class MissionDocumentController extends Controller
     public function store(StoreMissionDocumentRequest $request, Mission $mission, MissionService $service): RedirectResponse
     {
         abort_unless((int) $service->mission_id === (int) $mission->id, 404);
+
+        if (! Schema::hasTable('mission_documents')) {
+            return back()->with('status', 'Porte-documents indisponible sur cette base locale.');
+        }
 
         $file = $request->file('file');
         $disk = 'local';
@@ -64,6 +83,10 @@ class MissionDocumentController extends Controller
 
     public function destroy(Request $request, MissionDocument $mission_document): RedirectResponse
     {
+        if (! Schema::hasTable('mission_documents')) {
+            return back()->with('status', 'Porte-documents indisponible sur cette base locale.');
+        }
+
         $this->authorize('delete', $mission_document);
 
         $mission_document->delete();
