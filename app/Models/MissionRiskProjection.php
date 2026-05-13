@@ -19,6 +19,11 @@ class MissionRiskProjection extends Model
         'official_residual_critical_count',
         'inherent_heatmap',
         'residual_heatmap',
+        'source_signature',
+        'source_record_count',
+        'refresh_count',
+        'integrity_status',
+        'last_integrity_checked_at',
         'refreshed_at',
     ];
 
@@ -27,6 +32,7 @@ class MissionRiskProjection extends Model
         return [
             'inherent_heatmap' => 'array',
             'residual_heatmap' => 'array',
+            'last_integrity_checked_at' => 'datetime',
             'refreshed_at' => 'datetime',
         ];
     }
