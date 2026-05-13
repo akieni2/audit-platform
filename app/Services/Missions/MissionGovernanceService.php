@@ -11,6 +11,8 @@ use App\Models\MissionDocument;
 use App\Models\MissionTeamMember;
 use App\Models\User;
 use App\Services\Risk\MissionRiskProjectionService;
+use App\Services\Runtime\BusinessEventLogger;
+use App\Services\Runtime\RuntimeMetricsService;
 use Illuminate\Support\Facades\Schema;
 
 final class MissionGovernanceService
@@ -18,6 +20,8 @@ final class MissionGovernanceService
     public function __construct(
         private MissionWorkflowService $workflow,
         private MissionRiskProjectionService $riskProjections,
+        private BusinessEventLogger $events,
+        private RuntimeMetricsService $metrics,
     ) {}
 
     /**
@@ -31,7 +35,37 @@ final class MissionGovernanceService
     public function transition(User $actor, Mission $mission, string $action, ?string $comment = null): Mission
     {
         $fromStatus = (string) ($mission->mission_status ?? '');
+        $correlationId = $this->events->resolveCorrelationId([
+            'mission_id' => $mission->id,
+            'actor_user_id' => $actor->id,
+            'action' => $action,
+        ]);
         $fresh = $this->workflow->transition($actor, $mission, $action, $comment);
+
+        $this->metrics->increment(
+            metricKey: 'core_runtime.mission.governance.transitioned',
+            delta: 1,
+            dimensions: ['action' => $action, 'to_status' => (string) ($fresh->mission_status ?? '')],
+            scopeType: 'mission',
+            scopeId: $mission->id,
+        );
+
+        $this->events->record(
+            eventName: 'core_runtime.mission.governance_transitioned',
+            payload: [
+                'action' => $action,
+                'from_status' => $fromStatus,
+                'to_status' => (string) ($fresh->mission_status ?? ''),
+                'comment' => $comment,
+            ],
+            context: ['correlation_id' => $correlationId],
+            aggregateType: 'mission',
+            aggregateId: $mission->id,
+            actor: $actor,
+            missionId: $mission->id,
+            correlationId: $correlationId,
+            idempotencyKey: 'mission-transition:'.$mission->id.':'.$correlationId,
+        );
 
         MissionGovernanceTransitioned::dispatch(
             $fresh,
@@ -40,6 +74,7 @@ final class MissionGovernanceService
             $fromStatus,
             (string) ($fresh->mission_status ?? ''),
             $comment,
+            $correlationId,
         );
 
         return $fresh;

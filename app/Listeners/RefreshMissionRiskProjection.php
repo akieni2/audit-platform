@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Domain\Questionnaires\Events\EntretienResponsesRecorded;
 use App\Domain\Risk\Events\RiskPromoted;
+use App\Jobs\RefreshMissionRiskProjectionJob;
 use App\Services\Risk\MissionRiskProjectionService;
 
 class RefreshMissionRiskProjection
@@ -14,14 +15,29 @@ class RefreshMissionRiskProjection
 
     public function handle(object $event): void
     {
+        $missionId = null;
+        $correlationId = null;
+
         if ($event instanceof EntretienResponsesRecorded) {
-            $this->projections->refreshForMissionId((int) $event->entretien->mission_id);
+            $missionId = (int) $event->entretien->mission_id;
+            $correlationId = $event->correlationId;
+        }
+
+        if ($event instanceof RiskPromoted) {
+            $missionId = (int) $event->identifiedRisk->mission_id;
+            $correlationId = $event->correlationId;
+        }
+
+        if ($missionId === null || $missionId <= 0) {
+            return;
+        }
+
+        if ((bool) config('core_runtime.async_projection_refresh', true)) {
+            RefreshMissionRiskProjectionJob::dispatch($missionId, $correlationId);
 
             return;
         }
 
-        if ($event instanceof RiskPromoted) {
-            $this->projections->refreshForMissionId((int) $event->identifiedRisk->mission_id);
-        }
+        $this->projections->refreshForMissionId($missionId, false, $correlationId);
     }
 }

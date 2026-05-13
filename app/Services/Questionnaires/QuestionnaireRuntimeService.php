@@ -10,9 +10,11 @@ use App\Models\EntretienResponse;
 use App\Models\IdentifiedRisk;
 use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
+use App\Services\Runtime\BusinessEventLogger;
+use App\Services\Runtime\CoreTransactionRunner;
+use App\Services\Runtime\RuntimeMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
 
@@ -22,6 +24,9 @@ final class QuestionnaireRuntimeService
 
     public function __construct(
         private SecurityAuditService $audit,
+        private BusinessEventLogger $events,
+        private RuntimeMetricsService $metrics,
+        private CoreTransactionRunner $transactions,
     ) {}
 
     /**
@@ -72,15 +77,52 @@ final class QuestionnaireRuntimeService
         }
 
         $snapshot = $this->compileSnapshot($template);
+        $correlationId = $this->events->resolveCorrelationId([
+            'mission_id' => $entretien->mission_id,
+            'entretien_id' => $entretien->id,
+        ]);
 
-        $entretien->forceFill([
-            'questionnaire_snapshot' => $snapshot,
-            'questionnaire_snapshot_version' => (int) ($template->version ?? 1),
-            'questionnaire_snapshot_hash' => $snapshot['meta']['hash'] ?? null,
-            'questionnaire_snapshot_taken_at' => now(),
-        ])->save();
+        $snapshotAttributes = [];
+        if (Schema::hasColumn('entretiens', 'questionnaire_snapshot')) {
+            $snapshotAttributes['questionnaire_snapshot'] = $snapshot;
+        }
+        if (Schema::hasColumn('entretiens', 'questionnaire_snapshot_version')) {
+            $snapshotAttributes['questionnaire_snapshot_version'] = (int) ($template->version ?? 1);
+        }
+        if (Schema::hasColumn('entretiens', 'questionnaire_snapshot_hash')) {
+            $snapshotAttributes['questionnaire_snapshot_hash'] = $snapshot['meta']['hash'] ?? null;
+        }
+        if (Schema::hasColumn('entretiens', 'questionnaire_snapshot_taken_at')) {
+            $snapshotAttributes['questionnaire_snapshot_taken_at'] = now();
+        }
 
-        QuestionnaireSnapshotCaptured::dispatch($entretien->fresh(), $snapshot);
+        if ($snapshotAttributes !== []) {
+            $entretien->forceFill($snapshotAttributes)->save();
+        }
+
+        $this->metrics->increment(
+            metricKey: 'core_runtime.questionnaire.snapshot.captured',
+            delta: 1,
+            dimensions: ['template_version' => (string) ($template->version ?? 1)],
+            scopeType: 'mission',
+            scopeId: $entretien->mission_id,
+        );
+        $this->events->record(
+            eventName: 'core_runtime.questionnaire.snapshot_captured',
+            payload: [
+                'entretien_id' => $entretien->id,
+                'snapshot_hash' => $snapshot['meta']['hash'] ?? null,
+                'template_id' => $template->id,
+            ],
+            context: ['correlation_id' => $correlationId],
+            aggregateType: 'entretien',
+            aggregateId: $entretien->id,
+            missionId: $entretien->mission_id,
+            correlationId: $correlationId,
+            idempotencyKey: 'questionnaire-snapshot:'.$entretien->id.':'.($snapshot['meta']['hash'] ?? 'na'),
+        );
+
+        QuestionnaireSnapshotCaptured::dispatch($entretien->fresh(), $snapshot, $correlationId);
 
         return $snapshot;
     }
@@ -109,82 +151,117 @@ final class QuestionnaireRuntimeService
 
         $statusColumnAvailable = Schema::hasColumn('entretiens', 'status');
         $previousStatus = $statusColumnAvailable ? $entretien->status : null;
+        $correlationId = $this->events->resolveCorrelationId([
+            'mission_id' => $entretien->mission_id,
+            'entretien_id' => $entretien->id,
+        ]);
 
-        $result = DB::transaction(function () use ($rows, $entretien, $user, $request, $allowedQuestions, $allowedIds, $statusColumnAvailable) {
-            $responseIds = [];
-            $identifiedRiskIds = [];
+        $result = $this->transactions->run(
+            name: 'questionnaire.record_responses',
+            context: ['correlation_id' => $correlationId, 'entretien_id' => $entretien->id, 'mission_id' => $entretien->mission_id],
+            callback: function ($transaction) use ($rows, $entretien, $user, $request, $allowedQuestions, $allowedIds, $statusColumnAvailable, $correlationId) {
+                $responseIds = [];
+                $identifiedRiskIds = [];
 
-            foreach ($rows as $row) {
-                $qid = (int) ($row['questionnaire_question_id'] ?? 0);
-                if (! in_array($qid, $allowedIds, true)) {
-                    throw new InvalidArgumentException('Question hors modèle attaché à l’entretien.');
+                foreach ($rows as $row) {
+                    $qid = (int) ($row['questionnaire_question_id'] ?? 0);
+                    if (! in_array($qid, $allowedIds, true)) {
+                        throw new InvalidArgumentException('Question hors modèle attaché à l’entretien.');
+                    }
+
+                    $question = $allowedQuestions[$qid];
+                    $payload = [
+                        'answer_boolean' => array_key_exists('answer_boolean', $row) ? $row['answer_boolean'] : null,
+                        'answer_text' => $row['answer_text'] ?? null,
+                        'answer_json' => $row['answer_json'] ?? null,
+                        'observation' => $row['observation'] ?? null,
+                        'uploaded_documents_metadata' => $row['uploaded_documents_metadata'] ?? null,
+                        'detected_risk' => $row['detected_risk'] ?? null,
+                        'created_by' => $user?->id,
+                    ];
+
+                    $response = EntretienResponse::query()->updateOrCreate(
+                        [
+                            'entretien_id' => $entretien->id,
+                            'questionnaire_question_id' => $qid,
+                        ],
+                        $payload
+                    );
+
+                    $responseIds[] = (int) $response->id;
+                    $this->audit->entretienResponseCreated($user, $entretien, $response, $request);
+
+                    $capturedRisk = $this->captureIdentifiedRisk(
+                        $entretien,
+                        $qid,
+                        $question,
+                        $row,
+                        $user?->id,
+                        $request,
+                    );
+
+                    if ($capturedRisk instanceof IdentifiedRisk) {
+                        $identifiedRiskIds[] = (int) $capturedRisk->id;
+                    }
                 }
 
-                $question = $allowedQuestions[$qid];
-                $payload = [
-                    'answer_boolean' => array_key_exists('answer_boolean', $row) ? $row['answer_boolean'] : null,
-                    'answer_text' => $row['answer_text'] ?? null,
-                    'answer_json' => $row['answer_json'] ?? null,
-                    'observation' => $row['observation'] ?? null,
-                    'uploaded_documents_metadata' => $row['uploaded_documents_metadata'] ?? null,
-                    'detected_risk' => $row['detected_risk'] ?? null,
-                    'created_by' => $user?->id,
+                $entretienUpdate = [];
+                if ($statusColumnAvailable) {
+                    $entretienUpdate['status'] = Entretien::STATUS_IN_PROGRESS;
+                }
+                if (Schema::hasColumn('entretiens', 'conducted_by')) {
+                    $entretienUpdate['conducted_by'] = $user?->id;
+                }
+                if (Schema::hasColumn('entretiens', 'conducted_at')) {
+                    $entretienUpdate['conducted_at'] = $entretien->conducted_at ?? now();
+                }
+                if ($entretienUpdate !== []) {
+                    $entretien->update($entretienUpdate);
+                }
+
+                $freshEntretien = $entretien->fresh();
+                $transaction->afterCommit(function () use ($freshEntretien, $responseIds, $identifiedRiskIds, $correlationId): void {
+                    EntretienResponsesRecorded::dispatch(
+                        $freshEntretien,
+                        $responseIds,
+                        $identifiedRiskIds,
+                        $correlationId,
+                    );
+                });
+
+                return [
+                    'entretien' => $freshEntretien,
+                    'response_ids' => $responseIds,
+                    'identified_risk_ids' => $identifiedRiskIds,
                 ];
-
-                $response = EntretienResponse::query()->updateOrCreate(
-                    [
-                        'entretien_id' => $entretien->id,
-                        'questionnaire_question_id' => $qid,
-                    ],
-                    $payload
-                );
-
-                $responseIds[] = (int) $response->id;
-                $this->audit->entretienResponseCreated($user, $entretien, $response, $request);
-
-                $capturedRisk = $this->captureIdentifiedRisk(
-                    $entretien,
-                    $qid,
-                    $question,
-                    $row,
-                    $user?->id,
-                    $request,
-                );
-
-                if ($capturedRisk instanceof IdentifiedRisk) {
-                    $identifiedRiskIds[] = (int) $capturedRisk->id;
-                }
             }
-
-            $entretienUpdate = [];
-            if ($statusColumnAvailable) {
-                $entretienUpdate['status'] = Entretien::STATUS_IN_PROGRESS;
-            }
-            if (Schema::hasColumn('entretiens', 'conducted_by')) {
-                $entretienUpdate['conducted_by'] = $user?->id;
-            }
-            if (Schema::hasColumn('entretiens', 'conducted_at')) {
-                $entretienUpdate['conducted_at'] = $entretien->conducted_at ?? now();
-            }
-            if ($entretienUpdate !== []) {
-                $entretien->update($entretienUpdate);
-            }
-
-            return [
-                'entretien' => $entretien->fresh(),
-                'response_ids' => $responseIds,
-                'identified_risk_ids' => $identifiedRiskIds,
-            ];
-        });
+        );
 
         if ($statusColumnAvailable && in_array($previousStatus, [null, '', Entretien::STATUS_DRAFT], true)) {
             $this->audit->entretienStarted($user, $result['entretien'], $request);
         }
 
-        EntretienResponsesRecorded::dispatch(
-            $result['entretien'],
-            $result['response_ids'],
-            $result['identified_risk_ids'],
+        $this->metrics->increment(
+            metricKey: 'core_runtime.questionnaire.responses.recorded',
+            delta: count($result['response_ids']),
+            dimensions: ['identified_risks_count' => (string) count($result['identified_risk_ids'])],
+            scopeType: 'mission',
+            scopeId: $entretien->mission_id,
+        );
+        $this->events->record(
+            eventName: 'core_runtime.questionnaire.responses_recorded',
+            payload: [
+                'entretien_id' => $result['entretien']->id,
+                'response_ids' => $result['response_ids'],
+                'identified_risk_ids' => $result['identified_risk_ids'],
+            ],
+            context: ['correlation_id' => $correlationId],
+            aggregateType: 'entretien',
+            aggregateId: $result['entretien']->id,
+            actor: $user,
+            missionId: $result['entretien']->mission_id,
+            correlationId: $correlationId,
+            idempotencyKey: 'questionnaire-responses:'.$result['entretien']->id.':'.sha1(json_encode($result['response_ids'])),
         );
 
         return $result;
@@ -338,6 +415,27 @@ final class QuestionnaireRuntimeService
         $risk->save();
 
         $this->audit->riskIdentified($request->user(), $risk->fresh(), $request);
+        $this->metrics->increment(
+            metricKey: 'core_runtime.questionnaire.identified_risk.captured',
+            delta: 1,
+            dimensions: ['questionnaire_question_id' => (string) $questionId],
+            scopeType: 'mission',
+            scopeId: $entretien->mission_id,
+        );
+        $this->events->record(
+            eventName: 'core_runtime.questionnaire.identified_risk_captured',
+            payload: [
+                'identified_risk_id' => $risk->id,
+                'entretien_id' => $entretien->id,
+                'questionnaire_question_id' => $questionId,
+            ],
+            context: [],
+            aggregateType: 'identified_risk',
+            aggregateId: $risk->id,
+            actor: $request->user(),
+            missionId: $entretien->mission_id,
+            idempotencyKey: 'identified-risk:'.$signature,
+        );
 
         return $risk->fresh();
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\IdentifiedRisk;
 use App\Services\Iam\SecurityAuditService;
 use App\Services\Risk\RiskPromotionService;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,15 @@ class IdentifiedRiskController extends Controller
     {
         $this->authorize('validateHuman', $identifiedRisk);
 
-        $identifiedRisk = app(RiskPromotionService::class)->markReviewed(
-            $identifiedRisk,
-            $request->user(),
-            $request->string('comment')->toString(),
-        );
+        try {
+            $identifiedRisk = app(RiskPromotionService::class)->markReviewed(
+                $identifiedRisk,
+                $request->user(),
+                $request->string('comment')->toString(),
+            );
+        } catch (DomainException $exception) {
+            return back()->with('status', $exception->getMessage());
+        }
 
         app(SecurityAuditService::class)->riskValidated($request->user(), $identifiedRisk->fresh(), $request);
 
@@ -29,11 +34,15 @@ class IdentifiedRiskController extends Controller
     {
         $this->authorize('promote', $identifiedRisk);
 
-        $risque = app(RiskPromotionService::class)->promote(
-            $identifiedRisk,
-            $request->user(),
-            $request->string('comment')->toString(),
-        );
+        try {
+            $risque = app(RiskPromotionService::class)->promote(
+                $identifiedRisk,
+                $request->user(),
+                $request->string('comment')->toString(),
+            );
+        } catch (DomainException $exception) {
+            return back()->with('status', $exception->getMessage());
+        }
 
         app(SecurityAuditService::class)->riskPromoted(
             $request->user(),

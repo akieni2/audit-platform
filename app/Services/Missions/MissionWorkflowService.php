@@ -6,7 +6,7 @@ use App\Models\Mission;
 use App\Models\MissionWorkflowEvent;
 use App\Models\User;
 use App\Notifications\MissionWorkflowNotification;
-use Illuminate\Support\Facades\DB;
+use App\Services\Runtime\CoreTransactionRunner;
 use InvalidArgumentException;
 
 /**
@@ -14,6 +14,10 @@ use InvalidArgumentException;
  */
 class MissionWorkflowService
 {
+    public function __construct(
+        private CoreTransactionRunner $transactions,
+    ) {}
+
     public const ACTION_DEMARRER = 'demarrer';
 
     public const ACTION_CLOTURER = 'cloturer';
@@ -74,23 +78,35 @@ class MissionWorkflowService
         $from = (string) ($mission->mission_status ?? '');
         $to = $this->targetStatus($from, $action);
 
-        return DB::transaction(function () use ($actor, $mission, $action, $from, $to, $comment) {
-            $mission->update(['mission_status' => $to]);
-
-            MissionWorkflowEvent::query()->create([
+        return $this->transactions->run(
+            name: 'mission.workflow.transition',
+            context: [
                 'mission_id' => $mission->id,
-                'user_id' => $actor->id,
+                'actor_user_id' => $actor->id,
                 'action' => $action,
                 'from_status' => $from,
                 'to_status' => $to,
-                'comment' => $comment,
-            ]);
+            ],
+            callback: function ($transaction) use ($actor, $mission, $action, $from, $to, $comment) {
+                $mission->update(['mission_status' => $to]);
 
-            $fresh = $mission->fresh(['auditeur']);
-            $this->notifyParticipants($fresh, $actor, $action, $comment);
+                MissionWorkflowEvent::query()->create([
+                    'mission_id' => $mission->id,
+                    'user_id' => $actor->id,
+                    'action' => $action,
+                    'from_status' => $from,
+                    'to_status' => $to,
+                    'comment' => $comment,
+                ]);
 
-            return $fresh;
-        });
+                $fresh = $mission->fresh(['auditeur']);
+                $transaction->afterCommit(function () use ($fresh, $actor, $action, $comment): void {
+                    $this->notifyParticipants($fresh, $actor, $action, $comment);
+                });
+
+                return $fresh;
+            }
+        );
     }
 
     private function notifyParticipants(Mission $mission, User $actor, string $action, ?string $comment): void
