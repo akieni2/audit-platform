@@ -5,10 +5,11 @@ namespace App\ViewModels;
 use App\Models\User;
 use App\Models\WorkflowInstance;
 use App\Services\Workflow\WorkflowGraphBuilderService;
-use App\Services\Workflow\WorkflowRuntimeActivityFeedService;
-use App\Services\Workflow\WorkflowRuntimeProgressService;
-use App\Services\Workflow\WorkflowRuntimeTimelineService;
+use App\Services\Workflow\RuntimeActivityFeedService;
+use App\Services\Workflow\WorkflowProgressEngine;
 use App\Services\Workflow\WorkflowStageUiRenderer;
+use App\Services\Workflow\WorkflowTimelineService;
+use App\Services\Workflow\WorkflowVisualStateService;
 
 class WorkflowRuntimeViewModel
 {
@@ -20,17 +21,19 @@ class WorkflowRuntimeViewModel
         public readonly \Illuminate\Support\Collection $activityFeed,
         public readonly ?array $currentStageUi,
         public readonly \Illuminate\Support\Collection $availableTransitions,
+        public readonly array $workflowState,
     ) {}
 
     public static function build(
         WorkflowInstance $instance,
         ?User $actor,
-        WorkflowRuntimeProgressService $progressService,
-        WorkflowRuntimeTimelineService $timelineService,
-        WorkflowRuntimeActivityFeedService $activityFeedService,
+        WorkflowProgressEngine $progressService,
+        WorkflowTimelineService $timelineService,
+        RuntimeActivityFeedService $activityFeedService,
         WorkflowGraphBuilderService $graphBuilder,
         WorkflowStageUiRenderer $stageUiRenderer,
         \App\Services\Workflow\WorkflowEngineService $engine,
+        WorkflowVisualStateService $visualStates,
     ): self {
         $instance->loadMissing([
             'currentStage',
@@ -58,6 +61,15 @@ class WorkflowRuntimeViewModel
             activityFeed: $activityFeedService->latest($instance),
             currentStageUi: $currentStageUi,
             availableTransitions: $engine->availableTransitions($instance, $actor),
+            workflowState: $instance->currentStage
+                ? $visualStates->resolve($instance, $instance->currentStage)
+                : [
+                    'value' => $instance->status?->value ?? $instance->status ?? 'draft',
+                    'label' => 'Sans étape active',
+                    'badge_classes' => 'bg-[#17223B] text-[#BFD2E6]',
+                    'card_classes' => 'border-[rgba(0,209,255,0.10)] bg-[rgba(5,8,22,0.72)]',
+                    'accent_color' => '#73D8FF',
+                ],
         );
     }
 }

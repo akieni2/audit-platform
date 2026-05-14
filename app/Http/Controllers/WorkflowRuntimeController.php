@@ -11,8 +11,11 @@ use App\Models\WorkflowTemplate;
 use App\Services\Workflow\WorkflowCompatibilityService;
 use App\Services\Workflow\WorkflowEngineService;
 use App\Services\Workflow\WorkflowExecutionService;
+use App\Services\Workflow\RuntimeActivityFeedService;
 use App\Services\Workflow\WorkflowRuntimeDashboardService;
-use App\Services\Workflow\WorkflowVisualStateResolver;
+use App\Services\Workflow\WorkflowProgressEngine;
+use App\Services\Workflow\WorkflowTimelineService;
+use App\Services\Workflow\WorkflowVisualStateService;
 use App\Services\Runtime\RuntimeRecommendationService;
 use App\ViewModels\WorkflowRuntimeViewModel;
 use Illuminate\Http\RedirectResponse;
@@ -28,13 +31,13 @@ class WorkflowRuntimeController extends Controller
         private WorkflowCompatibilityService $compatibility,
         private WorkflowExecutionService $execution,
         private WorkflowEngineService $engine,
-        private \App\Services\Workflow\WorkflowRuntimeProgressService $progress,
-        private \App\Services\Workflow\WorkflowRuntimeTimelineService $timeline,
-        private \App\Services\Workflow\WorkflowRuntimeActivityFeedService $activityFeed,
+        private WorkflowProgressEngine $progress,
+        private WorkflowTimelineService $timeline,
+        private RuntimeActivityFeedService $activityFeed,
         private \App\Services\Workflow\WorkflowGraphBuilderService $graphBuilder,
         private \App\Services\Workflow\WorkflowStageUiRenderer $stageUiRenderer,
         private WorkflowRuntimeDashboardService $dashboard,
-        private WorkflowVisualStateResolver $visualStates,
+        private WorkflowVisualStateService $visualStates,
         private RuntimeRecommendationService $recommendations,
     ) {}
 
@@ -54,6 +57,7 @@ class WorkflowRuntimeController extends Controller
             graphBuilder: $this->graphBuilder,
             stageUiRenderer: $this->stageUiRenderer,
             engine: $this->engine,
+            visualStates: $this->visualStates,
         );
 
         return view('workflows.runtime.show', [

@@ -25,6 +25,13 @@
             <a href="{{ route('missions.show', $instance->mission_id) }}" class="dgcpt-btn-outline">Retour mission</a>
         </div>
 
-        @include('forms.runtime.index', ['form' => $form, 'stage' => $stage, 'instance' => $instance, 'entretien' => $entretien])
+        @include('forms.runtime.index', [
+            'form' => $form,
+            'stage' => $stage,
+            'instance' => $instance,
+            'entretien' => $entretien,
+            'wizard' => $wizard ?? null,
+            'autosave' => $autosave ?? null,
+        ])
     </div>
 </x-app-layout>
