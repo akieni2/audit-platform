@@ -31,9 +31,23 @@
 
 <li><a href="{{ route('workflow-runtime.dashboard') }}">Runtime workflows</a></li>
 
+<li><a href="{{ route('enterprise.methodologies') }}">Méthodologies</a></li>
+
+<li><a href="{{ route('enterprise.taxonomies') }}">Taxonomies</a></li>
+
+<li><a href="{{ route('enterprise.controls') }}">Contrôles</a></li>
+
 <li><a href="{{ route('form-builder.index') }}">Formulaires</a></li>
 
 <li><a href="{{ route('module.rapports') }}">Rapports</a></li>
+
+<li><a href="{{ route('enterprise.consolidation') }}">Consolidation</a></li>
+
+@can('viewExecutiveDashboard')
+<li><a href="{{ route('executive.national-dashboard') }}">Executive</a></li>
+<li><a href="{{ route('executive.risk-intelligence') }}">Intelligence</a></li>
+<li><a href="{{ route('executive.governance-overview') }}">Analytics</a></li>
+@endcan
 
 </ul>
 

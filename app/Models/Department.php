@@ -15,6 +15,12 @@ class Department extends Model
         'type',
         'active',
         'supervisor_user_id',
+        'parent_department_id',
+        'governance_scope',
+        'default_methodology_template_id',
+        'default_taxonomy_id',
+        'executive_visibility',
+        'intelligence_profile',
         'accent_color',
         'logo_path',
     ];
@@ -23,12 +29,24 @@ class Department extends Model
     {
         return [
             'active' => 'boolean',
+            'executive_visibility' => 'boolean',
+            'intelligence_profile' => 'array',
         ];
     }
 
     public function supervisor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'supervisor_user_id')->withTrashed();
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_department_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_department_id')->orderBy('code');
     }
 
     public function users(): HasMany
@@ -39,5 +57,15 @@ class Department extends Model
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class);
+    }
+
+    public function defaultMethodologyTemplate(): BelongsTo
+    {
+        return $this->belongsTo(MethodologyTemplate::class, 'default_methodology_template_id');
+    }
+
+    public function defaultTaxonomy(): BelongsTo
+    {
+        return $this->belongsTo(Taxonomy::class, 'default_taxonomy_id');
     }
 }

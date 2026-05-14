@@ -24,7 +24,13 @@ class FormTemplate extends Model
         'slug',
         'description',
         'component_key',
+        'methodology_template_id',
         'department_scope',
+        'visibility_scope',
+        'sharing_mode',
+        'is_global_template',
+        'is_private_template',
+        'governance_tags',
         'active',
         'version',
         'lifecycle_status',
@@ -41,7 +47,10 @@ class FormTemplate extends Model
     {
         return [
             'department_scope' => 'array',
+            'governance_tags' => 'array',
             'active' => 'boolean',
+            'is_global_template' => 'boolean',
+            'is_private_template' => 'boolean',
             'version' => 'integer',
             'published_at' => 'datetime',
             'deprecated_at' => 'datetime',
@@ -78,6 +87,11 @@ class FormTemplate extends Model
         return $this->hasMany(FormField::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    public function methodologyTemplate(): BelongsTo
+    {
+        return $this->belongsTo(MethodologyTemplate::class);
+    }
+
     public function submissions(): HasMany
     {
         return $this->hasMany(FormSubmission::class)->orderByDesc('submitted_at')->orderByDesc('id');
@@ -101,5 +115,35 @@ class FormTemplate extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by')->withTrashed();
+    }
+
+    /**
+     * @param  list<int>|null  $departmentIds
+     */
+    public function isVisibleToDepartment(?int $departmentId, ?array $departmentIds = null): bool
+    {
+        if ($this->is_global_template) {
+            return true;
+        }
+
+        $scope = $this->department_scope;
+        if ($scope === null || $scope === []) {
+            return true;
+        }
+
+        $ids = array_map('intval', $scope);
+        if ($departmentId !== null && in_array((int) $departmentId, $ids, true)) {
+            return true;
+        }
+
+        if ($departmentIds !== null) {
+            foreach ($departmentIds as $id) {
+                if (in_array((int) $id, $ids, true)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

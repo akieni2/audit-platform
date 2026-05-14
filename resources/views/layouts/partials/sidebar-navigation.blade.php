@@ -165,6 +165,21 @@
             <span class="ni" aria-hidden="true">▤</span>
             Runtime workflows
         </a>
+        <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
+           href="{{ route('enterprise.methodologies') }}">
+            <span class="ni" aria-hidden="true">⌘</span>
+            Méthodologies
+        </a>
+        <a class="nav-link {{ request()->routeIs('enterprise.taxonomies') ? 'active' : '' }}"
+           href="{{ route('enterprise.taxonomies') }}">
+            <span class="ni" aria-hidden="true">⋔</span>
+            Taxonomies
+        </a>
+        <a class="nav-link {{ request()->routeIs('enterprise.controls') ? 'active' : '' }}"
+           href="{{ route('enterprise.controls') }}">
+            <span class="ni" aria-hidden="true">☑</span>
+            Contrôles
+        </a>
         <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
            href="{{ route('form-builder.index') }}">
             <span class="ni" aria-hidden="true">▣</span>
@@ -207,6 +222,30 @@
             <span class="ni" aria-hidden="true">▤</span>
             Rapports
         </a>
+        <a class="nav-link {{ request()->routeIs('enterprise.consolidation') ? 'active' : '' }}"
+           href="{{ route('enterprise.consolidation') }}">
+            <span class="ni" aria-hidden="true">⇱</span>
+            Consolidation
+        </a>
+
+        @can('viewExecutiveDashboard')
+            <p class="nav-section-title">Executive</p>
+            <a class="nav-link {{ request()->routeIs('executive.national-dashboard') ? 'active' : '' }}"
+               href="{{ route('executive.national-dashboard') }}">
+                <span class="ni" aria-hidden="true">◈</span>
+                Executive
+            </a>
+            <a class="nav-link {{ request()->routeIs('executive.risk-intelligence') ? 'active' : '' }}"
+               href="{{ route('executive.risk-intelligence') }}">
+                <span class="ni" aria-hidden="true">✦</span>
+                Intelligence
+            </a>
+            <a class="nav-link {{ request()->routeIs('executive.governance-overview') ? 'active' : '' }}"
+               href="{{ route('executive.governance-overview') }}">
+                <span class="ni" aria-hidden="true">◫</span>
+                Analytics
+            </a>
+        @endcan
 
         @if ($nav === 'inspection' && isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
             <p class="nav-section-title">Filtrer par pôle</p>

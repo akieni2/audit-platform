@@ -24,7 +24,13 @@ class QuestionnaireTemplate extends Model
         'slug',
         'description',
         'mission_type',
+        'methodology_template_id',
         'department_scope',
+        'visibility_scope',
+        'sharing_mode',
+        'is_global_template',
+        'is_private_template',
+        'governance_tags',
         'active',
         'version',
         'lifecycle_status',
@@ -41,7 +47,10 @@ class QuestionnaireTemplate extends Model
     {
         return [
             'department_scope' => 'array',
+            'governance_tags' => 'array',
             'active' => 'boolean',
+            'is_global_template' => 'boolean',
+            'is_private_template' => 'boolean',
             'version' => 'integer',
             'published_at' => 'datetime',
             'deprecated_at' => 'datetime',
@@ -78,6 +87,11 @@ class QuestionnaireTemplate extends Model
         return $this->hasMany(QuestionnaireSection::class)->orderBy('sort_order');
     }
 
+    public function methodologyTemplate(): BelongsTo
+    {
+        return $this->belongsTo(MethodologyTemplate::class);
+    }
+
     public function sourceTemplate(): BelongsTo
     {
         return $this->belongsTo(self::class, 'source_template_id')->withTrashed();
@@ -110,6 +124,10 @@ class QuestionnaireTemplate extends Model
      */
     public function isVisibleToDepartment(?int $departmentId, ?array $departmentIds = null): bool
     {
+        if ($this->is_global_template) {
+            return true;
+        }
+
         $scope = $this->department_scope;
         if ($scope === null || $scope === []) {
             return true;

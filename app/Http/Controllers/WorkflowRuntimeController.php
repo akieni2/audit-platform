@@ -13,6 +13,7 @@ use App\Services\Workflow\WorkflowEngineService;
 use App\Services\Workflow\WorkflowExecutionService;
 use App\Services\Workflow\WorkflowRuntimeDashboardService;
 use App\Services\Workflow\WorkflowVisualStateResolver;
+use App\Services\Runtime\RuntimeRecommendationService;
 use App\ViewModels\WorkflowRuntimeViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class WorkflowRuntimeController extends Controller
         private \App\Services\Workflow\WorkflowStageUiRenderer $stageUiRenderer,
         private WorkflowRuntimeDashboardService $dashboard,
         private WorkflowVisualStateResolver $visualStates,
+        private RuntimeRecommendationService $recommendations,
     ) {}
 
     public function show(Request $request, Mission $mission): View
@@ -57,6 +59,7 @@ class WorkflowRuntimeController extends Controller
         return view('workflows.runtime.show', [
             'mission' => $mission,
             'runtime' => $viewModel,
+            'runtimeRecommendations' => $this->recommendations->forStage($instance, $instance->currentStage),
         ]);
     }
 

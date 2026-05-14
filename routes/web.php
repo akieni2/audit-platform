@@ -24,6 +24,8 @@ use App\Http\Controllers\ControleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AccountPasswordController;
 use App\Http\Controllers\Auth\ForcedPasswordChangeController;
+use App\Http\Controllers\EnterpriseCatalogController;
+use App\Http\Controllers\ExecutiveAnalyticsController;
 use App\Http\Controllers\ExecutiveDashboardController;
 use App\Http\Controllers\Iam\Admin\AdminDashboardController;
 use App\Http\Controllers\Iam\Admin\DepartmentManagementController;
@@ -262,6 +264,26 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('workflow-runtime.dashboard');
     Route::get('/workflows/observability', [WorkflowRuntimeController::class, 'observability'])
         ->name('workflow-runtime.observability');
+
+    Route::prefix('enterprise')
+        ->name('enterprise.')
+        ->group(function () {
+            Route::get('/methodologies', [EnterpriseCatalogController::class, 'methodologies'])->name('methodologies');
+            Route::get('/taxonomies', [EnterpriseCatalogController::class, 'taxonomies'])->name('taxonomies');
+            Route::get('/controls', [EnterpriseCatalogController::class, 'controls'])->name('controls');
+            Route::get('/consolidation', [EnterpriseCatalogController::class, 'consolidation'])->name('consolidation');
+        });
+
+    Route::prefix('executive')
+        ->middleware(['can:viewExecutiveDashboard'])
+        ->name('executive.')
+        ->group(function () {
+            Route::get('/national-dashboard', [ExecutiveAnalyticsController::class, 'nationalDashboard'])->name('national-dashboard');
+            Route::get('/department-comparison', [ExecutiveAnalyticsController::class, 'departmentComparison'])->name('department-comparison');
+            Route::get('/risk-intelligence', [ExecutiveAnalyticsController::class, 'riskIntelligence'])->name('risk-intelligence');
+            Route::get('/maturity-index', [ExecutiveAnalyticsController::class, 'maturityIndex'])->name('maturity-index');
+            Route::get('/governance-overview', [ExecutiveAnalyticsController::class, 'governanceOverview'])->name('governance-overview');
+        });
 
 
     /*

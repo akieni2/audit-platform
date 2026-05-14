@@ -22,6 +22,7 @@ class WorkflowTemplate extends Model
 
     protected $fillable = [
         'department_id',
+        'methodology_template_id',
         'name',
         'slug',
         'description',
@@ -30,6 +31,11 @@ class WorkflowTemplate extends Model
         'is_system',
         'version',
         'status',
+        'visibility_scope',
+        'sharing_mode',
+        'is_global_template',
+        'is_private_template',
+        'governance_tags',
         'signature_hash',
         'deprecated_at',
         'source_template_id',
@@ -45,6 +51,9 @@ class WorkflowTemplate extends Model
             'active' => 'boolean',
             'is_system' => 'boolean',
             'version' => 'integer',
+            'is_global_template' => 'boolean',
+            'is_private_template' => 'boolean',
+            'governance_tags' => 'array',
 
             // IMPORTANT : enum cast Laravel natif
             'status' => WorkflowTemplateStatus::class,
@@ -82,6 +91,11 @@ class WorkflowTemplate extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function methodologyTemplate(): BelongsTo
+    {
+        return $this->belongsTo(MethodologyTemplate::class);
     }
 
     public function stages(): HasMany
@@ -123,5 +137,26 @@ class WorkflowTemplate extends Model
     {
         return $this->belongsTo(User::class, 'updated_by')
             ->withTrashed();
+    }
+
+    public function isVisibleToDepartment(?int $departmentId, ?array $departmentIds = null): bool
+    {
+        if ($this->is_global_template || $this->department_id === null) {
+            return true;
+        }
+
+        if ($departmentId !== null && (int) $this->department_id === (int) $departmentId) {
+            return true;
+        }
+
+        if ($departmentIds !== null) {
+            foreach ($departmentIds as $id) {
+                if ((int) $this->department_id === (int) $id) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
