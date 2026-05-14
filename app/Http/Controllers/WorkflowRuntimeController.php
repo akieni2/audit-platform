@@ -8,6 +8,10 @@ use App\Models\ProjectionIntegrityCheck;
 use App\Models\RuntimeMetric;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
+use App\Services\Observability\ErrorAggregationService;
+use App\Services\Observability\ProjectionHealthService;
+use App\Services\Observability\QueueMonitoringService;
+use App\Services\Observability\RuntimeHealthVisualizationService;
 use App\Services\Workflow\WorkflowCompatibilityService;
 use App\Services\Workflow\WorkflowEngineService;
 use App\Services\Workflow\WorkflowExecutionService;
@@ -39,6 +43,10 @@ class WorkflowRuntimeController extends Controller
         private WorkflowRuntimeDashboardService $dashboard,
         private WorkflowVisualStateService $visualStates,
         private RuntimeRecommendationService $recommendations,
+        private RuntimeHealthVisualizationService $runtimeHealth,
+        private QueueMonitoringService $queueMonitoring,
+        private ProjectionHealthService $projectionHealth,
+        private ErrorAggregationService $errors,
     ) {}
 
     public function show(Request $request, Mission $mission): View
@@ -118,18 +126,26 @@ class WorkflowRuntimeController extends Controller
         abort_unless($actor, 403);
 
         $missionIds = Mission::query()->visibleToUser($actor)->pluck('id');
+        $businessEvents = Schema::hasTable('business_events')
+            ? BusinessEvent::query()->whereIn('mission_id', $missionIds)->latest('occurred_at')->limit(50)->with('actor')->get()
+            : collect();
+        $runtimeMetrics = Schema::hasTable('runtime_metrics')
+            ? RuntimeMetric::query()->where('scope_type', 'mission')->whereIn('scope_id', $missionIds)->latest('recorded_at')->limit(50)->get()
+            : collect();
+        $integrityChecks = Schema::hasTable('projection_integrity_checks')
+            ? ProjectionIntegrityCheck::query()->latest('checked_at')->limit(30)->get()
+            : collect();
+        $workflowTemplates = WorkflowTemplate::query()->withCount(['instances', 'stages'])->latest('updated_at')->limit(20)->get();
 
-        return view('workflows.observability.index', [
-            'businessEvents' => Schema::hasTable('business_events')
-                ? BusinessEvent::query()->whereIn('mission_id', $missionIds)->latest('occurred_at')->limit(50)->with('actor')->get()
-                : collect(),
-            'runtimeMetrics' => Schema::hasTable('runtime_metrics')
-                ? RuntimeMetric::query()->where('scope_type', 'mission')->whereIn('scope_id', $missionIds)->latest('recorded_at')->limit(50)->get()
-                : collect(),
-            'integrityChecks' => Schema::hasTable('projection_integrity_checks')
-                ? ProjectionIntegrityCheck::query()->latest('checked_at')->limit(30)->get()
-                : collect(),
-            'workflowTemplates' => WorkflowTemplate::query()->withCount(['instances', 'stages'])->latest('updated_at')->limit(20)->get(),
+        return view('observability.center', [
+            'businessEvents' => $businessEvents,
+            'runtimeMetrics' => $runtimeMetrics,
+            'integrityChecks' => $integrityChecks,
+            'workflowTemplates' => $workflowTemplates,
+            'runtimeHealth' => $this->runtimeHealth->build($businessEvents, $runtimeMetrics, $workflowTemplates),
+            'queueHealth' => $this->queueMonitoring->snapshot($workflowTemplates),
+            'projectionHealth' => $this->projectionHealth->snapshot($integrityChecks),
+            'errorSummary' => $this->errors->summarize($businessEvents, $runtimeMetrics, $integrityChecks),
         ]);
     }
 }
