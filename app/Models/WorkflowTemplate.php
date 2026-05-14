@@ -45,11 +45,19 @@ class WorkflowTemplate extends Model
             'active' => 'boolean',
             'is_system' => 'boolean',
             'version' => 'integer',
-            'status' => fn ($value) => WorkflowTemplateStatus::tryFrom((string) $value),
+
+            // IMPORTANT : enum cast Laravel natif
+            'status' => WorkflowTemplateStatus::class,
+
             'source_template_id' => 'integer',
+
             'published_at' => 'datetime',
             'deprecated_at' => 'datetime',
             'archived_at' => 'datetime',
+
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -78,7 +86,9 @@ class WorkflowTemplate extends Model
 
     public function stages(): HasMany
     {
-        return $this->hasMany(WorkflowStage::class)->orderBy('sort_order')->orderBy('id');
+        return $this->hasMany(WorkflowStage::class)
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 
     public function transitions(): HasMany
@@ -93,21 +103,25 @@ class WorkflowTemplate extends Model
 
     public function sourceTemplate(): BelongsTo
     {
-        return $this->belongsTo(self::class, 'source_template_id')->withTrashed();
+        return $this->belongsTo(self::class, 'source_template_id')
+            ->withTrashed();
     }
 
     public function derivedVersions(): HasMany
     {
-        return $this->hasMany(self::class, 'source_template_id')->orderBy('version');
+        return $this->hasMany(self::class, 'source_template_id')
+            ->orderBy('version');
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by')->withTrashed();
+        return $this->belongsTo(User::class, 'created_by')
+            ->withTrashed();
     }
 
     public function updater(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'updated_by')->withTrashed();
+        return $this->belongsTo(User::class, 'updated_by')
+            ->withTrashed();
     }
 }

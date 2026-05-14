@@ -40,8 +40,8 @@ class WorkflowStage extends Model
     protected function casts(): array
     {
         return [
-            'stage_type' => fn ($value) => WorkflowStageType::fromMixed($value),
-            'execution_mode' => fn ($value) => WorkflowExecutionMode::fromMixed($value),
+            'stage_type' => WorkflowStageType::class,
+            'execution_mode' => WorkflowExecutionMode::class,
             'sort_order' => 'integer',
             'configuration' => 'array',
             'configuration_json' => 'array',
@@ -111,7 +111,9 @@ class WorkflowStage extends Model
      */
     public function resolvedValidationRules(): array
     {
-        return is_array($this->validation_rules_json) ? $this->validation_rules_json : [];
+        return is_array($this->validation_rules_json)
+            ? $this->validation_rules_json
+            : [];
     }
 
     /**
@@ -119,7 +121,9 @@ class WorkflowStage extends Model
      */
     public function resolvedFormSchema(): array
     {
-        return is_array($this->form_schema_json) ? $this->form_schema_json : [];
+        return is_array($this->form_schema_json)
+            ? $this->form_schema_json
+            : [];
     }
 
     /**
@@ -127,7 +131,9 @@ class WorkflowStage extends Model
      */
     public function resolvedRiskMatrixSchema(): array
     {
-        return is_array($this->risk_matrix_schema_json) ? $this->risk_matrix_schema_json : [];
+        return is_array($this->risk_matrix_schema_json)
+            ? $this->risk_matrix_schema_json
+            : [];
     }
 
     public function resolvedStageType(): ?WorkflowStageType
@@ -144,6 +150,7 @@ class WorkflowStage extends Model
         }
 
         $mode = WorkflowExecutionMode::fromMixed($this->execution_mode);
+
         if ($mode instanceof WorkflowExecutionMode) {
             return $mode;
         }
@@ -154,7 +161,9 @@ class WorkflowStage extends Model
             WorkflowStageType::Questionnaire => WorkflowExecutionMode::Questionnaire,
             WorkflowStageType::Approval => WorkflowExecutionMode::Approval,
             WorkflowStageType::Form => WorkflowExecutionMode::Form,
-            default => $this->configuration !== null ? WorkflowExecutionMode::Automatic : WorkflowExecutionMode::Manual,
+            default => $this->configuration !== null
+                ? WorkflowExecutionMode::Automatic
+                : WorkflowExecutionMode::Manual,
         };
     }
 
