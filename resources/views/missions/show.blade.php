@@ -76,6 +76,11 @@
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center justify-end gap-3">
+                        @if (! empty($workflowRuntime['runtimeUrl']))
+                            <a href="{{ $workflowRuntime['runtimeUrl'] }}" class="dgcpt-btn-outline">
+                                Ouvrir le runtime visuel
+                            </a>
+                        @endif
                         @if (! empty($workflowRuntime['currentStageRuntimeUrl']))
                             <a href="{{ $workflowRuntime['currentStageRuntimeUrl'] }}" class="dgcpt-btn-outline">
                                 Ouvrir l’étape active

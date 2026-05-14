@@ -37,6 +37,7 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
 use App\Http\Controllers\RiskReviewBoardController;
+use App\Http\Controllers\WorkflowRuntimeController;
 use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
 
@@ -247,12 +248,20 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::post('/templates/{template}/archive', [FormBuilderController::class, 'archive'])->name('archive');
         });
 
-    Route::get('/missions/{mission}/workflow/runtime', [WorkflowStageRuntimeController::class, 'showCurrent'])
+    Route::get('/missions/{mission}/workflow/runtime', [WorkflowRuntimeController::class, 'show'])
+        ->name('workflow-runtime.show');
+    Route::post('/missions/{mission}/workflow/runtime/actions', [WorkflowRuntimeController::class, 'transition'])
+        ->name('workflow-runtime.transition');
+    Route::get('/missions/{mission}/workflow/runtime/current', [WorkflowStageRuntimeController::class, 'showCurrent'])
         ->name('workflow-runtime.current');
     Route::get('/missions/{mission}/workflow/runtime/stages/{stage}', [WorkflowStageRuntimeController::class, 'showStage'])
         ->name('workflow-runtime.stage');
     Route::post('/missions/{mission}/workflow/runtime/stages/{stage}', [WorkflowStageRuntimeController::class, 'submitStage'])
         ->name('workflow-runtime.stage.submit');
+    Route::get('/workflows/dashboard', [WorkflowRuntimeController::class, 'dashboard'])
+        ->name('workflow-runtime.dashboard');
+    Route::get('/workflows/observability', [WorkflowRuntimeController::class, 'observability'])
+        ->name('workflow-runtime.observability');
 
 
     /*
