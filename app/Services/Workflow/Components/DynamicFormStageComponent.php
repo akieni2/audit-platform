@@ -7,6 +7,8 @@ use App\Models\IdentifiedRisk;
 use App\Models\User;
 use App\Models\WorkflowInstance;
 use App\Models\WorkflowStage;
+use App\Services\Forms\FormWizardService;
+use App\Services\Forms\RuntimeAutosaveService;
 use App\Services\Forms\DynamicFormRendererService;
 use App\Services\Missions\MissionGovernanceService;
 use App\Services\Risk\RiskRegistryPromotionService;
@@ -19,6 +21,8 @@ class DynamicFormStageComponent implements WorkflowStageComponent
 {
     public function __construct(
         private DynamicFormRendererService $renderer,
+        private FormWizardService $wizard,
+        private RuntimeAutosaveService $autosave,
         private WorkflowExecutionService $execution,
         private MissionGovernanceService $missionGovernance,
         private RiskRegistryPromotionService $riskRegistry,
@@ -43,13 +47,16 @@ class DynamicFormStageComponent implements WorkflowStageComponent
     public function buildViewData(WorkflowInstance $instance, WorkflowStage $stage, ?User $actor = null): array
     {
         $entretien = $this->resolveEntretien($instance, $stage);
+        $form = $this->renderer->buildViewData($instance, $stage, $entretien);
 
         return [
             'view' => 'workflows.runtime.components.dynamic-form',
             'stage' => $stage,
             'instance' => $instance,
             'entretien' => $entretien,
-            'form' => $this->renderer->buildViewData($instance, $stage, $entretien),
+            'form' => $form,
+            'wizard' => $this->wizard->build($form),
+            'autosave' => $this->autosave->build($form['current_submission'] ?? null, $instance, $stage),
         ];
     }
 
