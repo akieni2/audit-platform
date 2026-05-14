@@ -10,6 +10,7 @@ use App\Models\Mission;
 use App\Services\Iam\SecurityAuditService;
 use App\Services\Missions\MissionGovernanceService;
 use App\Services\Missions\MissionWorkflowService;
+use App\Services\Workflow\WorkflowCompatibilityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,6 +69,8 @@ class MissionController extends Controller
             'mission_status' => Mission::STATUS_BROUILLON,
         ]);
 
+        app(WorkflowCompatibilityService::class)->ensureMissionWorkflow($mission, $request->user());
+
         app(SecurityAuditService::class)->missionCreated($request->user(), $mission, $request);
 
         return redirect()->route('missions.show', $mission)->with('status', 'Mission créée.');
@@ -85,12 +88,14 @@ class MissionController extends Controller
         ]);
 
         $governance = app(MissionGovernanceService::class);
+        $workflow = app(WorkflowCompatibilityService::class);
         $actor = Auth::user();
         abort_unless($actor, 403);
 
         $eligibleTeamUsers = $governance->eligibleTeamUsers($actor, $mission);
         $missionStats = $governance->missionStats($mission);
         $missionProgressPercent = $governance->missionProgressPercent($missionStats);
+        $workflowRuntime = $workflow->workflowViewData($mission, $actor);
 
         return view('missions.show', [
             'mission' => $mission,
@@ -99,6 +104,7 @@ class MissionController extends Controller
             'missionRoleLabels' => $governance->missionRoleLabels(),
             'missionStats' => $missionStats,
             'missionProgressPercent' => $missionProgressPercent,
+            'workflowRuntime' => $workflowRuntime,
         ]);
     }
 
@@ -119,6 +125,7 @@ class MissionController extends Controller
 
         $mission->update($validated);
         $fresh = $mission->fresh();
+        app(WorkflowCompatibilityService::class)->syncMissionWorkflow($fresh, $user);
 
         if ($user->can('governMission', $fresh)) {
             $deadlineFields = array_values(array_intersect(array_keys($validated), UpdateMissionRequest::deadlineKeys()));

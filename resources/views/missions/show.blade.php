@@ -58,6 +58,79 @@
             </div>
         @endisset
 
+        @if (! empty($workflowRuntime['instance'] ?? null))
+            @php
+                $workflowProgress = ($workflowRuntime['totalCount'] ?? 0) > 0
+                    ? (int) round((($workflowRuntime['completedCount'] ?? 0) / $workflowRuntime['totalCount']) * 100)
+                    : 0;
+            @endphp
+            <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Workflow dynamique</h2>
+                        <p class="mt-1 text-sm text-[#9FB3C8]">
+                            {{ $workflowRuntime['instance']->workflowTemplate?->name ?? 'Workflow système' }}
+                            @if (! empty($workflowRuntime['currentStage']))
+                                — étape active : <span class="font-semibold text-[#00D1FF]">{{ $workflowRuntime['currentStage']->name }}</span>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-[rgba(0,209,255,0.15)] bg-[#050816] px-4 py-3 text-right">
+                        <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Progression workflow</p>
+                        <p class="mt-1 text-2xl font-bold text-[#00A86B]">{{ $workflowProgress }}%</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 h-2 overflow-hidden rounded-full bg-[#0B1220]">
+                    <div class="h-full rounded-full bg-gradient-to-r from-[#00A86B] to-[#00D1FF]" style="width: {{ $workflowProgress }}%"></div>
+                </div>
+
+                <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    @foreach ($workflowRuntime['executions'] as $execution)
+                        @php
+                            $stage = $execution->workflowStage;
+                            $statusValue = $execution->status instanceof \App\Domain\Workflow\Enums\WorkflowStageExecutionStatus
+                                ? $execution->status->value
+                                : (string) $execution->status;
+                            $statusClasses = match ($statusValue) {
+                                'completed' => 'border-[rgba(0,168,107,0.25)] bg-[rgba(0,168,107,0.08)]',
+                                'active' => 'border-[rgba(0,209,255,0.35)] bg-[rgba(0,209,255,0.08)]',
+                                'rejected' => 'border-[rgba(255,90,90,0.3)] bg-[rgba(255,90,90,0.08)]',
+                                'skipped' => 'border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.08)]',
+                                default => 'border-[rgba(148,163,184,0.18)] bg-[rgba(148,163,184,0.06)]',
+                            };
+                            $statusLabel = $execution->status instanceof \App\Domain\Workflow\Enums\WorkflowStageExecutionStatus
+                                ? $execution->status->label()
+                                : ucfirst(str_replace('_', ' ', $statusValue));
+                        @endphp
+                        <div class="rounded-2xl border p-4 {{ $statusClasses }}">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-[#E6EEF8]">{{ $stage?->name ?? 'Étape' }}</p>
+                                    <p class="mt-1 text-xs uppercase tracking-wide text-[#9FB3C8]">
+                                        {{ $stage?->stage_type?->label() ?? $stage?->stage_type ?? 'workflow' }}
+                                    </p>
+                                </div>
+                                <span class="rounded-full border border-[rgba(255,255,255,0.08)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#E6EEF8]">
+                                    {{ $statusLabel }}
+                                </span>
+                            </div>
+                            @if ($execution->started_at || $execution->completed_at)
+                                <p class="mt-3 text-xs text-[#9FB3C8]">
+                                    @if ($execution->started_at)
+                                        Début : {{ $execution->started_at->format('d/m/Y H:i') }}
+                                    @endif
+                                    @if ($execution->completed_at)
+                                        <span class="mx-1">•</span>Fin : {{ $execution->completed_at->format('d/m/Y H:i') }}
+                                    @endif
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         @php
             $chefMembre = $mission->missionTeamMembers->firstWhere('mission_role', \App\Models\MissionTeamMember::ROLE_CHEF_MISSION);
         @endphp

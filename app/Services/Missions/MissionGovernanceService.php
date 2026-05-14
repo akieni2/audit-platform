@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Risk\MissionRiskProjectionService;
 use App\Services\Runtime\BusinessEventLogger;
 use App\Services\Runtime\RuntimeMetricsService;
+use App\Services\Workflow\WorkflowCompatibilityService;
 use Illuminate\Support\Facades\Schema;
 
 final class MissionGovernanceService
@@ -22,6 +23,7 @@ final class MissionGovernanceService
         private MissionRiskProjectionService $riskProjections,
         private BusinessEventLogger $events,
         private RuntimeMetricsService $metrics,
+        private WorkflowCompatibilityService $workflowCompatibility,
     ) {}
 
     /**
@@ -76,6 +78,8 @@ final class MissionGovernanceService
             $comment,
             $correlationId,
         );
+
+        $this->workflowCompatibility->syncMissionWorkflow($fresh, $actor);
 
         return $fresh;
     }
