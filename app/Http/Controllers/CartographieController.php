@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Mission;
 use App\Services\Risk\EnterpriseHeatmapService;
+use App\Services\Risk\HeatmapVisualizationService;
 use App\Services\Risk\MissionRiskDashboardService;
 use App\Services\Risk\RiskRegistryQueryService;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ class CartographieController extends Controller
         private RiskRegistryQueryService $riskRegistry,
         private MissionRiskDashboardService $dashboard,
         private EnterpriseHeatmapService $heatmaps,
+        private HeatmapVisualizationService $visualization,
     ) {}
 
     public function select(): View
@@ -49,6 +51,17 @@ class CartographieController extends Controller
                 'critical_count' => $snapshot['critical_open'],
                 'top_risks' => $officialRisks->take(10),
             ],
+            'heatmapView' => $this->visualization->build(
+                mission: $mission,
+                heatmapRows: $heatmap['matrix'],
+                residualHeatmapRows: $residualHeatmap['matrix'],
+                dashboard: [
+                    ...$snapshot,
+                    'critical_count' => $snapshot['critical_open'],
+                    'top_risks' => $officialRisks->take(10),
+                ],
+                risks: $officialRisks,
+            ),
         ]);
     }
 }
