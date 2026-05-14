@@ -5,6 +5,7 @@ use App\Domain\Workflow\Enums\WorkflowStageType;
 use App\Models\WorkflowStage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -211,11 +212,82 @@ return new class extends Migration
         if (Schema::hasTable('workflow_execution_logs')) {
             Schema::dropIfExists('workflow_execution_logs');
         }
+
+        if (Schema::hasTable('workflow_stages')) {
+            Schema::table('workflow_stages', function (Blueprint $table) {
+                if ($this->indexExists('workflow_stages', 'workflow_stages_execution_mode_index')) {
+                    $table->dropIndex(['execution_mode']);
+                }
+                if ($this->indexExists('workflow_stages', 'workflow_stages_questionnaire_template_id_index')) {
+                    $table->dropIndex(['questionnaire_template_id']);
+                }
+                if ($this->indexExists('workflow_stages', 'workflow_stages_approval_role_id_index')) {
+                    $table->dropIndex(['approval_role_id']);
+                }
+                if ($this->indexExists('workflow_stages', 'workflow_stages_position_x_position_y_index')) {
+                    $table->dropIndex(['position_x', 'position_y']);
+                }
+
+                if (Schema::hasColumn('workflow_stages', 'approval_role_id')) {
+                    $table->dropForeign(['approval_role_id']);
+                }
+                if (Schema::hasColumn('workflow_stages', 'questionnaire_template_id')) {
+                    $table->dropForeign(['questionnaire_template_id']);
+                }
+
+                $dropColumns = array_values(array_filter([
+                    Schema::hasColumn('workflow_stages', 'ui_component') ? 'ui_component' : null,
+                    Schema::hasColumn('workflow_stages', 'configuration_json') ? 'configuration_json' : null,
+                    Schema::hasColumn('workflow_stages', 'validation_rules_json') ? 'validation_rules_json' : null,
+                    Schema::hasColumn('workflow_stages', 'execution_mode') ? 'execution_mode' : null,
+                    Schema::hasColumn('workflow_stages', 'allow_skip') ? 'allow_skip' : null,
+                    Schema::hasColumn('workflow_stages', 'requires_approval') ? 'requires_approval' : null,
+                    Schema::hasColumn('workflow_stages', 'approval_role_id') ? 'approval_role_id' : null,
+                    Schema::hasColumn('workflow_stages', 'questionnaire_template_id') ? 'questionnaire_template_id' : null,
+                    Schema::hasColumn('workflow_stages', 'form_schema_json') ? 'form_schema_json' : null,
+                    Schema::hasColumn('workflow_stages', 'risk_matrix_schema_json') ? 'risk_matrix_schema_json' : null,
+                    Schema::hasColumn('workflow_stages', 'position_x') ? 'position_x' : null,
+                    Schema::hasColumn('workflow_stages', 'position_y') ? 'position_y' : null,
+                    Schema::hasColumn('workflow_stages', 'color') ? 'color' : null,
+                    Schema::hasColumn('workflow_stages', 'icon') ? 'icon' : null,
+                ]));
+
+                if ($dropColumns !== []) {
+                    $table->dropColumn($dropColumns);
+                }
+            });
+        }
+
+        if (Schema::hasTable('workflow_templates')) {
+            Schema::table('workflow_templates', function (Blueprint $table) {
+                if (Schema::hasColumn('workflow_templates', 'source_template_id')) {
+                    $table->dropForeign(['source_template_id']);
+                }
+
+                $dropColumns = array_values(array_filter([
+                    Schema::hasColumn('workflow_templates', 'signature_hash') ? 'signature_hash' : null,
+                    Schema::hasColumn('workflow_templates', 'deprecated_at') ? 'deprecated_at' : null,
+                    Schema::hasColumn('workflow_templates', 'source_template_id') ? 'source_template_id' : null,
+                ]));
+
+                if ($dropColumns !== []) {
+                    $table->dropColumn($dropColumns);
+                }
+            });
+        }
     }
 
     protected function indexExists(string $table, string $index): bool
     {
         $connection = Schema::getConnection();
+        $driver = $connection->getDriverName();
+
+        if ($driver === 'sqlite') {
+            /** @var Collection<int, object> $indexes */
+            $indexes = collect(DB::select('PRAGMA index_list('.$table.')'));
+
+            return $indexes->contains(fn (object $row) => ($row->name ?? null) === $index);
+        }
 
         $database = $connection->getDatabaseName();
 

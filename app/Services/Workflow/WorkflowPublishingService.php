@@ -3,6 +3,7 @@
 namespace App\Services\Workflow;
 
 use App\Domain\Workflow\Enums\WorkflowTemplateStatus;
+use App\Models\FormTemplate;
 use App\Models\User;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
@@ -73,6 +74,8 @@ class WorkflowPublishingService
                     'requires_approval' => (bool) $stage->requires_approval,
                     'approval_role_id' => $stage->approval_role_id,
                     'questionnaire_template_id' => $stage->questionnaire_template_id,
+                    'form_template_id' => $stage->form_template_id,
+                    'component_key' => $stage->component_key,
                     'form_schema_json' => $stage->resolvedFormSchema(),
                     'risk_matrix_schema_json' => $stage->resolvedRiskMatrixSchema(),
                     'position_x' => $stage->position_x,
@@ -190,6 +193,13 @@ class WorkflowPublishingService
                     $stage->name
                 ));
             }
+
+            if ($stage->form_template_id !== null && ! FormTemplate::query()->whereKey($stage->form_template_id)->where('active', true)->exists()) {
+                throw new InvalidArgumentException(sprintf(
+                    'L’étape "%s" doit référencer un formulaire publié actif.',
+                    $stage->name
+                ));
+            }
         }
 
         if ($stages->count() > 1 && $template->transitions->isEmpty()) {
@@ -231,6 +241,8 @@ class WorkflowPublishingService
                     'requires_approval' => (bool) $stage->requires_approval,
                     'approval_role_id' => $stage->approval_role_id,
                     'questionnaire_template_id' => $stage->questionnaire_template_id,
+                    'form_template_id' => $stage->form_template_id,
+                    'component_key' => $stage->component_key,
                     'form_schema_json' => $stage->resolvedFormSchema(),
                     'risk_matrix_schema_json' => $stage->resolvedRiskMatrixSchema(),
                     'position_x' => $stage->position_x,

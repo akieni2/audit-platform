@@ -160,16 +160,25 @@ class WorkflowCompatibilityService
             return [];
         }
 
-        $mission->loadMissing('workflowInstance.workflowTemplate', 'workflowInstance.currentStage', 'workflowInstance.stageExecutions.workflowStage', 'workflowInstance.executionLogs');
+        $mission->loadMissing(
+            'workflowInstance.workflowTemplate',
+            'workflowInstance.currentStage.formTemplate',
+            'workflowInstance.currentStage.questionnaireTemplate',
+            'workflowInstance.stageExecutions.workflowStage',
+            'workflowInstance.executionLogs',
+            'workflowInstance.formSubmissions'
+        );
         if (! $mission->workflowInstance instanceof WorkflowInstance) {
             return [];
         }
 
         $instance = $mission->workflowInstance->fresh([
             'workflowTemplate',
-            'currentStage',
+            'currentStage.formTemplate',
+            'currentStage.questionnaireTemplate',
             'stageExecutions.workflowStage',
             'executionLogs',
+            'formSubmissions',
         ]);
 
         $executions = $instance->stageExecutions
@@ -179,6 +188,13 @@ class WorkflowCompatibilityService
         return [
             'instance' => $instance,
             'currentStage' => $instance->currentStage,
+            'currentStageRuntimeUrl' => $instance->currentStage
+                ? route('workflow-runtime.stage', ['mission' => $mission, 'stage' => $instance->currentStage])
+                : null,
+            'currentStageComponentKey' => $instance->currentStage?->resolvedComponentKey(),
+            'currentStageSubmission' => $instance->currentStage
+                ? $instance->formSubmissions->where('workflow_stage_id', $instance->currentStage->id)->sortByDesc('id')->first()
+                : null,
             'executions' => $executions,
             'completedCount' => $executions->filter(function ($execution) {
                 $status = $execution->status instanceof WorkflowStageExecutionStatus

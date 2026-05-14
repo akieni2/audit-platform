@@ -11,6 +11,7 @@ use App\Listeners\RefreshMissionRiskProjection;
 use App\Models\Department;
 use App\Models\DepartmentAuditConsolidation;
 use App\Models\Entretien;
+use App\Models\FormTemplate;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
 use App\Models\MissionDocument;
@@ -23,6 +24,7 @@ use App\Models\WorkflowTemplate;
 use App\Observers\RisqueObserver;
 use App\Policies\DepartmentAuditConsolidationPolicy;
 use App\Policies\EntretienPolicy;
+use App\Policies\FormTemplatePolicy;
 use App\Policies\IdentifiedRiskPolicy;
 use App\Policies\MissionDocumentPolicy;
 use App\Policies\QuestionnaireTemplatePolicy;
@@ -32,6 +34,10 @@ use App\Policies\WorkflowTemplatePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Repositories\EloquentRiskRepository;
 use App\Services\Governance\ExecutiveDashboardService;
+use App\Services\Workflow\Components\DynamicFormStageComponent;
+use App\Services\Workflow\Components\QuestionnaireStageComponent;
+use App\Services\Workflow\Components\SystemStageComponent;
+use App\Services\Workflow\Components\WorkflowStageComponentRegistry;
 use App\Support\DgcptPasswordRules;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -54,6 +60,14 @@ class AppServiceProvider extends ServiceProvider
             RiskRepositoryInterface::class,
             EloquentRiskRepository::class
         );
+
+        $this->app->singleton(WorkflowStageComponentRegistry::class, function ($app) {
+            return new WorkflowStageComponentRegistry([
+                $app->make(DynamicFormStageComponent::class),
+                $app->make(QuestionnaireStageComponent::class),
+                $app->make(SystemStageComponent::class),
+            ]);
+        });
     }
 
     /**
@@ -88,6 +102,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(
             WorkflowTemplate::class,
             WorkflowTemplatePolicy::class
+        );
+
+        Gate::policy(
+            FormTemplate::class,
+            FormTemplatePolicy::class
         );
 
         Gate::policy(Entretien::class, EntretienPolicy::class);

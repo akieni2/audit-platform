@@ -200,6 +200,19 @@
                             </select>
                         </div>
                         <div>
+                            <label class="dgcpt-label">Formulaire</label>
+                            <select name="form_template_id" class="dgcpt-input">
+                                <option value="">Aucun</option>
+                                @foreach ($formTemplates as $formTemplate)
+                                    <option value="{{ $formTemplate->id }}">{{ $formTemplate->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="dgcpt-label">Component key</label>
+                            <input name="component_key" type="text" value="dynamic_form" class="dgcpt-input font-mono text-sm" />
+                        </div>
+                        <div>
                             <label class="dgcpt-label">X</label>
                             <input name="position_x" type="number" value="{{ ($template->stages->count() * 240) }}" class="dgcpt-input" />
                         </div>
@@ -349,6 +362,21 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div>
+                                <label class="dgcpt-label">Formulaire</label>
+                                <select name="form_template_id" class="dgcpt-input">
+                                    <option value="">Aucun</option>
+                                    @foreach ($formTemplates as $formTemplate)
+                                        <option value="{{ $formTemplate->id }}" @selected((string) old('form_template_id', $selectedStage->form_template_id) === (string) $formTemplate->id)>
+                                            {{ $formTemplate->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="dgcpt-label">Component key</label>
+                                <input name="component_key" type="text" value="{{ old('component_key', $selectedStage->resolvedComponentKey()) }}" class="dgcpt-input font-mono text-sm" />
                             </div>
                             <div>
                                 <label class="dgcpt-label">Approval role</label>

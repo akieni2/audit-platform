@@ -75,9 +75,16 @@
                             @endif
                         </p>
                     </div>
-                    <div class="rounded-xl border border-[rgba(0,209,255,0.15)] bg-[#050816] px-4 py-3 text-right">
-                        <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Progression workflow</p>
-                        <p class="mt-1 text-2xl font-bold text-[#00A86B]">{{ $workflowProgress }}%</p>
+                    <div class="flex flex-wrap items-center justify-end gap-3">
+                        @if (! empty($workflowRuntime['currentStageRuntimeUrl']))
+                            <a href="{{ $workflowRuntime['currentStageRuntimeUrl'] }}" class="dgcpt-btn-outline">
+                                Ouvrir l’étape active
+                            </a>
+                        @endif
+                        <div class="rounded-xl border border-[rgba(0,209,255,0.15)] bg-[#050816] px-4 py-3 text-right">
+                            <p class="text-xs font-bold uppercase tracking-wide text-[#9FB3C8]">Progression workflow</p>
+                            <p class="mt-1 text-2xl font-bold text-[#00A86B]">{{ $workflowProgress }}%</p>
+                        </div>
                     </div>
                 </div>
 

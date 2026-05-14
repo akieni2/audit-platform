@@ -6,6 +6,7 @@ use App\Domain\Workflow\Enums\WorkflowExecutionMode;
 use App\Domain\Workflow\Enums\WorkflowStageType;
 use App\Models\ActionCorrective;
 use App\Models\Entretien;
+use App\Models\FormSubmission;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
 use App\Models\MissionDocument;
@@ -18,6 +19,7 @@ use App\Models\WorkflowStage;
 use App\Models\WorkflowStageExecution;
 use App\Models\WorkflowTemplate;
 use App\Models\WorkflowTransition;
+use App\Services\Workflow\Components\WorkflowStageComponentRegistry;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
@@ -26,6 +28,7 @@ class WorkflowExecutionService
 {
     public function __construct(
         private WorkflowEngineService $engine,
+        private WorkflowStageComponentRegistry $components,
     ) {}
 
     /**
@@ -63,6 +66,7 @@ class WorkflowExecutionService
         array $payload = [],
         ?string $message = null,
     ): WorkflowStageExecution {
+        $component = $this->components->resolve($stage);
         $execution = WorkflowStageExecution::query()->firstOrCreate(
             [
                 'workflow_instance_id' => $instance->id,
@@ -79,7 +83,9 @@ class WorkflowExecutionService
             'status' => 'active',
             'started_at' => $execution->started_at ?? now(),
             'assigned_to' => $actor?->id ?? $execution->assigned_to,
-            'payload' => array_replace_recursive($execution->payload ?? [], $payload),
+            'payload' => array_replace_recursive($execution->payload ?? [], [
+                'component_key' => $component->key(),
+            ], $payload),
         ])->save();
 
         $this->logExecution(
@@ -109,6 +115,8 @@ class WorkflowExecutionService
         if ((int) $instance->current_stage_id !== (int) $stage->id) {
             throw new InvalidArgumentException('Impossible de compléter une étape qui n’est pas active.');
         }
+
+        $this->mergeStageRuntimeMetadata($instance, $stage, $payload);
 
         $transition = $this->resolveNextTransition($instance, $actor);
         $fresh = $this->engine->advance($instance, $actor, $transition, $payload, $notes);
@@ -153,6 +161,7 @@ class WorkflowExecutionService
     public function executeRules(WorkflowInstance $instance, WorkflowStage $stage): array
     {
         $configuration = $stage->resolvedConfiguration();
+        $component = $this->components->resolve($stage);
 
         $this->logExecution(
             instance: $instance,
@@ -162,10 +171,13 @@ class WorkflowExecutionService
             status: 'evaluated',
             message: 'Règles d’exécution évaluées.',
             actor: null,
-            payload: $configuration,
+            payload: array_replace_recursive($configuration, [
+                'component_key' => $component->key(),
+                'stage_type' => $stage->resolvedStageType()?->value,
+            ]),
         );
 
-        return $configuration;
+        return array_replace_recursive($configuration, ['component_key' => $component->key()]);
     }
 
     public function syncMissionCompatibility(Mission $mission, ?User $actor = null): ?WorkflowInstance
@@ -183,8 +195,11 @@ class WorkflowExecutionService
     {
         $instance->loadMissing([
             'workflowTemplate.stages.questionnaireTemplate',
+            'workflowTemplate.stages.formTemplate',
             'currentStage.questionnaireTemplate',
+            'currentStage.formTemplate',
             'stageExecutions.workflowStage',
+            'formSubmissions',
             'mission',
         ]);
 
@@ -220,9 +235,12 @@ class WorkflowExecutionService
 
         return $current->fresh([
             'workflowTemplate.stages.questionnaireTemplate',
+            'workflowTemplate.stages.formTemplate',
             'currentStage.questionnaireTemplate',
+            'currentStage.formTemplate',
             'stageExecutions.workflowStage',
             'executionLogs',
+            'formSubmissions',
             'mission',
         ]);
     }
@@ -317,6 +335,15 @@ class WorkflowExecutionService
 
     private function formStageSatisfied(WorkflowInstance $instance, WorkflowStage $stage): bool
     {
+        if (Schema::hasTable('form_submissions')
+            && FormSubmission::query()
+                ->where('workflow_instance_id', $instance->id)
+                ->where('workflow_stage_id', $stage->id)
+                ->where('status', FormSubmission::STATUS_SUBMITTED)
+                ->exists()) {
+            return true;
+        }
+
         $execution = $instance->stageExecutions()
             ->where('workflow_stage_id', $stage->id)
             ->latest('id')
@@ -374,6 +401,10 @@ class WorkflowExecutionService
             return true;
         }
 
+        if ($stage->usesFormTemplate()) {
+            return $this->formStageSatisfied($instance, $stage);
+        }
+
         $execution = $instance->stageExecutions()
             ->where('workflow_stage_id', $stage->id)
             ->latest('id')
@@ -381,5 +412,28 @@ class WorkflowExecutionService
 
         return $execution instanceof WorkflowStageExecution
             && in_array((string) $execution->status, ['completed', 'skipped'], true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function mergeStageRuntimeMetadata(WorkflowInstance $instance, WorkflowStage $stage, array $payload): void
+    {
+        $metadata = is_array($instance->metadata) ? $instance->metadata : [];
+        $stageCode = (string) $stage->code;
+
+        if (isset($payload['fields'])) {
+            data_set($metadata, 'forms.'.$stageCode, $payload['fields']);
+        }
+
+        if (isset($payload['form_submission_id'])) {
+            data_set($metadata, 'form_submissions.'.$stageCode, $payload['form_submission_id']);
+        }
+
+        data_set($metadata, 'stage_payloads.'.$stageCode, $payload);
+
+        $instance->forceFill([
+            'metadata' => $metadata,
+        ])->save();
     }
 }

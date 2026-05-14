@@ -10,6 +10,7 @@ use App\Http\Requests\Workflows\StoreWorkflowTransitionRequest;
 use App\Http\Requests\Workflows\UpdateWorkflowStageRequest;
 use App\Http\Requests\Workflows\UpdateWorkflowTemplateRequest;
 use App\Models\Department;
+use App\Models\FormTemplate;
 use App\Models\QuestionnaireTemplate;
 use App\Models\Role;
 use App\Models\WorkflowStage;
@@ -60,6 +61,7 @@ class WorkflowBuilderController extends Controller
 
         $template->load([
             'department',
+            'stages.formTemplate',
             'stages.questionnaireTemplate',
             'stages.approvalRole',
             'transitions.fromStage',
@@ -76,6 +78,10 @@ class WorkflowBuilderController extends Controller
             'lineageTemplates' => $this->lineageTemplates($template),
             'departmentOptions' => Department::query()->where('active', true)->orderBy('code')->get(),
             'questionnaireTemplates' => QuestionnaireTemplate::query()
+                ->where('active', true)
+                ->orderBy('name')
+                ->get(),
+            'formTemplates' => FormTemplate::query()
                 ->where('active', true)
                 ->orderBy('name')
                 ->get(),

@@ -160,6 +160,11 @@
             <span class="ni" aria-hidden="true">⇄</span>
             Workflows
         </a>
+        <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
+           href="{{ route('form-builder.index') }}">
+            <span class="ni" aria-hidden="true">▣</span>
+            Formulaires
+        </a>
         <a class="nav-link {{ request()->routeIs('module.entretiens') ? 'active' : '' }}"
            href="{{ route('module.entretiens') }}">
             <span class="ni" aria-hidden="true">○</span>

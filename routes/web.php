@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentAuditConsolidationController;
 use App\Http\Controllers\EntretienConduiteController;
 use App\Http\Controllers\EntretienController;
+use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\IdentifiedRiskController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionDocumentController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
 use App\Http\Controllers\RiskReviewBoardController;
+use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
 
 /*
@@ -228,6 +230,29 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::post('/templates/{template}/publish', [WorkflowBuilderController::class, 'publish'])->name('publish');
             Route::post('/templates/{template}/archive', [WorkflowBuilderController::class, 'archive'])->name('archive');
         });
+
+    Route::prefix('form-builder')
+        ->name('form-builder.')
+        ->group(function () {
+            Route::get('/', [FormBuilderController::class, 'index'])->name('index');
+            Route::get('/create', [FormBuilderController::class, 'create'])->name('create');
+            Route::get('/{template}/edit', [FormBuilderController::class, 'edit'])->name('edit');
+            Route::post('/templates', [FormBuilderController::class, 'storeTemplate'])->name('store');
+            Route::patch('/{template}', [FormBuilderController::class, 'updateTemplate'])->name('update');
+            Route::post('/{template}/fields', [FormBuilderController::class, 'storeField'])->name('fields.store');
+            Route::patch('/fields/{field}', [FormBuilderController::class, 'updateField'])->name('fields.update');
+            Route::delete('/fields/{field}', [FormBuilderController::class, 'destroyField'])->name('fields.destroy');
+            Route::post('/fields/reorder', [FormBuilderController::class, 'reorderFields'])->name('fields.reorder');
+            Route::post('/templates/{template}/publish', [FormBuilderController::class, 'publish'])->name('publish');
+            Route::post('/templates/{template}/archive', [FormBuilderController::class, 'archive'])->name('archive');
+        });
+
+    Route::get('/missions/{mission}/workflow/runtime', [WorkflowStageRuntimeController::class, 'showCurrent'])
+        ->name('workflow-runtime.current');
+    Route::get('/missions/{mission}/workflow/runtime/stages/{stage}', [WorkflowStageRuntimeController::class, 'showStage'])
+        ->name('workflow-runtime.stage');
+    Route::post('/missions/{mission}/workflow/runtime/stages/{stage}', [WorkflowStageRuntimeController::class, 'submitStage'])
+        ->name('workflow-runtime.stage.submit');
 
 
     /*

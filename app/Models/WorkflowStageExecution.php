@@ -49,4 +49,9 @@ class WorkflowStageExecution extends Model
     {
         return $this->hasMany(WorkflowExecutionLog::class);
     }
+
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class)->orderByDesc('submitted_at')->orderByDesc('id');
+    }
 }

@@ -17,6 +17,7 @@ class WorkflowStage extends Model
         'description',
         'stage_type',
         'ui_component',
+        'component_key',
         'configuration_json',
         'validation_rules_json',
         'execution_mode',
@@ -24,6 +25,7 @@ class WorkflowStage extends Model
         'requires_approval',
         'approval_role_id',
         'questionnaire_template_id',
+        'form_template_id',
         'form_schema_json',
         'risk_matrix_schema_json',
         'position_x',
@@ -67,6 +69,11 @@ class WorkflowStage extends Model
         return $this->belongsTo(QuestionnaireTemplate::class)->withTrashed();
     }
 
+    public function formTemplate(): BelongsTo
+    {
+        return $this->belongsTo(FormTemplate::class)->withTrashed();
+    }
+
     public function approvalRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'approval_role_id');
@@ -90,6 +97,11 @@ class WorkflowStage extends Model
     public function executionLogs(): HasMany
     {
         return $this->hasMany(WorkflowExecutionLog::class);
+    }
+
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class)->orderByDesc('submitted_at')->orderByDesc('id');
     }
 
     /**
@@ -172,5 +184,36 @@ class WorkflowStage extends Model
         return $this->questionnaire_template_id !== null
             || $this->resolvedStageType() === WorkflowStageType::Questionnaire
             || $this->resolvedExecutionMode() === WorkflowExecutionMode::Questionnaire;
+    }
+
+    public function usesFormTemplate(): bool
+    {
+        return $this->form_template_id !== null
+            || $this->resolvedStageType() === WorkflowStageType::Form
+            || $this->resolvedExecutionMode() === WorkflowExecutionMode::Form
+            || in_array($this->resolvedComponentKey(), [
+                'dynamic_form',
+                'dynamic_interview_form',
+                'approval_form',
+                'risk_capture_form',
+            ], true);
+    }
+
+    public function resolvedComponentKey(): string
+    {
+        if (filled($this->component_key)) {
+            return (string) $this->component_key;
+        }
+
+        if ($this->usesQuestionnaire()) {
+            return 'questionnaire_bridge';
+        }
+
+        return match ($this->resolvedStageType()) {
+            WorkflowStageType::Approval => 'approval_form',
+            WorkflowStageType::RiskCapture => 'risk_capture_form',
+            WorkflowStageType::Form => 'dynamic_form',
+            default => $this->form_template_id !== null ? 'dynamic_form' : 'system_stage',
+        };
     }
 }

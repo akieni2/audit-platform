@@ -55,6 +55,11 @@ class WorkflowInstance extends Model
         return $this->hasMany(WorkflowExecutionLog::class)->orderByDesc('occurred_at');
     }
 
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(FormSubmission::class)->orderByDesc('submitted_at')->orderByDesc('id');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by')->withTrashed();

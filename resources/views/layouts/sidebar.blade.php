@@ -29,6 +29,8 @@
 
 <li><a href="{{ route('workflow-builder.index') }}">Workflows</a></li>
 
+<li><a href="{{ route('form-builder.index') }}">Formulaires</a></li>
+
 <li><a href="{{ route('module.rapports') }}">Rapports</a></li>
 
 </ul>

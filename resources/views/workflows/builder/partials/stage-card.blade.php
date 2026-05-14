@@ -22,7 +22,9 @@
 
     <div class="mt-3 space-y-2 text-xs text-[#9FB3C8]">
         <p><span class="font-semibold text-[#E6EEF8]">Exécution :</span> {{ $executionMode?->label() ?? '—' }}</p>
+        <p><span class="font-semibold text-[#E6EEF8]">Composant :</span> {{ $stage->resolvedComponentKey() }}</p>
         <p><span class="font-semibold text-[#E6EEF8]">Questionnaire :</span> {{ $stage->questionnaireTemplate?->name ?? '—' }}</p>
+        <p><span class="font-semibold text-[#E6EEF8]">Formulaire :</span> {{ $stage->formTemplate?->name ?? '—' }}</p>
         <p><span class="font-semibold text-[#E6EEF8]">Coordonnées :</span> <span data-position-label>{{ (int) ($stage->position_x ?? 0) }}, {{ (int) ($stage->position_y ?? 0) }}</span></p>
     </div>
 
