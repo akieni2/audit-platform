@@ -53,6 +53,7 @@ class Mission extends Model
         'department_id',
         'mission_type',
         'mission_status',
+        'workflow_instance_id',
         'priority',
         'sensitivity_level',
         'confidentiality_level',
@@ -133,6 +134,11 @@ class Mission extends Model
     public function workflowEvents()
     {
         return $this->hasMany(MissionWorkflowEvent::class)->orderByDesc('created_at');
+    }
+
+    public function workflowInstance()
+    {
+        return $this->belongsTo(WorkflowInstance::class);
     }
 
     public function missionTeamMembers()
