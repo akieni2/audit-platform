@@ -12,6 +12,7 @@ use App\Services\Missions\MissionGovernanceService;
 use App\Services\Risk\RiskRegistryPromotionService;
 use App\Services\Workflow\Components\Contracts\WorkflowStageComponent;
 use App\Services\Workflow\WorkflowExecutionService;
+use App\Services\Workflow\WorkflowRuntimeNotificationService;
 use Illuminate\Http\Request;
 
 class DynamicFormStageComponent implements WorkflowStageComponent
@@ -21,6 +22,7 @@ class DynamicFormStageComponent implements WorkflowStageComponent
         private WorkflowExecutionService $execution,
         private MissionGovernanceService $missionGovernance,
         private RiskRegistryPromotionService $riskRegistry,
+        private WorkflowRuntimeNotificationService $notifications,
     ) {}
 
     public function key(): string
@@ -80,7 +82,7 @@ class DynamicFormStageComponent implements WorkflowStageComponent
         }
 
         $this->bridgeMissionGovernance($instance, $stage, $actor, $result['payload']);
-        $this->bridgeRiskSelectors($stage, $actor, $result['payload']);
+        $this->bridgeRiskSelectors($instance, $stage, $actor, $result['payload']);
 
         $updatedInstance = $this->execution->completeStage(
             $instance->fresh(['currentStage', 'stageExecutions.workflowStage', 'formSubmissions']),
@@ -156,7 +158,7 @@ class DynamicFormStageComponent implements WorkflowStageComponent
     /**
      * @param  array<string, mixed>  $payload
      */
-    private function bridgeRiskSelectors(WorkflowStage $stage, ?User $actor, array $payload): void
+    private function bridgeRiskSelectors(WorkflowInstance $instance, WorkflowStage $stage, ?User $actor, array $payload): void
     {
         $action = (string) data_get($stage->resolvedConfiguration(), 'risk_selector_action', '');
         if ($action === '' || ! $actor instanceof User) {
@@ -179,7 +181,11 @@ class DynamicFormStageComponent implements WorkflowStageComponent
                 match ($action) {
                     'submit_for_review' => $this->riskRegistry->submitForReview($risk, $actor),
                     'approve' => $this->riskRegistry->approve($risk, $actor),
-                    'promote' => $this->riskRegistry->promote($risk, $actor),
+                    'promote' => tap($this->riskRegistry->promote($risk, $actor), function () use ($instance, $stage, $actor, $risk): void {
+                        $this->notifications->notifyRiskPromoted($instance, $stage, $actor, [
+                            'identified_risk_id' => $risk->id,
+                        ]);
+                    }),
                     default => null,
                 };
             }

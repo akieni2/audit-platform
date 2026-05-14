@@ -27,5 +27,11 @@ if (key) {
                 window.refreshAuditNotifications();
             }
         });
+
+        window.Echo.private(`App.Models.User.${uid}`).listen('.workflow.runtime', () => {
+            if (typeof window.refreshAuditNotifications === 'function') {
+                window.refreshAuditNotifications();
+            }
+        });
     });
 }

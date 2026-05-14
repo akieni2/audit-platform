@@ -160,6 +160,11 @@
             <span class="ni" aria-hidden="true">⇄</span>
             Workflows
         </a>
+        <a class="nav-link {{ request()->routeIs('workflow-runtime.*') ? 'active' : '' }}"
+           href="{{ route('workflow-runtime.dashboard') }}">
+            <span class="ni" aria-hidden="true">▤</span>
+            Runtime workflows
+        </a>
         <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
            href="{{ route('form-builder.index') }}">
             <span class="ni" aria-hidden="true">▣</span>

@@ -20,6 +20,7 @@ use App\Models\WorkflowStageExecution;
 use App\Models\WorkflowTemplate;
 use App\Models\WorkflowTransition;
 use App\Services\Workflow\Components\WorkflowStageComponentRegistry;
+use App\Services\Workflow\WorkflowRuntimeNotificationService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
@@ -29,6 +30,7 @@ class WorkflowExecutionService
     public function __construct(
         private WorkflowEngineService $engine,
         private WorkflowStageComponentRegistry $components,
+        private WorkflowRuntimeNotificationService $notifications,
     ) {}
 
     /**
@@ -99,6 +101,10 @@ class WorkflowExecutionService
             payload: $payload,
         );
 
+        if ($stage->requires_approval || $stage->resolvedComponentKey() === 'approval_form') {
+            $this->notifications->notifyApprovalRequired($instance, $stage, $actor, $payload);
+        }
+
         return $execution;
     }
 
@@ -132,7 +138,245 @@ class WorkflowExecutionService
             payload: $payload,
         );
 
+        $this->notifications->notifyStageCompleted($fresh, $stage, $actor, $payload);
+
+        if ($fresh->current_stage_id === null || (string) ($fresh->status?->value ?? $fresh->status) === 'completed') {
+            $this->notifications->notifyWorkflowCompleted($fresh, $actor, $payload);
+        }
+
         return $fresh;
+    }
+
+    public function approveStage(
+        WorkflowInstance $instance,
+        WorkflowStage $stage,
+        ?User $actor = null,
+        ?string $comment = null,
+    ): WorkflowInstance {
+        return $this->completeStage(
+            $instance,
+            $stage,
+            $actor,
+            [
+                'approved' => true,
+                'approval_comment' => $comment,
+            ],
+            $comment ?: 'Étape approuvée.'
+        );
+    }
+
+    public function rejectStage(
+        WorkflowInstance $instance,
+        WorkflowStage $stage,
+        ?User $actor = null,
+        ?string $comment = null,
+    ): WorkflowStageExecution {
+        if ((int) $instance->current_stage_id !== (int) $stage->id) {
+            throw new InvalidArgumentException('Impossible de rejeter une étape inactive.');
+        }
+
+        $execution = $this->startStage($instance, $stage, $actor);
+        $execution->forceFill([
+            'status' => WorkflowStageExecutionStatus::Rejected->value,
+            'completed_at' => now(),
+            'notes' => $comment ?: $execution->notes,
+            'payload' => array_replace_recursive($execution->payload ?? [], [
+                'approved' => false,
+                'rejection_comment' => $comment,
+            ]),
+        ])->save();
+
+        $this->logExecution(
+            instance: $instance,
+            execution: $execution,
+            stage: $stage,
+            eventName: 'workflow.stage.rejected',
+            status: 'rejected',
+            message: $comment ?: 'Étape rejetée.',
+            actor: $actor,
+            payload: $execution->payload ?? [],
+        );
+
+        $this->notifications->notifyWorkflowBlocked($instance, $stage, $actor, $execution->payload ?? []);
+
+        return $execution->fresh();
+    }
+
+    public function skipStage(
+        WorkflowInstance $instance,
+        WorkflowStage $stage,
+        ?User $actor = null,
+        ?string $comment = null,
+    ): WorkflowInstance {
+        if ((int) $instance->current_stage_id !== (int) $stage->id) {
+            throw new InvalidArgumentException('Impossible d’ignorer une étape inactive.');
+        }
+
+        $transition = $this->resolveNextTransition($instance, $actor);
+        $execution = $this->startStage($instance, $stage, $actor);
+        $execution->forceFill([
+            'status' => WorkflowStageExecutionStatus::Skipped->value,
+            'completed_at' => now(),
+            'notes' => $comment ?: $execution->notes,
+            'payload' => array_replace_recursive($execution->payload ?? [], [
+                'skipped' => true,
+                'skip_comment' => $comment,
+            ]),
+        ])->save();
+
+        if (! $transition instanceof WorkflowTransition) {
+            $instance->forceFill([
+                'current_stage_id' => null,
+                'status' => \App\Domain\Workflow\Enums\WorkflowInstanceStatus::Completed->value,
+                'completed_at' => now(),
+            ])->save();
+
+            return $instance->fresh(['currentStage', 'stageExecutions.workflowStage']);
+        }
+
+        $instance->forceFill([
+            'current_stage_id' => $transition->to_stage_id,
+        ])->save();
+
+        $nextExecution = WorkflowStageExecution::query()->firstOrCreate(
+            [
+                'workflow_instance_id' => $instance->id,
+                'workflow_stage_id' => $transition->to_stage_id,
+            ],
+            [
+                'status' => WorkflowStageExecutionStatus::Pending->value,
+            ]
+        );
+
+        $nextExecution->forceFill([
+            'status' => WorkflowStageExecutionStatus::Active->value,
+            'started_at' => $nextExecution->started_at ?? now(),
+            'assigned_to' => $actor?->id ?? $nextExecution->assigned_to,
+        ])->save();
+
+        $fresh = $instance->fresh(['currentStage', 'stageExecutions.workflowStage']);
+
+        $this->logExecution(
+            instance: $fresh,
+            execution: $execution,
+            stage: $stage,
+            eventName: 'workflow.stage.skipped',
+            status: 'skipped',
+            message: $comment ?: 'Étape ignorée.',
+            actor: $actor,
+            payload: $execution->payload ?? [],
+        );
+
+        return $fresh;
+    }
+
+    public function retryStage(
+        WorkflowInstance $instance,
+        WorkflowStage $stage,
+        ?User $actor = null,
+        ?string $comment = null,
+    ): WorkflowStageExecution {
+        $execution = $instance->stageExecutions()
+            ->where('workflow_stage_id', $stage->id)
+            ->latest('id')
+            ->first();
+
+        if (! $execution instanceof WorkflowStageExecution) {
+            return $this->startStage($instance, $stage, $actor, ['retry' => true], 'Étape relancée.');
+        }
+
+        $execution->forceFill([
+            'status' => WorkflowStageExecutionStatus::Active->value,
+            'completed_at' => null,
+            'started_at' => now(),
+            'assigned_to' => $actor?->id ?? $execution->assigned_to,
+            'notes' => $comment ?: $execution->notes,
+            'payload' => array_replace_recursive($execution->payload ?? [], [
+                'retry_requested' => true,
+                'retry_comment' => $comment,
+            ]),
+        ])->save();
+
+        $instance->forceFill([
+            'current_stage_id' => $stage->id,
+            'status' => \App\Domain\Workflow\Enums\WorkflowInstanceStatus::Running->value,
+            'completed_at' => null,
+        ])->save();
+
+        $this->logExecution(
+            instance: $instance->fresh(),
+            execution: $execution,
+            stage: $stage,
+            eventName: 'workflow.stage.retried',
+            status: 'active',
+            message: $comment ?: 'Étape relancée.',
+            actor: $actor,
+            payload: $execution->payload ?? [],
+        );
+
+        return $execution->fresh();
+    }
+
+    public function rollbackToStage(
+        WorkflowInstance $instance,
+        WorkflowStage $targetStage,
+        ?User $actor = null,
+        ?string $comment = null,
+    ): WorkflowInstance {
+        $instance->forceFill([
+            'current_stage_id' => $targetStage->id,
+            'status' => \App\Domain\Workflow\Enums\WorkflowInstanceStatus::Running->value,
+            'completed_at' => null,
+        ])->save();
+
+        $execution = WorkflowStageExecution::query()->firstOrCreate(
+            [
+                'workflow_instance_id' => $instance->id,
+                'workflow_stage_id' => $targetStage->id,
+            ],
+            [
+                'status' => WorkflowStageExecutionStatus::Pending->value,
+            ]
+        );
+
+        $execution->forceFill([
+            'status' => WorkflowStageExecutionStatus::Active->value,
+            'started_at' => now(),
+            'completed_at' => null,
+            'assigned_to' => $actor?->id ?? $execution->assigned_to,
+            'notes' => $comment ?: $execution->notes,
+        ])->save();
+
+        $fresh = $instance->fresh(['currentStage', 'stageExecutions.workflowStage']);
+
+        $this->logExecution(
+            instance: $fresh,
+            execution: $execution,
+            stage: $targetStage,
+            eventName: 'workflow.stage.rolled_back',
+            status: 'active',
+            message: $comment ?: 'Workflow repositionné sur une étape précédente.',
+            actor: $actor,
+            payload: ['target_stage_id' => $targetStage->id],
+        );
+
+        return $fresh;
+    }
+
+    public function reopenWorkflow(
+        WorkflowInstance $instance,
+        ?User $actor = null,
+        ?WorkflowStage $targetStage = null,
+        ?string $comment = null,
+    ): WorkflowInstance {
+        $instance->loadMissing('workflowTemplate.stages');
+        $targetStage ??= $instance->workflowTemplate?->stages?->sortBy('sort_order')->first();
+
+        if (! $targetStage instanceof WorkflowStage) {
+            throw new InvalidArgumentException('Aucune étape cible disponible pour rouvrir le workflow.');
+        }
+
+        return $this->rollbackToStage($instance, $targetStage, $actor, $comment ?: 'Workflow rouvert.');
     }
 
     public function validateTransition(WorkflowInstance $instance, WorkflowTransition $transition, ?User $actor = null): bool
