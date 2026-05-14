@@ -16,7 +16,9 @@ use App\Models\Role;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
 use App\Models\WorkflowTransition;
+use App\Services\Workflow\WorkflowCanvasService;
 use App\Services\Workflow\WorkflowPublishingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +29,7 @@ class WorkflowBuilderController extends Controller
 {
     public function __construct(
         private WorkflowPublishingService $publishing,
+        private WorkflowCanvasService $canvas,
     ) {}
 
     public function index(): View
@@ -75,6 +78,7 @@ class WorkflowBuilderController extends Controller
         return view('workflows.builder.edit', [
             'template' => $template,
             'selectedStage' => $selectedStage,
+            'canvas' => $this->canvas->build($template, $selectedStage),
             'lineageTemplates' => $this->lineageTemplates($template),
             'departmentOptions' => Department::query()->where('active', true)->orderBy('code')->get(),
             'questionnaireTemplates' => QuestionnaireTemplate::query()
@@ -88,6 +92,37 @@ class WorkflowBuilderController extends Controller
             'roleOptions' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->orderBy('name')->get(),
             'stageTypeLabels' => WorkflowStageType::labels(),
             'executionModeLabels' => WorkflowExecutionMode::labels(),
+        ]);
+    }
+
+    public function updateStageLayout(Request $request, WorkflowStage $stage): JsonResponse
+    {
+        $template = $stage->workflowTemplate;
+        abort_unless($template instanceof WorkflowTemplate, 404);
+        $this->authorize('update', $template);
+
+        $validated = $request->validate([
+            'position_x' => ['required', 'integer', 'min:0'],
+            'position_y' => ['required', 'integer', 'min:0'],
+        ]);
+
+        [$editableTemplate, $editableStage, $cloned] = $this->editableStageContext($stage, $request->user());
+
+        DB::transaction(function () use ($editableStage, $validated) {
+            $editableStage->update([
+                'position_x' => $validated['position_x'],
+                'position_y' => $validated['position_y'],
+            ]);
+        });
+
+        return response()->json([
+            'saved' => true,
+            'cloned' => $cloned,
+            'template_id' => $editableTemplate->id,
+            'stage_id' => $editableStage->id,
+            'redirect_url' => $cloned
+                ? route('workflow-builder.edit', ['template' => $editableTemplate, 'stage' => $editableStage->id])
+                : null,
         ]);
     }
 

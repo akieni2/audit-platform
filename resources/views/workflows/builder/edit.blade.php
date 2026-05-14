@@ -141,25 +141,7 @@
             </div>
 
             <div class="space-y-6">
-                <div class="dgcpt-surface p-6 shadow-sm">
-                    <div class="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                            <h2 class="text-lg font-bold text-[#E6EEF8]">Canvas workflow</h2>
-                            <p class="mt-1 text-sm text-[#9FB3C8]">Déplacez les cartes pour organiser le flux. Les coordonnées de l’étape sélectionnée peuvent ensuite être enregistrées depuis la sidebar.</p>
-                        </div>
-                        <a href="{{ route('workflow-builder.edit', $template) }}" class="text-sm font-semibold text-[#73D8FF] hover:underline">Réinitialiser sélection</a>
-                    </div>
-
-                    <div id="workflow-canvas" class="relative mt-5 min-h-[34rem] overflow-auto rounded-3xl border border-[rgba(0,209,255,0.12)] bg-[radial-gradient(circle_at_top,_rgba(10,42,102,0.55),_rgba(5,8,22,0.95))] p-6">
-                        @forelse ($template->stages->sortBy('sort_order') as $stage)
-                            @include('workflows.builder.partials.stage-card', ['stage' => $stage, 'template' => $template, 'selectedStage' => $selectedStage])
-                        @empty
-                            <div class="rounded-2xl border border-dashed border-[rgba(0,209,255,0.18)] p-8 text-center text-sm text-[#9FB3C8]">
-                                Aucune étape pour ce workflow. Commencez par ajouter une première carte.
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
+                @include('workflows.designer.canvas', ['template' => $template, 'selectedStage' => $selectedStage, 'canvas' => $canvas])
 
                 <div class="dgcpt-surface p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-[#E6EEF8]">Nouvelle étape</h2>
@@ -315,6 +297,8 @@
             </div>
 
             <div class="space-y-6">
+                @include('workflows.designer.properties-panel', ['selectedStage' => $selectedStage, 'canvas' => $canvas])
+
                 <div class="dgcpt-surface p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-[#E6EEF8]">Sidebar configuration</h2>
                     @if ($selectedStage)
@@ -479,18 +463,72 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('workflow-canvas');
-            if (!canvas) {
+            const stageLayer = document.getElementById('workflow-canvas-stage');
+            if (!canvas || !stageLayer) {
                 return;
             }
 
             let dragging = null;
             let offsetX = 0;
             let offsetY = 0;
+            let scale = 1;
 
             const stageForm = document.getElementById('selected-stage-form');
             const selectedStageId = stageForm?.dataset.stageId ?? null;
             const posXInput = document.getElementById('selected-position-x');
             const posYInput = document.getElementById('selected-position-y');
+            const zoomLabel = document.querySelector('[data-canvas-zoom-label]');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            const updateScale = (nextScale) => {
+                scale = Math.max(0.6, Math.min(1.6, nextScale));
+                stageLayer.style.transform = `scale(${scale})`;
+                if (zoomLabel) {
+                    zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+                }
+            };
+
+            document.querySelectorAll('[data-canvas-zoom]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const action = button.getAttribute('data-canvas-zoom');
+                    if (action === 'in') updateScale(scale + 0.1);
+                    if (action === 'out') updateScale(scale - 0.1);
+                    if (action === 'reset') updateScale(1);
+                });
+            });
+
+            const persistLayout = async (card, left, top) => {
+                const stageId = card.dataset.stageId;
+                if (!stageId || !csrfToken) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`{{ url('/workflow-builder/stages') }}/${stageId}/layout`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            position_x: left,
+                            position_y: top,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const payload = await response.json();
+                    if (payload?.redirect_url) {
+                        window.location.assign(payload.redirect_url);
+                    }
+                } catch (error) {
+                    console.warn('Workflow layout autosave failed.', error);
+                }
+            };
 
             canvas.querySelectorAll('.workflow-stage-card').forEach((card) => {
                 card.addEventListener('dragstart', (event) => {
@@ -505,7 +543,7 @@
                 event.preventDefault();
             });
 
-            canvas.addEventListener('drop', (event) => {
+            canvas.addEventListener('drop', async (event) => {
                 event.preventDefault();
 
                 if (!dragging) {
@@ -513,11 +551,13 @@
                 }
 
                 const canvasRect = canvas.getBoundingClientRect();
-                const left = Math.max(0, Math.round(event.clientX - canvasRect.left - offsetX));
-                const top = Math.max(0, Math.round(event.clientY - canvasRect.top - offsetY));
+                const left = Math.max(0, Math.round((event.clientX - canvasRect.left - offsetX) / scale));
+                const top = Math.max(0, Math.round((event.clientY - canvasRect.top - offsetY) / scale));
 
                 dragging.style.left = `${left}px`;
                 dragging.style.top = `${top}px`;
+                dragging.dataset.stageX = String(left);
+                dragging.dataset.stageY = String(top);
 
                 const label = dragging.querySelector('[data-position-label]');
                 if (label) {
@@ -529,6 +569,7 @@
                     if (posYInput) posYInput.value = top;
                 }
 
+                await persistLayout(dragging, left, top);
                 dragging = null;
             });
         });

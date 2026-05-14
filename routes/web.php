@@ -227,6 +227,7 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::patch('/{template}', [WorkflowBuilderController::class, 'updateTemplate'])->name('update');
             Route::post('/{template}/stages', [WorkflowBuilderController::class, 'storeStage'])->name('stages.store');
             Route::patch('/stages/{stage}', [WorkflowBuilderController::class, 'updateStage'])->name('stages.update');
+            Route::patch('/stages/{stage}/layout', [WorkflowBuilderController::class, 'updateStageLayout'])->name('stages.layout');
             Route::delete('/stages/{stage}', [WorkflowBuilderController::class, 'destroyStage'])->name('stages.destroy');
             Route::post('/{template}/transitions', [WorkflowBuilderController::class, 'storeTransition'])->name('transitions.store');
             Route::delete('/transitions/{transition}', [WorkflowBuilderController::class, 'destroyTransition'])->name('transitions.destroy');
