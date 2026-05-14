@@ -3,6 +3,7 @@
 namespace App\Services\Workflow;
 
 use App\Domain\Risk\Enums\RiskLifecycleStatus;
+use App\Domain\Workflow\Enums\WorkflowExecutionMode;
 use App\Domain\Workflow\Enums\WorkflowInstanceStatus;
 use App\Domain\Workflow\Enums\WorkflowStageExecutionStatus;
 use App\Domain\Workflow\Enums\WorkflowStageType;
@@ -499,50 +500,39 @@ class WorkflowEngineService
             return false;
         }
 
-        $stageType = $stage->stage_type instanceof WorkflowStageType
-            ? $stage->stage_type
-            : WorkflowStageType::from((string) $stage->stage_type);
+        $stageType = $stage->resolvedStageType();
+        $executionMode = $stage->resolvedExecutionMode();
 
         return match ($stageType) {
-            WorkflowStageType::MissionContext => filled($mission->organisation) && filled($mission->date_debut),
+            WorkflowStageType::Mission => filled($mission->organisation) && filled($mission->date_debut),
             WorkflowStageType::ServiceSelection => Schema::hasTable('services')
                 && $mission->services()->exists(),
-            WorkflowStageType::Entretien => Schema::hasTable('entretiens')
-                && Entretien::query()->where('mission_id', $mission->id)->exists(),
             WorkflowStageType::Questionnaire => Schema::hasTable('entretiens')
                 && Entretien::query()
                     ->where('mission_id', $mission->id)
+                    ->when(
+                        $stage->questionnaire_template_id !== null,
+                        fn ($query) => $query->where('questionnaire_template_id', $stage->questionnaire_template_id)
+                    )
                     ->where(function ($query) {
-                        $query->whereNotNull('questionnaire_template_id');
+                        if (Schema::hasColumn('entretiens', 'status')) {
+                            $query->whereIn('status', [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED]);
+                        }
 
-                        if (Schema::hasColumn('entretiens', 'questionnaire_snapshot')) {
-                            $query->orWhereNotNull('questionnaire_snapshot');
+                        if (Schema::hasTable('entretien_responses')) {
+                            $query->orWhereHas('questionnaireResponses');
                         }
                     })
                     ->exists(),
-            WorkflowStageType::RiskIdentification => Schema::hasTable('identified_risks')
+            WorkflowStageType::Form => filled(data_get($instance->metadata, 'forms.'.$stage->code))
+                || filled(data_get($instance->metadata, 'stage_payloads.'.$stage->code)),
+            WorkflowStageType::RiskCapture => Schema::hasTable('identified_risks')
                 && IdentifiedRisk::query()->where('mission_id', $mission->id)->exists(),
-            WorkflowStageType::RiskReview => Schema::hasTable('identified_risks')
-                && IdentifiedRisk::query()
-                    ->where('mission_id', $mission->id)
-                    ->whereIn('lifecycle_status', [
-                        RiskLifecycleStatus::UnderReview->value,
-                        RiskLifecycleStatus::Validated->value,
-                        RiskLifecycleStatus::Promoted->value,
-                    ])
-                    ->exists(),
-            WorkflowStageType::RiskValidation => $this->officialRisksExist($mission)
-                || (Schema::hasTable('identified_risks')
-                    && IdentifiedRisk::query()
-                        ->where('mission_id', $mission->id)
-                        ->whereIn('lifecycle_status', [
-                            RiskLifecycleStatus::Validated->value,
-                            RiskLifecycleStatus::Promoted->value,
-                        ])
-                        ->exists()),
             WorkflowStageType::Heatmap => Schema::hasTable('mission_risk_projections')
                 && MissionRiskProjection::query()->where('mission_id', $mission->id)->exists(),
-            WorkflowStageType::ActionPlan, WorkflowStageType::CorrectiveAction => Schema::hasTable('actions_correctives')
+            WorkflowStageType::DocumentReview => Schema::hasTable('mission_documents')
+                && MissionDocument::query()->where('mission_id', $mission->id)->exists(),
+            WorkflowStageType::ActionPlan => Schema::hasTable('actions_correctives')
                 && ActionCorrective::query()
                     ->whereHas('risque.actif.processus', fn ($query) => $query->where('mission_id', $mission->id))
                     ->exists(),
@@ -555,8 +545,18 @@ class WorkflowEngineService
                 Mission::STATUS_VALIDEE_IS,
                 Mission::STATUS_VALIDEE_COPRI,
             ], true),
-            WorkflowStageType::Signature => (string) ($mission->mission_status ?? '') === Mission::STATUS_VALIDEE_COPRI,
-            WorkflowStageType::Archive => false,
+            WorkflowStageType::Custom => $executionMode === WorkflowExecutionMode::Automatic
+                || (Schema::hasTable('identified_risks')
+                    && IdentifiedRisk::query()
+                        ->where('mission_id', $mission->id)
+                        ->whereIn('lifecycle_status', [
+                            RiskLifecycleStatus::UnderReview->value,
+                            RiskLifecycleStatus::Validated->value,
+                            RiskLifecycleStatus::Promoted->value,
+                        ])
+                        ->exists())
+                || $this->officialRisksExist($mission),
+            default => false,
         };
     }
 

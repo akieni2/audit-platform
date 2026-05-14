@@ -36,6 +36,7 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
 use App\Http\Controllers\RiskReviewBoardController;
+use App\Http\Controllers\WorkflowBuilderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -209,6 +210,23 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::post('/sections/reorder', [QuestionnaireBuilderController::class, 'reorderSections'])->name('sections.reorder');
             Route::post('/templates/{template}/publish', [QuestionnaireBuilderController::class, 'publish'])->name('templates.publish');
             Route::post('/templates/{template}/archive', [QuestionnaireBuilderController::class, 'archive'])->name('templates.archive');
+        });
+
+    Route::prefix('workflow-builder')
+        ->name('workflow-builder.')
+        ->group(function () {
+            Route::get('/', [WorkflowBuilderController::class, 'index'])->name('index');
+            Route::get('/create', [WorkflowBuilderController::class, 'create'])->name('create');
+            Route::get('/{template}/edit', [WorkflowBuilderController::class, 'edit'])->name('edit');
+            Route::post('/templates', [WorkflowBuilderController::class, 'storeTemplate'])->name('store');
+            Route::patch('/{template}', [WorkflowBuilderController::class, 'updateTemplate'])->name('update');
+            Route::post('/{template}/stages', [WorkflowBuilderController::class, 'storeStage'])->name('stages.store');
+            Route::patch('/stages/{stage}', [WorkflowBuilderController::class, 'updateStage'])->name('stages.update');
+            Route::delete('/stages/{stage}', [WorkflowBuilderController::class, 'destroyStage'])->name('stages.destroy');
+            Route::post('/{template}/transitions', [WorkflowBuilderController::class, 'storeTransition'])->name('transitions.store');
+            Route::delete('/transitions/{transition}', [WorkflowBuilderController::class, 'destroyTransition'])->name('transitions.destroy');
+            Route::post('/templates/{template}/publish', [WorkflowBuilderController::class, 'publish'])->name('publish');
+            Route::post('/templates/{template}/archive', [WorkflowBuilderController::class, 'archive'])->name('archive');
         });
 
 

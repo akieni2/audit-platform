@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Workflow\Enums\WorkflowExecutionMode;
 use App\Domain\Workflow\Enums\WorkflowStageType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,20 @@ class WorkflowStage extends Model
         'code',
         'description',
         'stage_type',
+        'ui_component',
+        'configuration_json',
+        'validation_rules_json',
+        'execution_mode',
+        'allow_skip',
+        'requires_approval',
+        'approval_role_id',
+        'questionnaire_template_id',
+        'form_schema_json',
+        'risk_matrix_schema_json',
+        'position_x',
+        'position_y',
+        'color',
+        'icon',
         'sort_order',
         'configuration',
         'is_required',
@@ -25,17 +40,36 @@ class WorkflowStage extends Model
     protected function casts(): array
     {
         return [
-            'stage_type' => WorkflowStageType::class,
+            'stage_type' => fn ($value) => WorkflowStageType::fromMixed($value),
+            'execution_mode' => fn ($value) => WorkflowExecutionMode::fromMixed($value),
             'sort_order' => 'integer',
             'configuration' => 'array',
+            'configuration_json' => 'array',
+            'validation_rules_json' => 'array',
+            'form_schema_json' => 'array',
+            'risk_matrix_schema_json' => 'array',
+            'position_x' => 'integer',
+            'position_y' => 'integer',
             'is_required' => 'boolean',
             'is_repeatable' => 'boolean',
+            'allow_skip' => 'boolean',
+            'requires_approval' => 'boolean',
         ];
     }
 
     public function workflowTemplate(): BelongsTo
     {
         return $this->belongsTo(WorkflowTemplate::class);
+    }
+
+    public function questionnaireTemplate(): BelongsTo
+    {
+        return $this->belongsTo(QuestionnaireTemplate::class)->withTrashed();
+    }
+
+    public function approvalRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'approval_role_id');
     }
 
     public function incomingTransitions(): HasMany
@@ -51,5 +85,83 @@ class WorkflowStage extends Model
     public function executions(): HasMany
     {
         return $this->hasMany(WorkflowStageExecution::class);
+    }
+
+    public function executionLogs(): HasMany
+    {
+        return $this->hasMany(WorkflowExecutionLog::class);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resolvedConfiguration(): array
+    {
+        $configuration = $this->configuration_json;
+
+        if (is_array($configuration) && $configuration !== []) {
+            return $configuration;
+        }
+
+        return is_array($this->configuration) ? $this->configuration : [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resolvedValidationRules(): array
+    {
+        return is_array($this->validation_rules_json) ? $this->validation_rules_json : [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resolvedFormSchema(): array
+    {
+        return is_array($this->form_schema_json) ? $this->form_schema_json : [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resolvedRiskMatrixSchema(): array
+    {
+        return is_array($this->risk_matrix_schema_json) ? $this->risk_matrix_schema_json : [];
+    }
+
+    public function resolvedStageType(): ?WorkflowStageType
+    {
+        return $this->stage_type instanceof WorkflowStageType
+            ? $this->stage_type
+            : WorkflowStageType::fromMixed($this->stage_type);
+    }
+
+    public function resolvedExecutionMode(): ?WorkflowExecutionMode
+    {
+        if ($this->execution_mode instanceof WorkflowExecutionMode) {
+            return $this->execution_mode;
+        }
+
+        $mode = WorkflowExecutionMode::fromMixed($this->execution_mode);
+        if ($mode instanceof WorkflowExecutionMode) {
+            return $mode;
+        }
+
+        $type = $this->resolvedStageType();
+
+        return match ($type) {
+            WorkflowStageType::Questionnaire => WorkflowExecutionMode::Questionnaire,
+            WorkflowStageType::Approval => WorkflowExecutionMode::Approval,
+            WorkflowStageType::Form => WorkflowExecutionMode::Form,
+            default => $this->configuration !== null ? WorkflowExecutionMode::Automatic : WorkflowExecutionMode::Manual,
+        };
+    }
+
+    public function usesQuestionnaire(): bool
+    {
+        return $this->questionnaire_template_id !== null
+            || $this->resolvedStageType() === WorkflowStageType::Questionnaire
+            || $this->resolvedExecutionMode() === WorkflowExecutionMode::Questionnaire;
     }
 }

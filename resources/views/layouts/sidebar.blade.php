@@ -27,6 +27,8 @@
 
 <li><a href="{{ route('questionnaire-builder.index') }}">Questionnaires</a></li>
 
+<li><a href="{{ route('workflow-builder.index') }}">Workflows</a></li>
+
 <li><a href="{{ route('module.rapports') }}">Rapports</a></li>
 
 </ul>

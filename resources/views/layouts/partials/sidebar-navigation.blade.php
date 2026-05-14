@@ -155,6 +155,11 @@
             <span class="ni" aria-hidden="true">≋</span>
             Questionnaires
         </a>
+        <a class="nav-link {{ request()->routeIs('workflow-builder.*') ? 'active' : '' }}"
+           href="{{ route('workflow-builder.index') }}">
+            <span class="ni" aria-hidden="true">⇄</span>
+            Workflows
+        </a>
         <a class="nav-link {{ request()->routeIs('module.entretiens') ? 'active' : '' }}"
            href="{{ route('module.entretiens') }}">
             <span class="ni" aria-hidden="true">○</span>

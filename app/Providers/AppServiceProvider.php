@@ -19,6 +19,7 @@ use App\Models\QuestionnaireTemplate;
 use App\Models\Risque;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\WorkflowTemplate;
 use App\Observers\RisqueObserver;
 use App\Policies\DepartmentAuditConsolidationPolicy;
 use App\Policies\EntretienPolicy;
@@ -27,6 +28,7 @@ use App\Policies\MissionDocumentPolicy;
 use App\Policies\QuestionnaireTemplatePolicy;
 use App\Policies\RisquePolicy;
 use App\Policies\ServicePolicy;
+use App\Policies\WorkflowTemplatePolicy;
 use App\Repositories\Contracts\RiskRepositoryInterface;
 use App\Repositories\EloquentRiskRepository;
 use App\Services\Governance\ExecutiveDashboardService;
@@ -81,6 +83,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(
             QuestionnaireTemplate::class,
             QuestionnaireTemplatePolicy::class
+        );
+
+        Gate::policy(
+            WorkflowTemplate::class,
+            WorkflowTemplatePolicy::class
         );
 
         Gate::policy(Entretien::class, EntretienPolicy::class);

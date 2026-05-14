@@ -7,6 +7,7 @@ use App\Models\Entretien;
 use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
 use App\Services\Questionnaires\QuestionnaireRuntimeService;
+use App\Services\Workflow\WorkflowCompatibilityService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -111,6 +112,8 @@ class EntretienController extends Controller
             app(QuestionnaireRuntimeService::class)->ensureSnapshot($entretien->fresh());
         }
 
+        app(WorkflowCompatibilityService::class)->syncMissionWorkflow($mission, $request->user());
+
         return back()->with('status', 'Entretien enregistré.');
     }
 
@@ -127,6 +130,11 @@ class EntretienController extends Controller
             if (! in_array($previous, [Entretien::STATUS_COMPLETED, Entretien::STATUS_VALIDATED], true)) {
                 app(SecurityAuditService::class)->entretienCompleted($request->user(), $entretien->fresh(), $request);
             }
+        }
+
+        $entretien->loadMissing('mission');
+        if ($entretien->mission !== null) {
+            app(WorkflowCompatibilityService::class)->syncMissionWorkflow($entretien->mission, $request->user());
         }
 
         return back()->with('status', 'Entretien marqué comme complété.');
@@ -153,6 +161,7 @@ class EntretienController extends Controller
 
         $entretien->update(['questionnaire_template_id' => $tpl->id]);
         app(QuestionnaireRuntimeService::class)->ensureSnapshot($entretien->fresh(), true);
+        app(WorkflowCompatibilityService::class)->syncMissionWorkflow($mission, $request->user());
 
         return back()->with('status', 'Modèle de questionnaire rattaché.');
     }

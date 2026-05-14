@@ -50,6 +50,11 @@ class WorkflowInstance extends Model
         return $this->hasMany(WorkflowStageExecution::class)->orderBy('id');
     }
 
+    public function executionLogs(): HasMany
+    {
+        return $this->hasMany(WorkflowExecutionLog::class)->orderByDesc('occurred_at');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by')->withTrashed();

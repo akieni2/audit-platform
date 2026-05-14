@@ -12,6 +12,14 @@ class WorkflowTemplate extends Model
 {
     use SoftDeletes;
 
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_PUBLISHED = 'published';
+
+    public const STATUS_DEPRECATED = 'deprecated';
+
+    public const STATUS_ARCHIVED = 'archived';
+
     protected $fillable = [
         'department_id',
         'name',
@@ -22,6 +30,9 @@ class WorkflowTemplate extends Model
         'is_system',
         'version',
         'status',
+        'signature_hash',
+        'deprecated_at',
+        'source_template_id',
         'created_by',
         'updated_by',
         'published_at',
@@ -34,10 +45,30 @@ class WorkflowTemplate extends Model
             'active' => 'boolean',
             'is_system' => 'boolean',
             'version' => 'integer',
-            'status' => WorkflowTemplateStatus::class,
+            'status' => fn ($value) => WorkflowTemplateStatus::tryFrom((string) $value),
+            'source_template_id' => 'integer',
             'published_at' => 'datetime',
+            'deprecated_at' => 'datetime',
             'archived_at' => 'datetime',
         ];
+    }
+
+    public function lifecycleLabel(): string
+    {
+        $status = $this->status instanceof WorkflowTemplateStatus
+            ? $this->status
+            : WorkflowTemplateStatus::tryFrom((string) $this->status);
+
+        return $status?->label() ?? (string) $this->status;
+    }
+
+    public function isImmutable(): bool
+    {
+        $status = $this->status instanceof WorkflowTemplateStatus
+            ? $this->status
+            : WorkflowTemplateStatus::tryFrom((string) $this->status);
+
+        return $status === WorkflowTemplateStatus::Published;
     }
 
     public function department(): BelongsTo
@@ -58,6 +89,16 @@ class WorkflowTemplate extends Model
     public function instances(): HasMany
     {
         return $this->hasMany(WorkflowInstance::class);
+    }
+
+    public function sourceTemplate(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'source_template_id')->withTrashed();
+    }
+
+    public function derivedVersions(): HasMany
+    {
+        return $this->hasMany(self::class, 'source_template_id')->orderBy('version');
     }
 
     public function creator(): BelongsTo
