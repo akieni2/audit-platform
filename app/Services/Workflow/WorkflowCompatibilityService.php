@@ -187,6 +187,7 @@ class WorkflowCompatibilityService
 
         return [
             'instance' => $instance,
+            'runtimeUrl' => route('workflow-runtime.show', $mission),
             'currentStage' => $instance->currentStage,
             'currentStageRuntimeUrl' => $instance->currentStage
                 ? route('workflow-runtime.stage', ['mission' => $mission, 'stage' => $instance->currentStage])
