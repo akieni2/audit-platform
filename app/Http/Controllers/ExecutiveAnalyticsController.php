@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Governance\ExecutiveAnalyticsService;
+use App\Services\Governance\ExecutiveVisualizationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -10,6 +11,7 @@ class ExecutiveAnalyticsController extends Controller
 {
     public function __construct(
         private ExecutiveAnalyticsService $analytics,
+        private ExecutiveVisualizationService $visualization,
     ) {}
 
     public function nationalDashboard(Request $request): View
@@ -17,8 +19,11 @@ class ExecutiveAnalyticsController extends Controller
         $actor = $request->user();
         abort_unless($actor, 403);
 
+        $snapshot = $this->analytics->nationalSnapshot($actor);
+
         return view('executive.national-dashboard', [
-            'snapshot' => $this->analytics->nationalSnapshot($actor),
+            'snapshot' => $snapshot,
+            'dashboardUx' => $this->visualization->nationalDashboard($snapshot),
         ]);
     }
 
