@@ -8,6 +8,9 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('workflow-runtime.dashboard') }}" class="dgcpt-btn-outline">Dashboard runtime</a>
+                <a href="{{ route('observability.enterprise.health') }}" class="dgcpt-btn-outline">Enterprise health</a>
+                <a href="{{ route('observability.enterprise.queues') }}" class="dgcpt-btn-outline">Queues</a>
+                <a href="{{ route('observability.enterprise.security') }}" class="dgcpt-btn-outline">Security</a>
                 <a href="{{ route('dashboard') }}" class="dgcpt-btn-outline">Retour dashboard</a>
             </div>
         </div>
