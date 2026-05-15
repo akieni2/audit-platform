@@ -23,5 +23,7 @@
             @include('observability.errors', ['errorSummary' => $errorSummary])
             @include('observability.metrics', ['runtimeMetrics' => $runtimeMetrics, 'businessEvents' => $businessEvents])
         </div>
+
+        @include('observability.swot-raci-audit', ['swotAuditLogs' => $swotAuditLogs, 'raciAuditLogs' => $raciAuditLogs])
     </div>
 </x-app-layout>
