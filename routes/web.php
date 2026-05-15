@@ -39,6 +39,10 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
 use App\Http\Controllers\RiskReviewBoardController;
+use App\Http\Controllers\RaciBuilderController;
+use App\Http\Controllers\RaciRuntimeController;
+use App\Http\Controllers\SwotBuilderController;
+use App\Http\Controllers\SwotRuntimeController;
 use App\Http\Controllers\WorkflowRuntimeController;
 use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
@@ -60,7 +64,7 @@ Route::get('/health/ready', [HealthController::class, 'ready'])
 
 /*
 |--------------------------------------------------------------------------
-| ZONE AUTHENTIFIE (auth + compte actif)
+| ZONE AUTHENTIFIï¿½E (auth + compte actif)
 |--------------------------------------------------------------------------
 */
 
@@ -138,7 +142,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SERVICES AUDITS
+    | SERVICES AUDITï¿½S
     |--------------------------------------------------------------------------
     */
 
@@ -251,6 +255,28 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::post('/templates/{template}/archive', [FormBuilderController::class, 'archive'])->name('archive');
         });
 
+    Route::prefix('swot-builder')
+        ->name('swot-builder.')
+        ->group(function () {
+            Route::get('/', [SwotBuilderController::class, 'index'])->name('index');
+            Route::get('/{template}/edit', [SwotBuilderController::class, 'edit'])->name('edit');
+            Route::post('/templates', [SwotBuilderController::class, 'storeTemplate'])->name('store');
+            Route::patch('/{template}', [SwotBuilderController::class, 'updateTemplate'])->name('update');
+            Route::post('/{template}/categories', [SwotBuilderController::class, 'storeCategory'])->name('categories.store');
+            Route::post('/{template}/entries', [SwotBuilderController::class, 'storeEntry'])->name('entries.store');
+        });
+
+    Route::prefix('raci-builder')
+        ->name('raci-builder.')
+        ->group(function () {
+            Route::get('/', [RaciBuilderController::class, 'index'])->name('index');
+            Route::get('/{template}/edit', [RaciBuilderController::class, 'edit'])->name('edit');
+            Route::post('/templates', [RaciBuilderController::class, 'storeTemplate'])->name('store');
+            Route::patch('/{template}', [RaciBuilderController::class, 'updateTemplate'])->name('update');
+            Route::post('/{template}/roles', [RaciBuilderController::class, 'storeRole'])->name('roles.store');
+            Route::post('/{template}/assignments', [RaciBuilderController::class, 'storeAssignment'])->name('assignments.store');
+        });
+
     Route::get('/missions/{mission}/workflow/runtime', [WorkflowRuntimeController::class, 'show'])
         ->name('workflow-runtime.show');
     Route::post('/missions/{mission}/workflow/runtime/actions', [WorkflowRuntimeController::class, 'transition'])
@@ -266,6 +292,16 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/workflows/observability', [WorkflowRuntimeController::class, 'observability'])
         ->name('workflow-runtime.observability');
 
+    Route::get('/missions/{mission}/swot', [SwotRuntimeController::class, 'show'])->name('swot.show');
+    Route::post('/missions/{mission}/swot/analyze', [SwotRuntimeController::class, 'analyze'])->name('swot.analyze');
+    Route::get('/missions/{mission}/swot/recommendations', [SwotRuntimeController::class, 'recommendations'])->name('swot.recommendations');
+    Route::get('/swot/consolidation', [SwotRuntimeController::class, 'consolidation'])->name('swot.consolidation');
+
+    Route::get('/missions/{mission}/raci', [RaciRuntimeController::class, 'show'])->name('raci.show');
+    Route::post('/missions/{mission}/raci/assignments', [RaciRuntimeController::class, 'assignments'])->name('raci.assignments');
+    Route::post('/missions/{mission}/raci/validation', [RaciRuntimeController::class, 'validation'])->name('raci.validation');
+    Route::get('/missions/{mission}/raci/analytics', [RaciRuntimeController::class, 'analytics'])->name('raci.analytics');
+
     Route::prefix('enterprise')
         ->name('enterprise.')
         ->group(function () {
@@ -273,6 +309,7 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::get('/taxonomies', [EnterpriseCatalogController::class, 'taxonomies'])->name('taxonomies');
             Route::get('/controls', [EnterpriseCatalogController::class, 'controls'])->name('controls');
             Route::get('/consolidation', [EnterpriseCatalogController::class, 'consolidation'])->name('consolidation');
+            Route::get('/swot', [SwotRuntimeController::class, 'consolidation'])->name('swot');
         });
 
     Route::prefix('executive')
@@ -284,6 +321,9 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::get('/risk-intelligence', [ExecutiveAnalyticsController::class, 'riskIntelligence'])->name('risk-intelligence');
             Route::get('/maturity-index', [ExecutiveAnalyticsController::class, 'maturityIndex'])->name('maturity-index');
             Route::get('/governance-overview', [ExecutiveAnalyticsController::class, 'governanceOverview'])->name('governance-overview');
+            Route::get('/swot-dashboard', [ExecutiveAnalyticsController::class, 'swotDashboard'])->name('swot-dashboard');
+            Route::get('/raci-dashboard', [ExecutiveAnalyticsController::class, 'raciDashboard'])->name('raci-dashboard');
+            Route::get('/organizational-analysis', [ExecutiveAnalyticsController::class, 'organizationalAnalysis'])->name('organizational-analysis');
         });
 
 

@@ -180,6 +180,16 @@
             <span class="ni" aria-hidden="true">☑</span>
             Contrôles
         </a>
+        <a class="nav-link {{ request()->routeIs('swot-builder.*') || request()->routeIs('swot.*') ? 'active' : '' }}"
+           href="{{ route('swot-builder.index') }}">
+            <span class="ni" aria-hidden="true">⬒</span>
+            SWOT
+        </a>
+        <a class="nav-link {{ request()->routeIs('raci-builder.*') || request()->routeIs('raci.*') ? 'active' : '' }}"
+           href="{{ route('raci-builder.index') }}">
+            <span class="ni" aria-hidden="true">⌗</span>
+            RACI
+        </a>
         <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
            href="{{ route('form-builder.index') }}">
             <span class="ni" aria-hidden="true">▣</span>
@@ -244,6 +254,16 @@
                href="{{ route('executive.governance-overview') }}">
                 <span class="ni" aria-hidden="true">◫</span>
                 Analytics
+            </a>
+            <a class="nav-link {{ request()->routeIs('executive.swot-dashboard') ? 'active' : '' }}"
+               href="{{ route('executive.swot-dashboard') }}">
+                <span class="ni" aria-hidden="true">⬒</span>
+                SWOT dashboard
+            </a>
+            <a class="nav-link {{ request()->routeIs('executive.raci-dashboard') ? 'active' : '' }}"
+               href="{{ route('executive.raci-dashboard') }}">
+                <span class="ni" aria-hidden="true">⌗</span>
+                RACI dashboard
             </a>
         @endcan
 

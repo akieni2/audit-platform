@@ -143,6 +143,27 @@
             </div>
         @endif
 
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+                <p class="dgcpt-card-title">Analyse strategique</p>
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">SWOT mission</h2>
+                <p class="mt-2 text-sm text-[#9FB3C8]">Lancer, consulter et consolider l'analyse SWOT de la mission.</p>
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <a href="{{ route('swot.show', $mission) }}" class="dgcpt-btn-primary">Ouvrir SWOT</a>
+                    <a href="{{ route('swot.recommendations', $mission) }}" class="dgcpt-btn-outline">Recommandations</a>
+                </div>
+            </div>
+            <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+                <p class="dgcpt-card-title">Gouvernance operationnelle</p>
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">RACI mission</h2>
+                <p class="mt-2 text-sm text-[#9FB3C8]">Affecter les responsabilites, suivre les validations et surveiller la surcharge.</p>
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <a href="{{ route('raci.show', $mission) }}" class="dgcpt-btn-primary">Ouvrir RACI</a>
+                    <a href="{{ route('raci.analytics', $mission) }}" class="dgcpt-btn-outline">Analytics RACI</a>
+                </div>
+            </div>
+        </div>
+
         @php
             $chefMembre = $mission->missionTeamMembers->firstWhere('mission_role', \App\Models\MissionTeamMember::ROLE_CHEF_MISSION);
         @endphp
