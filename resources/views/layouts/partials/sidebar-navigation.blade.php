@@ -190,6 +190,11 @@
             <span class="ni" aria-hidden="true">⌗</span>
             RACI
         </a>
+        <a class="nav-link {{ request()->routeIs('ai.*') ? 'active' : '' }}"
+           href="{{ route('ai.index') }}">
+            <span class="ni" aria-hidden="true">✦</span>
+            Copilote IA
+        </a>
         <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
            href="{{ route('form-builder.index') }}">
             <span class="ni" aria-hidden="true">▣</span>

@@ -46,6 +46,7 @@ use App\Http\Controllers\SwotRuntimeController;
 use App\Http\Controllers\WorkflowRuntimeController;
 use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
+use App\Http\Controllers\AiCopilotController;
 use App\Http\Controllers\EnterpriseObservabilityController;
 
 /*
@@ -291,7 +292,26 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::get('/security', [EnterpriseObservabilityController::class, 'security'])->name('security');
             Route::get('/queues', [EnterpriseObservabilityController::class, 'queues'])->name('queues');
             Route::get('/performance', [EnterpriseObservabilityController::class, 'performance'])->name('performance');
+            Route::get('/ai', [EnterpriseObservabilityController::class, 'aiMonitoring'])->name('ai');
         });
+
+    Route::prefix('ai')->name('ai.')->group(function (): void {
+        Route::get('/', [AiCopilotController::class, 'index'])->name('index');
+        Route::get('/analytics', [AiCopilotController::class, 'analytics'])->name('analytics');
+        Route::get('/recommendations', [AiCopilotController::class, 'recommendations'])->name('recommendations');
+        Route::post('/recommendations/{recommendation}/accept', [AiCopilotController::class, 'acceptRecommendation'])->name('recommendations.accept');
+
+        Route::middleware(['tenant.enforce'])->group(function (): void {
+            Route::get('/missions/{mission}', [AiCopilotController::class, 'copilotForMission'])->name('mission');
+            Route::get('/missions/{mission}/assistant', [AiCopilotController::class, 'assistant'])->name('assistant');
+            Route::get('/missions/{mission}/recommendations', [AiCopilotController::class, 'recommendations'])->name('recommendations.mission');
+            Route::post('/missions/{mission}/ask', [AiCopilotController::class, 'ask'])->name('ask');
+            Route::post('/missions/{mission}/audit-summary', [AiCopilotController::class, 'auditSummary'])->name('audit.summary');
+            Route::post('/missions/{mission}/audit-questions', [AiCopilotController::class, 'auditQuestions'])->name('audit.questions');
+            Route::post('/missions/{mission}/risk-analyze', [AiCopilotController::class, 'riskAnalysis'])->name('risk.analyze');
+            Route::post('/missions/{mission}/control-analyze', [AiCopilotController::class, 'controlAnalysis'])->name('control.analyze');
+        });
+    });
 
     Route::middleware(['tenant.enforce'])->group(function (): void {
     Route::get('/missions/{mission}/workflow/runtime', [WorkflowRuntimeController::class, 'show'])

@@ -164,6 +164,17 @@
             </div>
         </div>
 
+        <div class="dgcpt-surface border-[rgba(0,209,255,0.15)] p-6 shadow-sm ring-1 ring-[rgba(0,209,255,0.12)]">
+            <p class="dgcpt-card-title">Assistance IA</p>
+            <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Copilote audit & risques</h2>
+            <p class="mt-2 text-sm text-[#9FB3C8]">Suggestions assistives uniquement — validation humaine obligatoire.</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <a href="{{ route('ai.mission', $mission) }}" class="dgcpt-btn-primary">Copilote mission</a>
+                <a href="{{ route('ai.assistant', $mission) }}" class="dgcpt-btn-outline">Assistant</a>
+                <a href="{{ route('ai.recommendations.mission', $mission) }}" class="dgcpt-btn-outline">Recommandations IA</a>
+            </div>
+        </div>
+
         @php
             $chefMembre = $mission->missionTeamMembers->firstWhere('mission_role', \App\Models\MissionTeamMember::ROLE_CHEF_MISSION);
         @endphp
