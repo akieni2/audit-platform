@@ -2,7 +2,7 @@
 
 ## Prérequis serveur
 
-- PHP 8.2+, extensions `pdo`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `redis` (optionnel mais recommandé).
+- PHP 8.2+, extensions `pdo`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `zip` (export Excel cartographie), `redis` (optionnel mais recommandé).
 - Redis (queues, cache, Reverb scaling optionnel).
 - Supervisor (`queue:work` ou Horizon, Reverb).
 - Nginx + PHP-FPM (ou équivalent).
