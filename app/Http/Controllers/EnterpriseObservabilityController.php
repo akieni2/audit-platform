@@ -10,6 +10,8 @@ use App\Services\Observability\AnalyticsMonitoringService;
 use App\Services\Observability\EnterpriseHealthService;
 use App\Services\Observability\ProjectionMonitoringService;
 use App\Services\Observability\RuntimeDiagnosticsService;
+use App\Services\Ai\Observability\AiMonitoringService;
+use App\Services\Ai\Observability\AiUsageAnalyticsService;
 use App\Services\Performance\QueryOptimizationService;
 use App\Services\Runtime\QueueHealthService;
 use Illuminate\Http\Request;
@@ -85,6 +87,16 @@ class EnterpriseObservabilityController extends Controller
         return view('observability.performance', [
             'analytics' => $this->analytics->snapshot(),
             'slowQueries' => $this->queries->slowQueries(),
+        ]);
+    }
+
+    public function aiMonitoring(Request $request): View
+    {
+        abort_unless($request->user()?->canAccessAdministrationMenu(), 403);
+
+        return view('observability.ai.monitoring', [
+            'monitoring' => app(AiMonitoringService::class)->snapshot(),
+            'usage' => app(AiUsageAnalyticsService::class)->usage(),
         ]);
     }
 }
