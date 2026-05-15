@@ -5,6 +5,11 @@ namespace Tests\Feature\Concerns;
 use App\Models\Department;
 use App\Models\Mission;
 use App\Models\Role;
+use App\Models\RaciRole;
+use App\Models\RaciTemplate;
+use App\Models\SwotCategory;
+use App\Models\SwotEntry;
+use App\Models\SwotTemplate;
 use App\Models\User;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
@@ -95,5 +100,67 @@ trait BuildsWorkflowRuntimeContext
         ];
 
         return WorkflowStage::query()->create(array_replace($defaults, $overrides));
+    }
+
+    private function createSwotTemplate(Department $department): SwotTemplate
+    {
+        $template = SwotTemplate::query()->create([
+            'department_id' => $department->id,
+            'name' => 'SWOT '.$department->code,
+            'slug' => 'swot-'.strtolower($department->code),
+            'code' => 'SWOT_'.$department->code,
+            'analysis_scope' => 'mission',
+            'active' => true,
+            'version' => 1,
+            'lifecycle_status' => SwotTemplate::STATUS_PUBLISHED,
+        ]);
+
+        $category = SwotCategory::query()->create([
+            'swot_template_id' => $template->id,
+            'name' => 'Forces',
+            'category_type' => 'strength',
+            'weight' => 1,
+            'sort_order' => 0,
+        ]);
+
+        SwotEntry::query()->create([
+            'swot_template_id' => $template->id,
+            'swot_category_id' => $category->id,
+            'department_id' => $department->id,
+            'title' => 'Maturite terrain',
+            'impact_level' => 'high',
+            'priority_level' => 'high',
+            'weight' => 1.2,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        return $template;
+    }
+
+    private function createRaciTemplate(Department $department): RaciTemplate
+    {
+        $template = RaciTemplate::query()->create([
+            'department_id' => $department->id,
+            'name' => 'RACI '.$department->code,
+            'slug' => 'raci-'.strtolower($department->code),
+            'code' => 'RACI_'.$department->code,
+            'analysis_scope' => 'mission',
+            'active' => true,
+            'version' => 1,
+            'lifecycle_status' => RaciTemplate::STATUS_PUBLISHED,
+        ]);
+
+        RaciRole::query()->create([
+            'raci_template_id' => $template->id,
+            'department_id' => $department->id,
+            'name' => 'Chef mission',
+            'code' => 'CHEF',
+            'role_type' => 'accountable',
+            'responsibility_level' => 'high',
+            'sort_order' => 0,
+        ]);
+
+        return $template;
     }
 }

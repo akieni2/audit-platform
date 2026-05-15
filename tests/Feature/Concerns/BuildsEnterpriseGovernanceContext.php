@@ -11,6 +11,11 @@ use App\Models\MethodologyRequirement;
 use App\Models\MethodologyTemplate;
 use App\Models\Mission;
 use App\Models\Role;
+use App\Models\RaciRole;
+use App\Models\RaciTemplate;
+use App\Models\SwotCategory;
+use App\Models\SwotEntry;
+use App\Models\SwotTemplate;
 use App\Models\Taxonomy;
 use App\Models\TaxonomyTerm;
 use App\Models\User;
@@ -169,6 +174,76 @@ trait BuildsEnterpriseGovernanceContext
             'title' => 'Revue périodique des accès',
             'execution_frequency' => 'monthly',
             'maturity_level' => 3,
+        ], $attributes));
+    }
+
+    private function governanceSwotTemplate(Department $department, array $attributes = []): SwotTemplate
+    {
+        return SwotTemplate::query()->create(array_replace([
+            'department_id' => $department->id,
+            'name' => 'SWOT '.$department->code,
+            'slug' => 'swot-'.$department->code.'-'.uniqid(),
+            'code' => 'SWOT-'.$department->code,
+            'analysis_scope' => 'mission',
+            'active' => true,
+            'is_global' => false,
+            'version' => 1,
+            'lifecycle_status' => SwotTemplate::STATUS_PUBLISHED,
+        ], $attributes));
+    }
+
+    private function governanceSwotCategory(SwotTemplate $template, array $attributes = []): SwotCategory
+    {
+        return SwotCategory::query()->create(array_replace([
+            'swot_template_id' => $template->id,
+            'name' => 'Forces',
+            'code' => 'STR',
+            'category_type' => 'strength',
+            'weight' => 1,
+            'sort_order' => 0,
+        ], $attributes));
+    }
+
+    private function governanceSwotEntry(SwotTemplate $template, SwotCategory $category, Department $department, array $attributes = []): SwotEntry
+    {
+        return SwotEntry::query()->create(array_replace([
+            'swot_template_id' => $template->id,
+            'swot_category_id' => $category->id,
+            'department_id' => $department->id,
+            'title' => 'Capacite d execution',
+            'impact_level' => 'high',
+            'priority_level' => 'high',
+            'weight' => 1.5,
+            'is_active' => true,
+            'sort_order' => 0,
+        ], $attributes));
+    }
+
+    private function governanceRaciTemplate(Department $department, array $attributes = []): RaciTemplate
+    {
+        return RaciTemplate::query()->create(array_replace([
+            'department_id' => $department->id,
+            'name' => 'RACI '.$department->code,
+            'slug' => 'raci-'.$department->code.'-'.uniqid(),
+            'code' => 'RACI-'.$department->code,
+            'analysis_scope' => 'mission',
+            'active' => true,
+            'is_global' => false,
+            'version' => 1,
+            'lifecycle_status' => RaciTemplate::STATUS_PUBLISHED,
+        ], $attributes));
+    }
+
+    private function governanceRaciRole(RaciTemplate $template, Department $department, array $attributes = []): RaciRole
+    {
+        return RaciRole::query()->create(array_replace([
+            'raci_template_id' => $template->id,
+            'department_id' => $department->id,
+            'name' => 'Responsable audit',
+            'code' => 'RESP',
+            'role_type' => 'responsible',
+            'responsibility_level' => 'high',
+            'sort_order' => 0,
         ], $attributes));
     }
 }
