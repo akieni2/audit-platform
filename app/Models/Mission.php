@@ -106,6 +106,21 @@ class Mission extends Model
         return $this->hasMany(MissionRaciPreview::class);
     }
 
+    public function swotAnalyses()
+    {
+        return $this->hasMany(SwotAnalysis::class)->orderByDesc('id');
+    }
+
+    public function swotRecommendations()
+    {
+        return $this->hasMany(SwotRecommendation::class)->orderByDesc('id');
+    }
+
+    public function swotSnapshots()
+    {
+        return $this->hasMany(SwotSnapshot::class)->orderByDesc('captured_at');
+    }
+
     public function riskProjection()
     {
         return $this->hasOne(MissionRiskProjection::class);

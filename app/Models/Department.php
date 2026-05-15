@@ -68,4 +68,19 @@ class Department extends Model
     {
         return $this->belongsTo(Taxonomy::class, 'default_taxonomy_id');
     }
+
+    public function swotTemplates(): HasMany
+    {
+        return $this->hasMany(SwotTemplate::class)->orderBy('name');
+    }
+
+    public function swotAnalyses(): HasMany
+    {
+        return $this->hasMany(SwotAnalysis::class)->orderByDesc('id');
+    }
+
+    public function swotRecommendations(): HasMany
+    {
+        return $this->hasMany(SwotRecommendation::class)->orderByDesc('id');
+    }
 }
