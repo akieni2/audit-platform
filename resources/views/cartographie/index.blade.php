@@ -6,7 +6,25 @@
                 <h1 class="dgcpt-page-title">Cartographie des risques</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Mission : <span class="font-semibold text-[#E6EEF8]">{{ $mission->organisation }}</span></p>
             </div>
-            <a href="{{ route('cartographie.select') }}" class="dgcpt-btn-outline">Changer de mission</a>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('cartographie.export.workbook', $mission) }}" class="dgcpt-btn-primary">
+                    Exporter classeur TPMO (.xlsx)
+                </a>
+                <details class="relative">
+                    <summary class="dgcpt-btn-outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                        Exports partiels
+                    </summary>
+                    <motion.div
+                        class="absolute right-0 z-20 mt-2 min-w-[240px] rounded-lg border border-[rgba(0,209,255,0.15)] bg-[#0B1F3A] p-2 shadow-xl"
+                        data-motion="fade"
+                    >
+                        <a href="{{ route('cartographie.export.actifs', $mission) }}" class="block rounded px-3 py-2 text-sm text-[#BFD2E6] hover:bg-[rgba(0,209,255,0.08)]">Identification des actifs</a>
+                        <a href="{{ route('cartographie.export.matrice', $mission) }}" class="block rounded px-3 py-2 text-sm text-[#BFD2E6] hover:bg-[rgba(0,209,255,0.08)]">Matrice risques & contrôles</a>
+                        <a href="{{ route('cartographie.export.carte-thermique', $mission) }}" class="block rounded px-3 py-2 text-sm text-[#BFD2E6] hover:bg-[rgba(0,209,255,0.08)]">Carte thermique</a>
+                    </motion.div>
+                </details>
+                <a href="{{ route('cartographie.select') }}" class="dgcpt-btn-outline">Changer de mission</a>
+            </div>
         </div>
 
         @include('risks.heatmap.filters', ['heatmapView' => $heatmapView])
