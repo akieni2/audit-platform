@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\Hardening\SessionGovernanceService;
 use App\Services\Iam\SecurityAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class AuthenticatedSessionController extends Controller
         if ($user !== null) {
             $user->forceFill(['last_login_at' => now()])->save();
             app(SecurityAuditService::class)->loginSuccess($user, $request);
+            app(SessionGovernanceService::class)->bindSession($user, $request);
         }
 
         if ($user !== null && $user->must_change_password) {
