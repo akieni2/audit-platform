@@ -12,8 +12,13 @@ use App\Models\Entretien;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
 use App\Models\MissionDocument;
+use App\Models\MissionRaciPreview;
 use App\Models\MissionRiskProjection;
+use App\Models\MissionSwotPreview;
+use App\Models\RaciMatrix;
+use App\Models\RaciValidation;
 use App\Models\Risque;
+use App\Models\SwotAnalysis;
 use App\Models\User;
 use App\Models\WorkflowInstance;
 use App\Models\WorkflowStage;
@@ -532,6 +537,10 @@ class WorkflowEngineService
                 && MissionRiskProjection::query()->where('mission_id', $mission->id)->exists(),
             WorkflowStageType::DocumentReview => Schema::hasTable('mission_documents')
                 && MissionDocument::query()->where('mission_id', $mission->id)->exists(),
+            WorkflowStageType::SwotAnalysis => $this->swotAnalysisSatisfied($mission, $stage),
+            WorkflowStageType::SwotValidation => $this->swotValidationSatisfied($mission, $instance, $stage),
+            WorkflowStageType::RaciAssignment => $this->raciAssignmentSatisfied($mission, $stage),
+            WorkflowStageType::RaciValidation => $this->raciValidationSatisfied($mission, $instance, $stage),
             WorkflowStageType::ActionPlan => Schema::hasTable('actions_correctives')
                 && ActionCorrective::query()
                     ->whereHas('risque.actif.processus', fn ($query) => $query->where('mission_id', $mission->id))
@@ -579,5 +588,78 @@ class WorkflowEngineService
         return Risque::query()
             ->whereHas('actif.processus', fn ($query) => $query->where('mission_id', $mission->id))
             ->exists();
+    }
+
+    private function swotAnalysisSatisfied(Mission $mission, WorkflowStage $stage): bool
+    {
+        if (Schema::hasTable('swot_analyses')
+            && SwotAnalysis::query()
+                ->where('mission_id', $mission->id)
+                ->when($stage->swot_template_id !== null, fn ($query) => $query->where('swot_template_id', $stage->swot_template_id))
+                ->whereIn('status', ['completed', 'validated'])
+                ->exists()) {
+            return true;
+        }
+
+        return Schema::hasTable('mission_swot_previews')
+            && MissionSwotPreview::query()
+                ->where('mission_id', $mission->id)
+                ->where('status', '!=', 'placeholder')
+                ->exists();
+    }
+
+    private function swotValidationSatisfied(Mission $mission, WorkflowInstance $instance, WorkflowStage $stage): bool
+    {
+        if (Schema::hasTable('swot_analyses')
+            && SwotAnalysis::query()
+                ->where('mission_id', $mission->id)
+                ->when($stage->swot_template_id !== null, fn ($query) => $query->where('swot_template_id', $stage->swot_template_id))
+                ->whereIn('status', ['validated', 'approved'])
+                ->exists()) {
+            return true;
+        }
+
+        $execution = $instance->stageExecutions()
+            ->where('workflow_stage_id', $stage->id)
+            ->latest('id')
+            ->first();
+
+        return (bool) data_get($execution?->payload ?? [], 'approved', false);
+    }
+
+    private function raciAssignmentSatisfied(Mission $mission, WorkflowStage $stage): bool
+    {
+        if (Schema::hasTable('raci_matrices')
+            && RaciMatrix::query()
+                ->where('mission_id', $mission->id)
+                ->when($stage->raci_template_id !== null, fn ($query) => $query->where('raci_template_id', $stage->raci_template_id))
+                ->where('status', '!=', 'draft')
+                ->exists()) {
+            return true;
+        }
+
+        return Schema::hasTable('mission_raci_previews')
+            && MissionRaciPreview::query()
+                ->where('mission_id', $mission->id)
+                ->where('status', '!=', 'placeholder')
+                ->exists();
+    }
+
+    private function raciValidationSatisfied(Mission $mission, WorkflowInstance $instance, WorkflowStage $stage): bool
+    {
+        if (Schema::hasTable('raci_validations')
+            && RaciValidation::query()
+                ->where('mission_id', $mission->id)
+                ->where('status', 'approved')
+                ->exists()) {
+            return true;
+        }
+
+        $execution = $instance->stageExecutions()
+            ->where('workflow_stage_id', $stage->id)
+            ->latest('id')
+            ->first();
+
+        return (bool) data_get($execution?->payload ?? [], 'approved', false);
     }
 }

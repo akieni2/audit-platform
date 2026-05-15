@@ -55,6 +55,8 @@ class WorkflowGraphLayoutService
         return match ($stageType) {
             'mission', 'mission_context', 'service_selection' => 'Lane Intake',
             'questionnaire', 'form' => 'Lane Evidence',
+                    'swot_analysis', 'swot_validation' => 'Lane SWOT',
+                    'raci_assignment', 'raci_validation' => 'Lane RACI',
             'risk_capture', 'risk_identification', 'risk_review', 'risk_validation', 'heatmap' => 'Lane Risk',
             'reporting', 'archive' => 'Lane Closure',
             default => 'Flow principal',

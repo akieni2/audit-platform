@@ -3,7 +3,9 @@
 namespace App\Services\Workflow;
 
 use App\Models\IdentifiedRisk;
+use App\Models\MissionRaciPreview;
 use App\Models\MissionDocument;
+use App\Models\MissionSwotPreview;
 use App\Models\WorkflowInstance;
 use App\Models\WorkflowStage;
 use App\Services\Workflow\Components\WorkflowStageComponentRegistry;
@@ -26,6 +28,8 @@ class WorkflowStageUiRenderer
             'questionnaire_bridge' => 'workflows.components.questionnaire',
             'approval_form' => 'workflows.components.approval',
             'risk_capture_form' => 'workflows.components.risk_capture',
+            'swot_stage' => 'workflows.components.swot',
+            'raci_stage' => 'workflows.components.raci',
             default => match ($stage->resolvedStageType()?->value) {
                 'heatmap' => 'workflows.components.heatmap',
                 'reporting' => 'workflows.components.reporting',
@@ -59,6 +63,16 @@ class WorkflowStageUiRenderer
             ],
             'dynamic_form', 'dynamic_interview_form' => [
                 'form_submission_id' => data_get($instance->metadata, 'form_submissions.'.$stage->code),
+            ],
+            'swot_stage' => [
+                'swot_analyses' => Schema::hasTable('mission_swot_previews')
+                    ? MissionSwotPreview::query()->where('mission_id', $instance->mission_id)->count()
+                    : 0,
+            ],
+            'raci_stage' => [
+                'raci_assignments' => Schema::hasTable('mission_raci_previews')
+                    ? MissionRaciPreview::query()->where('mission_id', $instance->mission_id)->count()
+                    : 0,
             ],
             default => match ($stage->resolvedStageType()?->value) {
                 'heatmap' => [

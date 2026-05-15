@@ -14,6 +14,10 @@ enum WorkflowStageType: string
     case Approval = 'approval';
     case ActionPlan = 'action_plan';
     case Reporting = 'reporting';
+    case SwotAnalysis = 'swot_analysis';
+    case SwotValidation = 'swot_validation';
+    case RaciAssignment = 'raci_assignment';
+    case RaciValidation = 'raci_validation';
     case Custom = 'custom';
 
     public function label(): string
@@ -29,6 +33,10 @@ enum WorkflowStageType: string
             self::Approval => 'Approbation',
             self::ActionPlan => 'Plan d’action',
             self::Reporting => 'Reporting',
+            self::SwotAnalysis => 'Analyse SWOT',
+            self::SwotValidation => 'Validation SWOT',
+            self::RaciAssignment => 'Affectation RACI',
+            self::RaciValidation => 'Validation RACI',
             self::Custom => 'Personnalisé',
         };
     }
@@ -81,6 +89,10 @@ enum WorkflowStageType: string
             'action_plan' => self::ActionPlan,
             'corrective_action' => self::ActionPlan,
             'reporting' => self::Reporting,
+            'swot_analysis' => self::SwotAnalysis,
+            'swot_validation' => self::SwotValidation,
+            'raci_assignment' => self::RaciAssignment,
+            'raci_validation' => self::RaciValidation,
             'signature' => self::Approval,
             'archive' => self::Custom,
             'custom' => self::Custom,

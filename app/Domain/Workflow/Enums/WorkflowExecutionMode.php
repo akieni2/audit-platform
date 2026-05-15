@@ -9,6 +9,8 @@ enum WorkflowExecutionMode: string
     case Questionnaire = 'questionnaire';
     case Approval = 'approval';
     case Form = 'form';
+    case Swot = 'swot';
+    case Raci = 'raci';
     case Custom = 'custom';
 
     public function label(): string
@@ -19,6 +21,8 @@ enum WorkflowExecutionMode: string
             self::Questionnaire => 'Questionnaire',
             self::Approval => 'Approbation',
             self::Form => 'Formulaire',
+            self::Swot => 'SWOT',
+            self::Raci => 'RACI',
             self::Custom => 'Personnalisé',
         };
     }
@@ -52,6 +56,8 @@ enum WorkflowExecutionMode: string
             'questionnaire', 'entretien' => self::Questionnaire,
             'approval', 'validation' => self::Approval,
             'form', 'formulaire' => self::Form,
+            'swot' => self::Swot,
+            'raci' => self::Raci,
             'custom', 'personnalise', 'personnalisé' => self::Custom,
             default => self::tryFrom($normalized),
         };

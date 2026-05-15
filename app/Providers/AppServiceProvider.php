@@ -36,6 +36,8 @@ use App\Repositories\EloquentRiskRepository;
 use App\Services\Governance\ExecutiveDashboardService;
 use App\Services\Workflow\Components\DynamicFormStageComponent;
 use App\Services\Workflow\Components\QuestionnaireStageComponent;
+use App\Services\Workflow\Components\RaciStageComponent;
+use App\Services\Workflow\Components\SwotStageComponent;
 use App\Services\Workflow\Components\SystemStageComponent;
 use App\Services\Workflow\Components\WorkflowStageComponentRegistry;
 use App\Support\DgcptPasswordRules;
@@ -65,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
             return new WorkflowStageComponentRegistry([
                 $app->make(DynamicFormStageComponent::class),
                 $app->make(QuestionnaireStageComponent::class),
+                $app->make(SwotStageComponent::class),
+                $app->make(RaciStageComponent::class),
                 $app->make(SystemStageComponent::class),
             ]);
         });

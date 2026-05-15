@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\BusinessEvent;
 use App\Models\Mission;
 use App\Models\ProjectionIntegrityCheck;
+use App\Models\RaciAuditLog;
 use App\Models\RuntimeMetric;
+use App\Models\SwotAuditLog;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
 use App\Services\Observability\ErrorAggregationService;
@@ -136,12 +138,20 @@ class WorkflowRuntimeController extends Controller
             ? ProjectionIntegrityCheck::query()->latest('checked_at')->limit(30)->get()
             : collect();
         $workflowTemplates = WorkflowTemplate::query()->withCount(['instances', 'stages'])->latest('updated_at')->limit(20)->get();
+        $swotAuditLogs = Schema::hasTable('swot_audit_logs')
+            ? SwotAuditLog::query()->latest('occurred_at')->limit(25)->with('actor')->get()
+            : collect();
+        $raciAuditLogs = Schema::hasTable('raci_audit_logs')
+            ? RaciAuditLog::query()->latest('occurred_at')->limit(25)->with('actor')->get()
+            : collect();
 
         return view('observability.center', [
             'businessEvents' => $businessEvents,
             'runtimeMetrics' => $runtimeMetrics,
             'integrityChecks' => $integrityChecks,
             'workflowTemplates' => $workflowTemplates,
+            'swotAuditLogs' => $swotAuditLogs,
+            'raciAuditLogs' => $raciAuditLogs,
             'runtimeHealth' => $this->runtimeHealth->build($businessEvents, $runtimeMetrics, $workflowTemplates),
             'queueHealth' => $this->queueMonitoring->snapshot($workflowTemplates),
             'projectionHealth' => $this->projectionHealth->snapshot($integrityChecks),

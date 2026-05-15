@@ -32,6 +32,8 @@ final class WorkflowNodeViewModel
         $badges = array_values(array_filter([
             $stage->usesFormTemplate() ? 'Form' : null,
             $stage->usesQuestionnaire() ? 'Questionnaire' : null,
+                    $stage->swot_template_id !== null ? 'SWOT' : null,
+                    $stage->raci_template_id !== null ? 'RACI' : null,
             $stage->requires_approval ? 'Approval' : null,
             $stage->allow_skip ? 'Skip' : null,
         ]));

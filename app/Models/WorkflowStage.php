@@ -26,6 +26,8 @@ class WorkflowStage extends Model
         'approval_role_id',
         'questionnaire_template_id',
         'form_template_id',
+        'swot_template_id',
+        'raci_template_id',
         'form_schema_json',
         'risk_matrix_schema_json',
         'position_x',
@@ -72,6 +74,16 @@ class WorkflowStage extends Model
     public function formTemplate(): BelongsTo
     {
         return $this->belongsTo(FormTemplate::class)->withTrashed();
+    }
+
+    public function swotTemplate(): BelongsTo
+    {
+        return $this->belongsTo(SwotTemplate::class);
+    }
+
+    public function raciTemplate(): BelongsTo
+    {
+        return $this->belongsTo(RaciTemplate::class);
     }
 
     public function approvalRole(): BelongsTo
@@ -173,6 +185,8 @@ class WorkflowStage extends Model
             WorkflowStageType::Questionnaire => WorkflowExecutionMode::Questionnaire,
             WorkflowStageType::Approval => WorkflowExecutionMode::Approval,
             WorkflowStageType::Form => WorkflowExecutionMode::Form,
+            WorkflowStageType::SwotAnalysis, WorkflowStageType::SwotValidation => WorkflowExecutionMode::Swot,
+            WorkflowStageType::RaciAssignment, WorkflowStageType::RaciValidation => WorkflowExecutionMode::Raci,
             default => $this->configuration !== null
                 ? WorkflowExecutionMode::Automatic
                 : WorkflowExecutionMode::Manual,
@@ -213,6 +227,8 @@ class WorkflowStage extends Model
             WorkflowStageType::Approval => 'approval_form',
             WorkflowStageType::RiskCapture => 'risk_capture_form',
             WorkflowStageType::Form => 'dynamic_form',
+            WorkflowStageType::SwotAnalysis, WorkflowStageType::SwotValidation => 'swot_stage',
+            WorkflowStageType::RaciAssignment, WorkflowStageType::RaciValidation => 'raci_stage',
             default => $this->form_template_id !== null ? 'dynamic_form' : 'system_stage',
         };
     }

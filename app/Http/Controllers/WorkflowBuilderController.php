@@ -12,7 +12,9 @@ use App\Http\Requests\Workflows\UpdateWorkflowTemplateRequest;
 use App\Models\Department;
 use App\Models\FormTemplate;
 use App\Models\QuestionnaireTemplate;
+use App\Models\RaciTemplate;
 use App\Models\Role;
+use App\Models\SwotTemplate;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTemplate;
 use App\Models\WorkflowTransition;
@@ -66,6 +68,8 @@ class WorkflowBuilderController extends Controller
             'department',
             'stages.formTemplate',
             'stages.questionnaireTemplate',
+            'stages.swotTemplate',
+            'stages.raciTemplate',
             'stages.approvalRole',
             'transitions.fromStage',
             'transitions.toStage',
@@ -86,6 +90,14 @@ class WorkflowBuilderController extends Controller
                 ->orderBy('name')
                 ->get(),
             'formTemplates' => FormTemplate::query()
+                ->where('active', true)
+                ->orderBy('name')
+                ->get(),
+            'swotTemplates' => SwotTemplate::query()
+                ->where('active', true)
+                ->orderBy('name')
+                ->get(),
+            'raciTemplates' => RaciTemplate::query()
                 ->where('active', true)
                 ->orderBy('name')
                 ->get(),

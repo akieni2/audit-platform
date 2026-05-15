@@ -191,6 +191,24 @@
                             </select>
                         </div>
                         <div>
+                            <label class="dgcpt-label">Template SWOT</label>
+                            <select name="swot_template_id" class="dgcpt-input">
+                                <option value="">Aucun</option>
+                                @foreach ($swotTemplates as $swotTemplate)
+                                    <option value="{{ $swotTemplate->id }}">{{ $swotTemplate->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="dgcpt-label">Template RACI</label>
+                            <select name="raci_template_id" class="dgcpt-input">
+                                <option value="">Aucun</option>
+                                @foreach ($raciTemplates as $raciTemplate)
+                                    <option value="{{ $raciTemplate->id }}">{{ $raciTemplate->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
                             <label class="dgcpt-label">Component key</label>
                             <input name="component_key" type="text" value="dynamic_form" class="dgcpt-input font-mono text-sm" />
                         </div>
@@ -354,6 +372,28 @@
                                     @foreach ($formTemplates as $formTemplate)
                                         <option value="{{ $formTemplate->id }}" @selected((string) old('form_template_id', $selectedStage->form_template_id) === (string) $formTemplate->id)>
                                             {{ $formTemplate->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="dgcpt-label">Template SWOT</label>
+                                <select name="swot_template_id" class="dgcpt-input">
+                                    <option value="">Aucun</option>
+                                    @foreach ($swotTemplates as $swotTemplate)
+                                        <option value="{{ $swotTemplate->id }}" @selected((string) old('swot_template_id', $selectedStage->swot_template_id) === (string) $swotTemplate->id)>
+                                            {{ $swotTemplate->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="dgcpt-label">Template RACI</label>
+                                <select name="raci_template_id" class="dgcpt-input">
+                                    <option value="">Aucun</option>
+                                    @foreach ($raciTemplates as $raciTemplate)
+                                        <option value="{{ $raciTemplate->id }}" @selected((string) old('raci_template_id', $selectedStage->raci_template_id) === (string) $raciTemplate->id)>
+                                            {{ $raciTemplate->name }}
                                         </option>
                                     @endforeach
                                 </select>
