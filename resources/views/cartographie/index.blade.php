@@ -8,7 +8,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('cartographie.export.workbook', $mission) }}" class="dgcpt-btn-primary">
-                    Exporter classeur TPMO (.xlsx)
+                    Exporter classeur Mission
                 </a>
                 <details class="relative">
                     <summary class="dgcpt-btn-outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
