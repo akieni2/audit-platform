@@ -121,6 +121,26 @@ class Mission extends Model
         return $this->hasMany(SwotSnapshot::class)->orderByDesc('captured_at');
     }
 
+    public function raciMatrices()
+    {
+        return $this->hasMany(RaciMatrix::class)->orderByDesc('id');
+    }
+
+    public function raciAssignments()
+    {
+        return $this->hasMany(RaciAssignment::class)->orderByDesc('id');
+    }
+
+    public function raciSnapshots()
+    {
+        return $this->hasMany(RaciSnapshot::class)->orderByDesc('captured_at');
+    }
+
+    public function raciValidations()
+    {
+        return $this->hasMany(RaciValidation::class)->orderByDesc('id');
+    }
+
     public function riskProjection()
     {
         return $this->hasOne(MissionRiskProjection::class);

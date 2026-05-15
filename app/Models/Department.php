@@ -83,4 +83,19 @@ class Department extends Model
     {
         return $this->hasMany(SwotRecommendation::class)->orderByDesc('id');
     }
+
+    public function raciTemplates(): HasMany
+    {
+        return $this->hasMany(RaciTemplate::class)->orderBy('name');
+    }
+
+    public function raciMatrices(): HasMany
+    {
+        return $this->hasMany(RaciMatrix::class)->orderByDesc('id');
+    }
+
+    public function raciAssignments(): HasMany
+    {
+        return $this->hasMany(RaciAssignment::class)->orderByDesc('id');
+    }
 }
