@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')
-    ->middleware(['auth:sanctum', 'throttle:api'])
+    ->middleware(['auth:sanctum', 'throttle:api', 'tenant.resolve', 'api.hardening'])
     ->group(function (): void {
         Route::get('/missions/{mission}/risques', [RiskController::class, 'indexForMission'])
             ->name('api.v1.missions.risques.index');
