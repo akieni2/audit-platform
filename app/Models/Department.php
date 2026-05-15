@@ -98,4 +98,9 @@ class Department extends Model
     {
         return $this->hasMany(RaciAssignment::class)->orderByDesc('id');
     }
+
+    public function tenantContext(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(TenantContext::class);
+    }
 }

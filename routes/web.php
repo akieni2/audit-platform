@@ -46,6 +46,7 @@ use App\Http\Controllers\SwotRuntimeController;
 use App\Http\Controllers\WorkflowRuntimeController;
 use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
+use App\Http\Controllers\EnterpriseObservabilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -277,6 +278,22 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::post('/{template}/assignments', [RaciBuilderController::class, 'storeAssignment'])->name('assignments.store');
         });
 
+    Route::get('/workflows/dashboard', [WorkflowRuntimeController::class, 'dashboard'])
+        ->name('workflow-runtime.dashboard');
+    Route::get('/workflows/observability', [WorkflowRuntimeController::class, 'observability'])
+        ->name('workflow-runtime.observability');
+
+    Route::prefix('observability/enterprise')
+        ->name('observability.enterprise.')
+        ->group(function (): void {
+            Route::get('/health', [EnterpriseObservabilityController::class, 'enterpriseHealth'])->name('health');
+            Route::get('/diagnostics', [EnterpriseObservabilityController::class, 'diagnostics'])->name('diagnostics');
+            Route::get('/security', [EnterpriseObservabilityController::class, 'security'])->name('security');
+            Route::get('/queues', [EnterpriseObservabilityController::class, 'queues'])->name('queues');
+            Route::get('/performance', [EnterpriseObservabilityController::class, 'performance'])->name('performance');
+        });
+
+    Route::middleware(['tenant.enforce'])->group(function (): void {
     Route::get('/missions/{mission}/workflow/runtime', [WorkflowRuntimeController::class, 'show'])
         ->name('workflow-runtime.show');
     Route::post('/missions/{mission}/workflow/runtime/actions', [WorkflowRuntimeController::class, 'transition'])
@@ -287,20 +304,18 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('workflow-runtime.stage');
     Route::post('/missions/{mission}/workflow/runtime/stages/{stage}', [WorkflowStageRuntimeController::class, 'submitStage'])
         ->name('workflow-runtime.stage.submit');
-    Route::get('/workflows/dashboard', [WorkflowRuntimeController::class, 'dashboard'])
-        ->name('workflow-runtime.dashboard');
-    Route::get('/workflows/observability', [WorkflowRuntimeController::class, 'observability'])
-        ->name('workflow-runtime.observability');
 
     Route::get('/missions/{mission}/swot', [SwotRuntimeController::class, 'show'])->name('swot.show');
     Route::post('/missions/{mission}/swot/analyze', [SwotRuntimeController::class, 'analyze'])->name('swot.analyze');
     Route::get('/missions/{mission}/swot/recommendations', [SwotRuntimeController::class, 'recommendations'])->name('swot.recommendations');
-    Route::get('/swot/consolidation', [SwotRuntimeController::class, 'consolidation'])->name('swot.consolidation');
 
     Route::get('/missions/{mission}/raci', [RaciRuntimeController::class, 'show'])->name('raci.show');
     Route::post('/missions/{mission}/raci/assignments', [RaciRuntimeController::class, 'assignments'])->name('raci.assignments');
     Route::post('/missions/{mission}/raci/validation', [RaciRuntimeController::class, 'validation'])->name('raci.validation');
     Route::get('/missions/{mission}/raci/analytics', [RaciRuntimeController::class, 'analytics'])->name('raci.analytics');
+    });
+
+    Route::get('/swot/consolidation', [SwotRuntimeController::class, 'consolidation'])->name('swot.consolidation');
 
     Route::prefix('enterprise')
         ->name('enterprise.')

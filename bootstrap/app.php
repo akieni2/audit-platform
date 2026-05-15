@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\LoadIamContext::class,
+            \App\Http\Middleware\ResolveTenantContext::class,
             \App\Http\Middleware\EnsurePasswordChanged::class,
         ]);
 
@@ -28,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'iam.role' => \App\Http\Middleware\IamRoleMiddleware::class,
             'supervision' => \App\Http\Middleware\SupervisionMiddleware::class,
             'must_change_password' => \App\Http\Middleware\EnsurePasswordChanged::class,
+            'tenant.resolve' => \App\Http\Middleware\ResolveTenantContext::class,
+            'tenant.enforce' => \App\Http\Middleware\EnforceTenantIsolation::class,
+            'api.hardening' => \App\Http\Middleware\EnforceApiHardening::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
