@@ -17,7 +17,6 @@ use App\Http\Controllers\ProcessusController;
 use App\Http\Controllers\ActifController;
 use App\Http\Controllers\RisqueController;
 use App\Http\Controllers\CartographieController;
-use App\Http\Controllers\CartographieExportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ConstatController;
 use App\Http\Controllers\ActionCorrectiveController;
@@ -455,16 +454,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/missions/{mission}/cartographie', [CartographieController::class, 'index'])
         ->name('cartographie.index');
-
-    Route::get('/missions/{mission}/cartographie/export/workbook', [CartographieExportController::class, 'workbook'])
-        ->name('cartographie.export.workbook');
-    Route::get('/missions/{mission}/cartographie/export/actifs', [CartographieExportController::class, 'actifs'])
-        ->name('cartographie.export.actifs');
-    Route::get('/missions/{mission}/cartographie/export/matrice', [CartographieExportController::class, 'matrice'])
-        ->name('cartographie.export.matrice');
-    Route::get('/missions/{mission}/cartographie/export/carte-thermique', [CartographieExportController::class, 'carteThermique'])
-        ->name('cartographie.export.carte-thermique');
-
 
     /*
     |--------------------------------------------------------------------------
