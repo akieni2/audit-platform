@@ -21,6 +21,7 @@ class Service extends Model
 
     protected $fillable = [
         'mission_id',
+        'treasury_service_id',
         'code',
         'nom',
         'responsable',
@@ -77,6 +78,11 @@ class Service extends Model
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
+    }
+
+    public function treasuryServiceCatalog(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Dgcpt\TreasuryService::class, 'treasury_service_id');
     }
 
     public function chefServiceUser(): BelongsTo

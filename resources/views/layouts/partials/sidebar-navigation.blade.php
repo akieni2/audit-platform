@@ -148,6 +148,11 @@
             <span class="ni" aria-hidden="true">◐</span>
             Cartographie
         </a>
+        <a class="nav-link {{ request()->routeIs('dgcpt.*') ? 'active' : '' }}"
+           href="{{ route('dgcpt.hierarchy.index') }}">
+            <span class="ni" aria-hidden="true">▣</span>
+            Hiérarchie DGCPT
+        </a>
 
         <p class="nav-section-title">Analyse</p>
         <a class="nav-link {{ request()->routeIs('questionnaire-builder.*') || request()->routeIs('questionnaire-templates.*') ? 'active' : '' }}"

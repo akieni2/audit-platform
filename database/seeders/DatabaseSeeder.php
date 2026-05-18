@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(DgcptFoundationSeeder::class);
+        $this->call(DgcptTreasuryFoundationSeeder::class);
         $this->call(SuperAdminSeeder::class);
     }
 }

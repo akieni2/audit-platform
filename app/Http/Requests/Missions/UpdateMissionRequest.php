@@ -83,6 +83,10 @@ class UpdateMissionRequest extends FormRequest
                 'deadline' => ['nullable', 'date'],
                 'department_id' => ['nullable', 'integer', 'exists:departments,id'],
                 'supervising_department_id' => ['nullable', 'integer', 'exists:departments,id'],
+                'treasury_entity_id' => ['nullable', 'integer', 'exists:treasury_entities,id'],
+                'treasury_service_id' => ['nullable', 'integer', 'exists:treasury_services,id'],
+                'audit_domain_id' => ['nullable', 'integer', 'exists:audit_domains,id'],
+                'audit_template_id' => ['nullable', 'integer', 'exists:audit_templates,id'],
             ], $operational);
         }
 

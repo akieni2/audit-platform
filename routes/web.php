@@ -457,6 +457,25 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | DGCPT — HIÉRARCHIE & CONSOLIDATION MÉTIER
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('dgcpt')->name('dgcpt.')->group(function (): void {
+        Route::get('/hierarchie', [\App\Http\Controllers\Dgcpt\DgcptHierarchyController::class, 'index'])
+            ->name('hierarchy.index');
+        Route::get('/consolidation/nationale', [\App\Http\Controllers\Dgcpt\DgcptHierarchyController::class, 'national'])
+            ->name('consolidation.national');
+        Route::get('/consolidation/province/{treasuryEntity}', [\App\Http\Controllers\Dgcpt\DgcptHierarchyController::class, 'province'])
+            ->name('consolidation.province');
+        Route::get('/import-questionnaire', [\App\Http\Controllers\Dgcpt\QuestionnaireImportController::class, 'index'])
+            ->name('questionnaire-import.index');
+        Route::post('/import-questionnaire', [\App\Http\Controllers\Dgcpt\QuestionnaireImportController::class, 'store'])
+            ->name('questionnaire-import.store');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
     | HUBS MODULES (menus Analyse / Suivi)
     |--------------------------------------------------------------------------
     */

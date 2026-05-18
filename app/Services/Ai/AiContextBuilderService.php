@@ -5,11 +5,15 @@ namespace App\Services\Ai;
 use App\Domain\Ai\Enums\AiContextType;
 use App\Models\Mission;
 use App\Models\User;
+use App\Services\Dgcpt\DgcptCopilotContextService;
 use App\Services\Tenant\TenantIsolationService;
 
 class AiContextBuilderService
 {
-    public function __construct(private TenantIsolationService $tenants) {}
+    public function __construct(
+        private TenantIsolationService $tenants,
+        private DgcptCopilotContextService $dgcptContext,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -28,6 +32,6 @@ class AiContextBuilderService
             'tenant_scope' => $tenant->scope,
             'assistive_only' => true,
             'requires_human_validation' => true,
-        ], $extra);
+        ], $this->dgcptContext->buildForMission($mission), $extra);
     }
 }

@@ -126,6 +126,11 @@ class AppServiceProvider extends ServiceProvider
             DepartmentAuditConsolidationPolicy::class
         );
 
+        Gate::policy(
+            \App\Models\Dgcpt\TreasuryEntity::class,
+            \App\Policies\Dgcpt\TreasuryEntityPolicy::class
+        );
+
         /*
         |--------------------------------------------------------------------------
         | Route Bindings

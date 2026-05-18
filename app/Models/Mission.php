@@ -58,6 +58,10 @@ class Mission extends Model
         'sensitivity_level',
         'confidentiality_level',
         'supervising_department_id',
+        'treasury_entity_id',
+        'treasury_service_id',
+        'audit_domain_id',
+        'audit_template_id',
     ];
 
     protected function casts(): array
@@ -159,6 +163,26 @@ class Mission extends Model
     public function supervisingDepartment()
     {
         return $this->belongsTo(Department::class, 'supervising_department_id');
+    }
+
+    public function treasuryEntity()
+    {
+        return $this->belongsTo(\App\Models\Dgcpt\TreasuryEntity::class);
+    }
+
+    public function treasuryService()
+    {
+        return $this->belongsTo(\App\Models\Dgcpt\TreasuryService::class);
+    }
+
+    public function auditDomain()
+    {
+        return $this->belongsTo(\App\Models\Dgcpt\AuditDomain::class);
+    }
+
+    public function auditTemplate()
+    {
+        return $this->belongsTo(\App\Models\Dgcpt\AuditTemplate::class);
     }
 
     public function auditPlans()
