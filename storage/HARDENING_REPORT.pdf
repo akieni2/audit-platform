@@ -1,0 +1,2672 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R 24 0 R 26 0 R 28 0 R 30 0 R 32 0 R 34 0 R 36 0 R 38 0 R 40 0 R 42 0 R] /Count 19 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 3109 >>
+stream
+BT
+/F2 18 Tf
+1 0 0 1 48 792 Tm
+(HARDENING REPORT) Tj
+/F1 10 Tf
+1 0 0 1 48 749 Tm
+(Projet: `audit-platform`) Tj
+/F1 10 Tf
+1 0 0 1 48 726 Tm
+(Date: 2026-05-13) Tj
+/F1 10 Tf
+1 0 0 1 48 703 Tm
+(Type d'audit: audit structurel statique du depot Laravel, avec focus sur les phases 1.5 et 2.) Tj
+/F1 10 Tf
+1 0 0 1 48 680 Tm
+(Limite importante: ce rapport est base sur l'analyse du code, des migrations, des modeles, des) Tj
+/F1 10 Tf
+1 0 0 1 48 665 Tm
+(controllers, des policies et des vues. La CLI `php` n'etait pas disponible dans l'environnement) Tj
+/F1 10 Tf
+1 0 0 1 48 650 Tm
+(d'audit, donc l'execution des tests, de `artisan migrate:status` et la verification de la table) Tj
+/F1 10 Tf
+1 0 0 1 48 635 Tm
+(runtime `migrations` n'ont pas pu etre confirmees directement.) Tj
+/F1 10 Tf
+1 0 0 1 48 612 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 589 Tm
+(1. Inventaire base de donnees) Tj
+/F2 12 Tf
+1 0 0 1 48 560 Tm
+(1.1 Inventaire des tables, colonnes, soft deletes, statuts et JSON) Tj
+/F1 10 Tf
+1 0 0 1 48 534 Tm
+(Format:) Tj
+/F1 10 Tf
+1 0 0 1 48 519 Tm
+(? `Table`) Tj
+/F1 10 Tf
+1 0 0 1 48 504 Tm
+(  - Colonnes: ...) Tj
+/F1 10 Tf
+1 0 0 1 48 489 Tm
+(  - Soft deletes: present / absent) Tj
+/F1 10 Tf
+1 0 0 1 48 474 Tm
+(  - Colonnes `status/state/active`: ...) Tj
+/F1 10 Tf
+1 0 0 1 48 459 Tm
+(  - JSON / metadata: ...) Tj
+/F1 10 Tf
+1 0 0 1 48 436 Tm
+(? `actifs`) Tj
+/F1 10 Tf
+1 0 0 1 48 421 Tm
+(  - Colonnes: `id`, `processus_id`, `nom`, `description`, `type`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 406 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 391 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 376 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 353 Tm
+(? `actions_correctives`) Tj
+/F1 10 Tf
+1 0 0 1 48 338 Tm
+(- Colonnes: `id`, `risque_id`, `description`, `responsable`, `date_echeance`, `statut`,) Tj
+/F1 10 Tf
+1 0 0 1 48 323 Tm
+(`recommendation_library_id`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 308 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 293 Tm
+(  - Colonnes `status/state/active`: `statut`) Tj
+/F1 10 Tf
+1 0 0 1 48 278 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 255 Tm
+(? `audit_logs`) Tj
+/F1 10 Tf
+1 0 0 1 48 240 Tm
+(- Colonnes: `id`, `user_id`, `action`, `module`, `description`, `ip`, `user_agent`, `metadata`,) Tj
+/F1 10 Tf
+1 0 0 1 48 225 Tm
+(`created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 210 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 195 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 180 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 157 Tm
+(? `audit_plans`) Tj
+/F1 10 Tf
+1 0 0 1 48 142 Tm
+(  - Colonnes: `id`, `mission_id`, `titre`, `description`, `niveau`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 127 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 112 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 97 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 74 Tm
+(? `audit_programmes`) Tj
+/F1 10 Tf
+1 0 0 1 48 59 Tm
+(  - Colonnes: `id`, `audit_plan_id`, `procedure`, `type`, `created_at`, `updated_at`) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 3310 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(? `cache`) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(  - Colonnes: `key`, `value`, `expiration`) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 656 Tm
+(? `cache_locks`) Tj
+/F1 10 Tf
+1 0 0 1 48 641 Tm
+(  - Colonnes: `key`, `owner`, `expiration`) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 573 Tm
+(? `constats`) Tj
+/F1 10 Tf
+1 0 0 1 48 558 Tm
+(- Colonnes: `id`, `mission_id`, `service_id`, `description`, `cause`, `consequence`,) Tj
+/F1 10 Tf
+1 0 0 1 48 543 Tm
+(`recommandation`, `gravite`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 528 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 513 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 498 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 475 Tm
+(? `controles`) Tj
+/F1 10 Tf
+1 0 0 1 48 460 Tm
+(- Colonnes: `id`, `risque_id`, `description`, `type`, `efficacite`, `commentaire`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 445 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 430 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 415 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 400 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 377 Tm
+(? `department_audit_consolidations`) Tj
+/F1 10 Tf
+1 0 0 1 48 362 Tm
+(- Colonnes: `id`, `mission_id`, `department_id`, `synthesis`, `global_risk_level`, `key_findings`,) Tj
+/F1 10 Tf
+1 0 0 1 48 347 Tm
+(`recommendations`, `generated_by_ai`, `validated_by`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 332 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 317 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 302 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 279 Tm
+(? `departments`) Tj
+/F1 10 Tf
+1 0 0 1 48 264 Tm
+(- Colonnes: `id`, `name`, `code`, `type`, `description`, `active`, `accent_color`, `logo_path`,) Tj
+/F1 10 Tf
+1 0 0 1 48 249 Tm
+(`supervisor_user_id`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 234 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 219 Tm
+(  - Colonnes `status/state/active`: `active`) Tj
+/F1 10 Tf
+1 0 0 1 48 204 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 181 Tm
+(? `entretien_responses`) Tj
+/F1 10 Tf
+1 0 0 1 48 166 Tm
+(- Colonnes: `id`, `entretien_id`, `questionnaire_question_id`, `answer_boolean`, `answer_text`,) Tj
+/F1 10 Tf
+1 0 0 1 48 151 Tm
+(`answer_json`, `observation`, `uploaded_documents_metadata`, `detected_risk`, `created_by`,) Tj
+/F1 10 Tf
+1 0 0 1 48 136 Tm
+(`created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 121 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 106 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 91 Tm
+(  - JSON / metadata: `answer_json`, `uploaded_documents_metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 68 Tm
+(? `entretiens`) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3745 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(- Colonnes: `id`, `mission_id`, `service_id`, `responsable_nom`, `role`, `chef_hierarchique`,) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(`auditeur`, `date_entretien`, `email`, `telephone`, `notes`, `questionnaire_template_id`,) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(`conducted_by`, `interviewed_person`, `interviewed_role`, `conducted_at`, `status`,) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(`validation_status`, `synthesis`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(  - Colonnes `status/state/active`: `status`, `validation_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(? `failed_jobs`) Tj
+/F1 10 Tf
+1 0 0 1 48 664 Tm
+(  - Colonnes: `id`, `uuid`, `connection`, `queue`, `payload`, `exception`, `failed_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 649 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 634 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 619 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(? `identified_risks`) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(- Colonnes: `id`, `mission_id`, `service_id`, `entretien_id`, `questionnaire_question_id`,) Tj
+/F1 10 Tf
+1 0 0 1 48 566 Tm
+(`title`, `description`, `category`, `probability`, `impact`, `criticality`, `recommendation`,) Tj
+/F1 10 Tf
+1 0 0 1 48 551 Tm
+(`ai_generated`, `validated_by_human`, `created_by`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 536 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 521 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 506 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 483 Tm
+(? `job_batches`) Tj
+/F1 10 Tf
+1 0 0 1 48 468 Tm
+(- Colonnes: `id`, `name`, `total_jobs`, `pending_jobs`, `failed_jobs`, `failed_job_ids`,) Tj
+/F1 10 Tf
+1 0 0 1 48 453 Tm
+(`options`, `cancelled_at`, `created_at`, `finished_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 423 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 408 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 385 Tm
+(? `jobs`) Tj
+/F1 10 Tf
+1 0 0 1 48 370 Tm
+(  - Colonnes: `id`, `queue`, `payload`, `attempts`, `reserved_at`, `available_at`, `created_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 355 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 340 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 325 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 302 Tm
+(? `mission_documents`) Tj
+/F1 10 Tf
+1 0 0 1 48 287 Tm
+(- Colonnes: `id`, `mission_id`, `service_id`, `entretien_id`, `uploaded_by`, `filename`,) Tj
+/F1 10 Tf
+1 0 0 1 48 272 Tm
+(`original_name`, `mime_type`, `disk`, `path`, `size`, `category`, `description`, `version`,) Tj
+/F1 10 Tf
+1 0 0 1 48 257 Tm
+(`metadata`, `created_at`, `updated_at`, `deleted_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 242 Tm
+(  - Soft deletes: present) Tj
+/F1 10 Tf
+1 0 0 1 48 227 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 212 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 189 Tm
+(? `mission_raci_previews`) Tj
+/F1 10 Tf
+1 0 0 1 48 174 Tm
+(- Colonnes: `id`, `mission_id`, `service_id`, `process_label`, `status`, `metadata`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 159 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 144 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 129 Tm
+(  - Colonnes `status/state/active`: `status`) Tj
+/F1 10 Tf
+1 0 0 1 48 114 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 91 Tm
+(? `mission_swot_previews`) Tj
+/F1 10 Tf
+1 0 0 1 48 76 Tm
+(  - Colonnes: `id`, `mission_id`, `service_id`, `status`, `metadata`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 61 Tm
+(  - Soft deletes: absent) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 3347 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  - Colonnes `status/state/active`: `status`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 754 Tm
+(? `mission_team_members`) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(- Colonnes: `id`, `mission_id`, `user_id`, `mission_role`, `designation`, `is_lead`,) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(`assigned_by`, `assigned_at`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 656 Tm
+(? `mission_workflow_events`) Tj
+/F1 10 Tf
+1 0 0 1 48 641 Tm
+(- Colonnes: `id`, `mission_id`, `user_id`, `action`, `from_status`, `to_status`, `comment`,) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(`created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(  - Colonnes `status/state/active`: `from_status`, `to_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 558 Tm
+(? `missions`) Tj
+/F1 10 Tf
+1 0 0 1 48 543 Tm
+(- Colonnes: `id`, `organisation`, `reference`, `objet`, `description`, `periode_audit`,) Tj
+/F1 10 Tf
+1 0 0 1 48 528 Tm
+(`ordre_mission_reference`, `date_ordre_mission`, `observations_generales`, `date_debut`,) Tj
+/F1 10 Tf
+1 0 0 1 48 513 Tm
+(`date_fin`, `deadline`, `auditeur_id`, `department_id`, `mission_type`, `mission_status`,) Tj
+/F1 10 Tf
+1 0 0 1 48 498 Tm
+(`priority`, `sensitivity_level`, `confidentiality_level`, `supervising_department_id`,) Tj
+/F1 10 Tf
+1 0 0 1 48 483 Tm
+(`created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 468 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 453 Tm
+(  - Colonnes `status/state/active`: `mission_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 415 Tm
+(? `notifications`) Tj
+/F1 10 Tf
+1 0 0 1 48 400 Tm
+(- Colonnes: `id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 385 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 370 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 355 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 340 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 317 Tm
+(? `password_reset_tokens`) Tj
+/F1 10 Tf
+1 0 0 1 48 302 Tm
+(  - Colonnes: `email`, `token`, `created_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 287 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 272 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 257 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 234 Tm
+(? `permission_role`) Tj
+/F1 10 Tf
+1 0 0 1 48 219 Tm
+(  - Colonnes: `id`, `role_id`, `permission_id`) Tj
+/F1 10 Tf
+1 0 0 1 48 204 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 189 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 174 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 151 Tm
+(? `permissions`) Tj
+/F1 10 Tf
+1 0 0 1 48 136 Tm
+(  - Colonnes: `id`, `slug`, `name`, `group`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 121 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 106 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 91 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 68 Tm
+(? `personal_access_tokens`) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 3521 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(- Colonnes: `id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(`expires_at`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(? `processus`) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Colonnes: `id`, `mission_id`, `nom`, `description`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 664 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 649 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(? `questionnaire_questions`) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(- Colonnes: `id`, `questionnaire_section_id`, `code`, `question`, `help_text`, `question_type`,) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(`required`, `allows_observation`, `allows_risk_detection`, `expected_documents`, `risk_category`,) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(`risk_level`, `sort_order`, `active`, `metadata`, `created_at`, `updated_at`, `deleted_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 566 Tm
+(  - Soft deletes: present) Tj
+/F1 10 Tf
+1 0 0 1 48 551 Tm
+(  - Colonnes `status/state/active`: `active`) Tj
+/F1 10 Tf
+1 0 0 1 48 536 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 513 Tm
+(? `questionnaire_sections`) Tj
+/F1 10 Tf
+1 0 0 1 48 498 Tm
+(- Colonnes: `id`, `questionnaire_template_id`, `title`, `description`, `sort_order`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 483 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 468 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 453 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 415 Tm
+(? `questionnaire_templates`) Tj
+/F1 10 Tf
+1 0 0 1 48 400 Tm
+(- Colonnes: `id`, `name`, `slug`, `description`, `mission_type`, `department_scope`, `active`,) Tj
+/F1 10 Tf
+1 0 0 1 48 385 Tm
+(`version`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 370 Tm
+(  - Soft deletes: present) Tj
+/F1 10 Tf
+1 0 0 1 48 355 Tm
+(  - Colonnes `status/state/active`: `active`) Tj
+/F1 10 Tf
+1 0 0 1 48 340 Tm
+(  - JSON / metadata: `department_scope`) Tj
+/F1 10 Tf
+1 0 0 1 48 317 Tm
+(? `questionnaires`) Tj
+/F1 10 Tf
+1 0 0 1 48 302 Tm
+(  - Colonnes: `id`, `entretien_id`, `titre`, `description`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 287 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 272 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 257 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 234 Tm
+(? `questions`) Tj
+/F1 10 Tf
+1 0 0 1 48 219 Tm
+(- Colonnes: `id`, `questionnaire_id`, `question`, `type`, `probabilite`, `impact`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 204 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 189 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 174 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 159 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 136 Tm
+(? `recommendation_libraries`) Tj
+/F1 10 Tf
+1 0 0 1 48 121 Tm
+(- Colonnes: `id`, `titre`, `description`, `categorie`, `type_controle`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 106 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 91 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 76 Tm
+(  - JSON / metadata: aucun) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 3767 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? `reponses`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(- Colonnes: `id`, `entretien_id`, `question_id`, `reponse`, `commentaire`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(? `risk_libraries`) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(- Colonnes: `id`, `titre`, `description`, `processus`, `categorie`, `probabilite_default`,) Tj
+/F1 10 Tf
+1 0 0 1 48 664 Tm
+(`impact_default`, `risk_library_id`, `created_at`, `updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 649 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 634 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 619 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(? `risques`) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(- Colonnes: `id`, `actif_id`, `description`, `niveau`, `proprietaire`, `departement`,) Tj
+/F1 10 Tf
+1 0 0 1 48 566 Tm
+(`date_revue`, `plan_mitigation`, `statut_risque`, `impact_inherent`, `probabilite_inherent`,) Tj
+/F1 10 Tf
+1 0 0 1 48 551 Tm
+(`criticite_inherent`, `score_inherent`, `impact_residuel`, `probabilite_residuel`,) Tj
+/F1 10 Tf
+1 0 0 1 48 536 Tm
+(`criticite_residuel`, `score_residuel`, `severity`, `owner_department_id`, `source_department_id`,) Tj
+/F1 10 Tf
+1 0 0 1 48 521 Tm
+(`target_department_id`, `shared`, `cross_department`, `escalated`, `treatment_plan`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 506 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 491 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 476 Tm
+(  - Colonnes `status/state/active`: `statut_risque`) Tj
+/F1 10 Tf
+1 0 0 1 48 461 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(? `roles`) Tj
+/F1 10 Tf
+1 0 0 1 48 423 Tm
+(- Colonnes: `id`, `slug`, `name`, `description`, `hierarchy_level`, `active`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 408 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 393 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 378 Tm
+(  - Colonnes `status/state/active`: `active`) Tj
+/F1 10 Tf
+1 0 0 1 48 363 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 340 Tm
+(? `services`) Tj
+/F1 10 Tf
+1 0 0 1 48 325 Tm
+(- Colonnes: `id`, `mission_id`, `code`, `nom`, `responsable`, `description`,) Tj
+/F1 10 Tf
+1 0 0 1 48 310 Tm
+(`chef_service_user_id`, `chef_service_nom`, `chef_service_fonction`, `chef_service_email`,) Tj
+/F1 10 Tf
+1 0 0 1 48 295 Tm
+(`chef_service_telephone`, `service_type`, `service_scope`, `active`, `observations`,) Tj
+/F1 10 Tf
+1 0 0 1 48 280 Tm
+(`audit_priority`, `risk_level`, `audit_status`, `metadata`, `created_at`, `updated_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 265 Tm
+(`deleted_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 250 Tm
+(  - Soft deletes: present) Tj
+/F1 10 Tf
+1 0 0 1 48 235 Tm
+(  - Colonnes `status/state/active`: `active`, `audit_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 220 Tm
+(  - JSON / metadata: `metadata`) Tj
+/F1 10 Tf
+1 0 0 1 48 197 Tm
+(? `sessions`) Tj
+/F1 10 Tf
+1 0 0 1 48 182 Tm
+(  - Colonnes: `id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) Tj
+/F1 10 Tf
+1 0 0 1 48 167 Tm
+(  - Soft deletes: absent) Tj
+/F1 10 Tf
+1 0 0 1 48 152 Tm
+(  - Colonnes `status/state/active`: aucune) Tj
+/F1 10 Tf
+1 0 0 1 48 137 Tm
+(  - JSON / metadata: aucun) Tj
+/F1 10 Tf
+1 0 0 1 48 114 Tm
+(? `users`) Tj
+/F1 10 Tf
+1 0 0 1 48 99 Tm
+(- Colonnes: `id`, `name`, `prenom`, `email`, `email_verified_at`, `password`, `remember_token`,) Tj
+/F1 10 Tf
+1 0 0 1 48 84 Tm
+(`role`, `department_id`, `role_id`, `active`, `position`, `telephone`, `phone`, `matricule`,) Tj
+/F1 10 Tf
+1 0 0 1 48 69 Tm
+(`date_naissance`, `fonction`, `last_login_at`, `failed_login_attempts`, `locked_until`,) Tj
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 3310 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(`mfa_enabled`, `mfa_recovery_codes`, `profile_photo`, `approval_status`, `approved_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(`approved_by`, `registration_requested_department_id`, `password_changed_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(`must_change_password`, `password_expires_at`, `deleted_at`, `deleted_by`, `created_at`,) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(`updated_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - Soft deletes: present) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(  - Colonnes `status/state/active`: `active`, `approval_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(  - JSON / metadata: aucun) Tj
+/F2 12 Tf
+1 0 0 1 48 679 Tm
+(1.2 Tables manquantes referencees dans le code) Tj
+/F1 10 Tf
+1 0 0 1 48 653 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 638 Tm
+(? `mission_services` est implicitement referencee par Eloquent via) Tj
+/F1 10 Tf
+1 0 0 1 48 623 Tm
+(`App\\Models\\MissionService`, parce que ce modele n'ecrase pas `$table`. Par convention,) Tj
+/F1 10 Tf
+1 0 0 1 48 608 Tm
+(Eloquent visera `mission_services`, alors que seule la table `services` existe.) Tj
+/F1 10 Tf
+1 0 0 1 48 585 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 570 Tm
+(? Aucune autre table explicitement referencee via `DB::table\(...\)`, `protected $table`,) Tj
+/F1 10 Tf
+1 0 0 1 48 555 Tm
+(`exists:` ou relations n'apparait manquante dans les migrations.) Tj
+/F2 12 Tf
+1 0 0 1 48 532 Tm
+(1.3 Colonnes referencees mais inexistantes) Tj
+/F1 10 Tf
+1 0 0 1 48 506 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 491 Tm
+(? `reponses.observation` est referencee par `App\\Models\\Reponse`, alors que la colonne) Tj
+/F1 10 Tf
+1 0 0 1 48 476 Tm
+(migree est `commentaire`.) Tj
+/F1 10 Tf
+1 0 0 1 48 453 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(? Le pivot `permission_role` est utilise avec `withTimestamps\(\)` dans) Tj
+/F1 10 Tf
+1 0 0 1 48 423 Tm
+(`App\\Models\\Permission`, mais la table ne contient pas `created_at` / `updated_at`.) Tj
+/F2 12 Tf
+1 0 0 1 48 400 Tm
+(1.4 Observations base de donnees) Tj
+/F1 10 Tf
+1 0 0 1 48 374 Tm
+(? La plateforme contient simultanement un ancien systeme de questionnaires) Tj
+/F1 10 Tf
+1 0 0 1 48 359 Tm
+(\(`questionnaires`, `questions`, `reponses`\) et un nouveau systeme) Tj
+/F1 10 Tf
+1 0 0 1 48 344 Tm
+(\(`questionnaire_templates`, `questionnaire_sections`, `questionnaire_questions`,) Tj
+/F1 10 Tf
+1 0 0 1 48 329 Tm
+(`entretien_responses`\). Ce double systeme est acceptable en transition, mais augmente) Tj
+/F1 10 Tf
+1 0 0 1 48 314 Tm
+(fortement le risque de derive fonctionnelle.) Tj
+/F1 10 Tf
+1 0 0 1 48 291 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 268 Tm
+(2. Audit des modeles Eloquent) Tj
+/F2 12 Tf
+1 0 0 1 48 239 Tm
+(2.1 Resume global) Tj
+/F1 10 Tf
+1 0 0 1 48 213 Tm
+(? Nombre de modeles trouves dans `app/Models`: 31) Tj
+/F1 10 Tf
+1 0 0 1 48 198 Tm
+(? Modeles avec `SoftDeletes` coherents avec le schema:) Tj
+/F1 10 Tf
+1 0 0 1 48 183 Tm
+(  - `User`) Tj
+/F1 10 Tf
+1 0 0 1 48 168 Tm
+(  - `Service`) Tj
+/F1 10 Tf
+1 0 0 1 48 153 Tm
+(  - `MissionDocument`) Tj
+/F1 10 Tf
+1 0 0 1 48 138 Tm
+(  - `QuestionnaireTemplate`) Tj
+/F1 10 Tf
+1 0 0 1 48 123 Tm
+(  - `QuestionnaireQuestion`) Tj
+/F1 10 Tf
+1 0 0 1 48 108 Tm
+(? Modeles a risque structurel fort:) Tj
+/F1 10 Tf
+1 0 0 1 48 93 Tm
+(  - `MissionService`) Tj
+/F1 10 Tf
+1 0 0 1 48 78 Tm
+(  - `Mission`) Tj
+/F1 10 Tf
+1 0 0 1 48 63 Tm
+(  - `Reponse`) Tj
+ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 2881 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  - `QuestionnaireSection`) Tj
+/F2 12 Tf
+1 0 0 1 48 769 Tm
+(2.2 Audit modele par modele) Tj
+/F1 10 Tf
+1 0 0 1 48 743 Tm
+(? `ActionCorrective`) Tj
+/F1 10 Tf
+1 0 0 1 48 728 Tm
+(  - Table reelle: oui \(`actions_correctives`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 713 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 698 Tm
+(  - Casts: incomplets \(`date_echeance` non caste\)) Tj
+/F1 10 Tf
+1 0 0 1 48 683 Tm
+(  - SoftDeletes: absent / coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 668 Tm
+(  - Fillable: non audite en detail ici) Tj
+/F1 10 Tf
+1 0 0 1 48 653 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 630 Tm
+(? `Actif`) Tj
+/F1 10 Tf
+1 0 0 1 48 615 Tm
+(  - Table reelle: oui \(`actifs`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 600 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 585 Tm
+(  - SoftDeletes: absent / coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 570 Tm
+(  - Policy dediee: absente) Tj
+/F1 10 Tf
+1 0 0 1 48 555 Tm
+(  - Niveau: MAJOR \(gouvernance d'ecriture, pas schema\)) Tj
+/F1 10 Tf
+1 0 0 1 48 532 Tm
+(? `AuditLog`) Tj
+/F1 10 Tf
+1 0 0 1 48 517 Tm
+(  - Table reelle: oui \(`audit_logs`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 502 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 487 Tm
+(  - Policy dediee: non necessaire si acces gere par gate admin) Tj
+/F1 10 Tf
+1 0 0 1 48 472 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 449 Tm
+(? `Constat`) Tj
+/F1 10 Tf
+1 0 0 1 48 434 Tm
+(  - Table reelle: oui \(`constats`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 419 Tm
+(  - Relations: non verifiees exhaustivement) Tj
+/F1 10 Tf
+1 0 0 1 48 404 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 381 Tm
+(? `Controle`) Tj
+/F1 10 Tf
+1 0 0 1 48 366 Tm
+(  - Table reelle: oui \(`controles`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 351 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 336 Tm
+(  - Policy dediee: absente) Tj
+/F1 10 Tf
+1 0 0 1 48 321 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 298 Tm
+(? `Department`) Tj
+/F1 10 Tf
+1 0 0 1 48 283 Tm
+(  - Table reelle: oui \(`departments`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 268 Tm
+(  - Policy: presente et enregistree) Tj
+/F1 10 Tf
+1 0 0 1 48 253 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 230 Tm
+(? `DepartmentAuditConsolidation`) Tj
+/F1 10 Tf
+1 0 0 1 48 215 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 200 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 185 Tm
+(  - Casts: `generated_by_ai` coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 170 Tm
+(  - Policy: presente et enregistree) Tj
+/F1 10 Tf
+1 0 0 1 48 155 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 132 Tm
+(? `Entretien`) Tj
+/F1 10 Tf
+1 0 0 1 48 117 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 102 Tm
+(  - Relations: globalement coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 87 Tm
+(  - Casts: `conducted_at`, `date_entretien` coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 72 Tm
+(  - SoftDeletes: absent / coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 57 Tm
+(  - Fillable: large mais coherent avec le schema) Tj
+ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 3289 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(- Risque: `questionnaireCompletionPercent\(\)` compte toutes les reponses, y compris celles de) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(questions potentiellement inactives) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(? `EntretienResponse`) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Casts: `answer_json`, `uploaded_documents_metadata` coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(  - Policy dediee: absente, mais l'acces est actuellement medie par `EntretienPolicy`) Tj
+/F1 10 Tf
+1 0 0 1 48 664 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 641 Tm
+(? `IdentifiedRisk`) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 596 Tm
+(  - Policy: presente et enregistree) Tj
+/F1 10 Tf
+1 0 0 1 48 581 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 558 Tm
+(? `Mission`) Tj
+/F1 10 Tf
+1 0 0 1 48 543 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 528 Tm
+(  - Relations: majoritairement coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 513 Tm
+(  - Casts: dates coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 498 Tm
+(  - SoftDeletes: absent / coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 483 Tm
+(- Probleme critique: relation `auditPlans\(\)` vers `AuditPlan::class` sans modele present, et) Tj
+/F1 10 Tf
+1 0 0 1 48 468 Tm
+(methode `genererPlanAuditAutomatique\(\)` appelle aussi `AuditProgramme::create\(\)` sans modele) Tj
+/F1 10 Tf
+1 0 0 1 48 453 Tm
+(present) Tj
+/F1 10 Tf
+1 0 0 1 48 438 Tm
+(  - Default applicatif `mission_status = brouillon`, mais default DB encore derive de `draft`) Tj
+/F1 10 Tf
+1 0 0 1 48 423 Tm
+(  - Niveau: CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 400 Tm
+(? `MissionDocument`) Tj
+/F1 10 Tf
+1 0 0 1 48 385 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 370 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 355 Tm
+(  - Casts: coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 340 Tm
+(  - SoftDeletes: present / coherent) Tj
+/F1 10 Tf
+1 0 0 1 48 325 Tm
+(  - Policy: presente et enregistree) Tj
+/F1 10 Tf
+1 0 0 1 48 310 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 287 Tm
+(? `MissionRaciPreview`) Tj
+/F1 10 Tf
+1 0 0 1 48 272 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 257 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 242 Tm
+(  - Policy dediee: absente, acceptable tant qu'aucune route d'ecriture n'est exposee) Tj
+/F1 10 Tf
+1 0 0 1 48 227 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 204 Tm
+(? `MissionService`) Tj
+/F1 10 Tf
+1 0 0 1 48 189 Tm
+(  - Table reelle: non, car le modele n'ecrase pas `$table` vers `services`) Tj
+/F1 10 Tf
+1 0 0 1 48 174 Tm
+(  - Relations: heritees de `Service`) Tj
+/F1 10 Tf
+1 0 0 1 48 159 Tm
+(  - SoftDeletes: herites via `Service`) Tj
+/F1 10 Tf
+1 0 0 1 48 144 Tm
+(  - Probleme critique: Eloquent resolvra `mission_services`, table inexistante) Tj
+/F1 10 Tf
+1 0 0 1 48 129 Tm
+(  - Probleme critique additionnel: incoherence avec le route binding qui retourne un `Service`) Tj
+/F1 10 Tf
+1 0 0 1 48 114 Tm
+(  - Niveau: CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 91 Tm
+(? `MissionSwotPreview`) Tj
+/F1 10 Tf
+1 0 0 1 48 76 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 61 Tm
+(  - Relations: coherentes) Tj
+ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 21 0 R >>
+endobj
+23 0 obj
+<< /Length 2919 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  - Policy dediee: absente, acceptable tant qu'aucune route d'ecriture n'est exposee) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 754 Tm
+(? `MissionTeamMember`) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 724 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(  - Policy dediee: absente, acces actuellement porte par `MissionPolicy`) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 671 Tm
+(? `MissionWorkflowEvent`) Tj
+/F1 10 Tf
+1 0 0 1 48 656 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 641 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(  - Policy dediee: absente, acceptable si lecture toujours via mission) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 588 Tm
+(? `Permission`) Tj
+/F1 10 Tf
+1 0 0 1 48 573 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 558 Tm
+(  - Relations: pivot incoherent avec `withTimestamps\(\)`) Tj
+/F1 10 Tf
+1 0 0 1 48 543 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 520 Tm
+(? `Processus`) Tj
+/F1 10 Tf
+1 0 0 1 48 505 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 490 Tm
+(  - Relations: plausibles) Tj
+/F1 10 Tf
+1 0 0 1 48 475 Tm
+(  - Policy dediee: absente) Tj
+/F1 10 Tf
+1 0 0 1 48 460 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 437 Tm
+(? `Question`) Tj
+/F1 10 Tf
+1 0 0 1 48 422 Tm
+(  - Table reelle: oui \(`questions`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 407 Tm
+(  - Legacy model) Tj
+/F1 10 Tf
+1 0 0 1 48 392 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 369 Tm
+(? `Questionnaire`) Tj
+/F1 10 Tf
+1 0 0 1 48 354 Tm
+(  - Table reelle: oui \(`questionnaires`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 339 Tm
+(  - Legacy model incomplet par rapport au schema \(`entretien_id`, `description` sous-modele\)) Tj
+/F1 10 Tf
+1 0 0 1 48 324 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 301 Tm
+(? `QuestionnaireQuestion`) Tj
+/F1 10 Tf
+1 0 0 1 48 286 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 271 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 256 Tm
+(  - Casts: coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 241 Tm
+(  - SoftDeletes: presents) Tj
+/F1 10 Tf
+1 0 0 1 48 226 Tm
+(  - Risque: l'archivage est contredit par la suppression dure des sections parentes) Tj
+/F1 10 Tf
+1 0 0 1 48 211 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 188 Tm
+(? `QuestionnaireSection`) Tj
+/F1 10 Tf
+1 0 0 1 48 173 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 158 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 143 Tm
+(  - SoftDeletes: absents) Tj
+/F1 10 Tf
+1 0 0 1 48 128 Tm
+(- Risque: suppression dure alors que les questions enfants sont soft deletables et peuvent deja) Tj
+/F1 10 Tf
+1 0 0 1 48 113 Tm
+(etre referencees par `entretien_responses`) Tj
+/F1 10 Tf
+1 0 0 1 48 98 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 75 Tm
+(? `QuestionnaireTemplate`) Tj
+/F1 10 Tf
+1 0 0 1 48 60 Tm
+(  - Table reelle: oui) Tj
+ET
+endstream
+endobj
+24 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 23 0 R >>
+endobj
+25 0 obj
+<< /Length 2748 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(  - Casts: coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(  - SoftDeletes: presents) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(  - Probleme fonctionnel fort: policy completement ouverte) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - Niveau: CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 709 Tm
+(? `RecommendationLibrary`) Tj
+/F1 10 Tf
+1 0 0 1 48 694 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 656 Tm
+(? `Reponse`) Tj
+/F1 10 Tf
+1 0 0 1 48 641 Tm
+(  - Table reelle: oui \(`reponses`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 626 Tm
+(  - Fillable incoherent \(`observation` au lieu de `commentaire`\)) Tj
+/F1 10 Tf
+1 0 0 1 48 611 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 588 Tm
+(? `Risque`) Tj
+/F1 10 Tf
+1 0 0 1 48 573 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 558 Tm
+(  - Policy: presente et enregistree) Tj
+/F1 10 Tf
+1 0 0 1 48 543 Tm
+(  - Risque majeur: creation API mal protegee) Tj
+/F1 10 Tf
+1 0 0 1 48 528 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 505 Tm
+(? `RiskLibrary`) Tj
+/F1 10 Tf
+1 0 0 1 48 490 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 475 Tm
+(  - Niveau: MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 452 Tm
+(? `Role`) Tj
+/F1 10 Tf
+1 0 0 1 48 437 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 422 Tm
+(  - Niveau: OK structurel) Tj
+/F1 10 Tf
+1 0 0 1 48 399 Tm
+(? `Service`) Tj
+/F1 10 Tf
+1 0 0 1 48 384 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 369 Tm
+(  - Relations: coherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 354 Tm
+(  - Casts: coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 339 Tm
+(  - SoftDeletes: presents) Tj
+/F1 10 Tf
+1 0 0 1 48 324 Tm
+(  - Risque majeur: `chef_service_user_id` trop permissif dans les Form Requests) Tj
+/F1 10 Tf
+1 0 0 1 48 309 Tm
+(  - Niveau: MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 286 Tm
+(? `User`) Tj
+/F1 10 Tf
+1 0 0 1 48 271 Tm
+(  - Table reelle: oui) Tj
+/F1 10 Tf
+1 0 0 1 48 256 Tm
+(  - Relations / casts / soft deletes: globalement coherents) Tj
+/F1 10 Tf
+1 0 0 1 48 241 Tm
+(  - Niveau: OK structurel, mais schema `users` souffre de migrations en double) Tj
+/F2 12 Tf
+1 0 0 1 48 218 Tm
+(2.3 Accessors / mutators) Tj
+/F1 10 Tf
+1 0 0 1 48 192 Tm
+(? `Service::responsableDisplay\(\)` est coherent, mais ne couvre pas le cas ou) Tj
+/F1 10 Tf
+1 0 0 1 48 177 Tm
+(`chef_service_user_id` est renseigne sans relation chargee.) Tj
+/F1 10 Tf
+1 0 0 1 48 162 Tm
+(? `Entretien::questionnaireCompletionPercent\(\)` peut surevaluer la progression si des) Tj
+/F1 10 Tf
+1 0 0 1 48 147 Tm
+(reponses subsistent pour des questions desactivees ou archivees.) Tj
+/F1 10 Tf
+1 0 0 1 48 124 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 101 Tm
+(3. Audit des controllers) Tj
+/F2 12 Tf
+1 0 0 1 48 72 Tm
+(3.1 Requetes sur colonnes inexistantes) Tj
+ET
+endstream
+endobj
+26 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 25 0 R >>
+endobj
+27 0 obj
+<< /Length 3853 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? Aucune requete critique sur colonne inexistante n'a ete confirmee dans les controllers) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(phases 1.5 et 2.) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(? Les principaux ecarts detectes portent plutot sur:) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(  - mismatch modele / table) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(  - mismatch policy / metier) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(  - duplication fonctionnelle) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(  - route binding incoherent) Tj
+/F2 12 Tf
+1 0 0 1 48 679 Tm
+(3.2 Findings controllers) Tj
+/F1 10 Tf
+1 0 0 1 48 653 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 638 Tm
+(? `ServiceController` utilise `MissionService::query\(\)` alors que `MissionService` pointe) Tj
+/F1 10 Tf
+1 0 0 1 48 623 Tm
+(implicitement vers la table inexistante `mission_services`.) Tj
+/F1 10 Tf
+1 0 0 1 48 608 Tm
+(? `MissionDocumentController` type-hinte `MissionService $service`, alors que) Tj
+/F1 10 Tf
+1 0 0 1 48 593 Tm
+(`AppServiceProvider` bind le parametre `service` avec `Service::query\(\)`. Le binding) Tj
+/F1 10 Tf
+1 0 0 1 48 578 Tm
+(retourne donc un `Service`, pas un `MissionService`.) Tj
+/F1 10 Tf
+1 0 0 1 48 563 Tm
+(? `Api\\V1\\RiskController::store\(\)` cree un `Risque` a partir de n'importe quel `actif_id`) Tj
+/F1 10 Tf
+1 0 0 1 48 548 Tm
+(valide, sans verifier la visibilite metier du parent. `StoreRisqueRequest::authorize\(\)`) Tj
+/F1 10 Tf
+1 0 0 1 48 533 Tm
+(accepte tout utilisateur authentifie.) Tj
+/F1 10 Tf
+1 0 0 1 48 510 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 495 Tm
+(? `EntretienConduiteController::storeResponses\(\)` fait `updateOrCreate\(\)` sur) Tj
+/F1 10 Tf
+1 0 0 1 48 480 Tm
+(`EntretienResponse`, mais fait toujours `IdentifiedRisk::create\(\)` pour le bloc) Tj
+/F1 10 Tf
+1 0 0 1 48 465 Tm
+(`identified_risk`. Une sauvegarde progressive produit donc des doublons de risques.) Tj
+/F1 10 Tf
+1 0 0 1 48 450 Tm
+(? `DashboardController` affiche une "Repartition des risques par service" calculee) Tj
+/F1 10 Tf
+1 0 0 1 48 435 Tm
+(uniquement sur `mission_id`. Toutes les lignes d'un meme service de mission peuvent donc) Tj
+/F1 10 Tf
+1 0 0 1 48 420 Tm
+(recevoir le meme total.) Tj
+/F1 10 Tf
+1 0 0 1 48 405 Tm
+(? `QuestionnaireTemplateController::destroySection\(\)` supprime durement la section, alors) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(que des `entretien_responses` peuvent deja referencer des questions enfants via une FK) Tj
+/F1 10 Tf
+1 0 0 1 48 375 Tm
+(`restrictOnDelete`.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 337 Tm
+(? `MissionController` ajoute des KPI utiles, mais leur robustesse depend de la coherence des) Tj
+/F1 10 Tf
+1 0 0 1 48 322 Tm
+(statuts `Entretien`.) Tj
+/F1 10 Tf
+1 0 0 1 48 307 Tm
+(? Les controllers legacy \(`ProcessusController`, `ActifController`, `ControleController`,) Tj
+/F1 10 Tf
+1 0 0 1 48 292 Tm
+(`ActionCorrectiveController`\) reposent surtout sur la visibilite parent, sans policy dediee) Tj
+/F1 10 Tf
+1 0 0 1 48 277 Tm
+(par ressource.) Tj
+/F2 12 Tf
+1 0 0 1 48 254 Tm
+(3.3 Eager loading invalides ou fragiles) Tj
+/F1 10 Tf
+1 0 0 1 48 228 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 213 Tm
+(? `ServiceController` eager-load `entretiens.questionnaireTemplate.sections.questions` via) Tj
+/F1 10 Tf
+1 0 0 1 48 198 Tm
+(`MissionService::query\(\)`. Si `MissionService` ne pointe pas vers `services`, toute la) Tj
+/F1 10 Tf
+1 0 0 1 48 183 Tm
+(chaine casse avant l'eager loading.) Tj
+/F1 10 Tf
+1 0 0 1 48 160 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 145 Tm
+(? Aucun eager load manifestement indefini n'a ete confirme ailleurs dans les controllers) Tj
+/F1 10 Tf
+1 0 0 1 48 130 Tm
+(phases 1.5 / 2.) Tj
+/F2 12 Tf
+1 0 0 1 48 107 Tm
+(3.4 Dependances circulaires / fortes) Tj
+/F1 10 Tf
+1 0 0 1 48 81 Tm
+(? Pas de dependance circulaire PHP explicite confirmee.) Tj
+/F1 10 Tf
+1 0 0 1 48 66 Tm
+(? Dependances fortes a surveiller:) Tj
+ET
+endstream
+endobj
+28 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 27 0 R >>
+endobj
+29 0 obj
+<< /Length 3378 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(- `Mission` -> `genererPlanAuditAutomatique\(\)` -> classes absentes `AuditPlan` / `AuditProgramme`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(- `DashboardController` -> logique de synthese directement en controller + metric globale dans) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(Blade) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 716 Tm
+(4. Audit des migrations) Tj
+/F2 12 Tf
+1 0 0 1 48 687 Tm
+(4.1 Migrations manquantes) Tj
+/F1 10 Tf
+1 0 0 1 48 661 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 646 Tm
+(? Pas de migration pour une table `mission_services`, alors que `MissionService` la) Tj
+/F1 10 Tf
+1 0 0 1 48 631 Tm
+(reference implicitement par convention Eloquent.) Tj
+/F2 12 Tf
+1 0 0 1 48 608 Tm
+(4.2 Migrations jamais executees) Tj
+/F1 10 Tf
+1 0 0 1 48 582 Tm
+(? Non determinable statiquement depuis le depot seul.) Tj
+/F1 10 Tf
+1 0 0 1 48 567 Tm
+(? Pour verifier proprement il faut comparer les fichiers de `database/migrations` avec la) Tj
+/F1 10 Tf
+1 0 0 1 48 552 Tm
+(table runtime `migrations`.) Tj
+/F2 12 Tf
+1 0 0 1 48 529 Tm
+(4.3 Doublons et conflits) Tj
+/F1 10 Tf
+1 0 0 1 48 503 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 488 Tm
+(? `2026_03_05_153839_add_security_fields_to_users_table.php` ajoute `prenom` et `fonction`.) Tj
+/F1 10 Tf
+1 0 0 1 48 473 Tm
+(? `2026_03_05_174934_add_user_identity_fields.php` re-ajoute `prenom` et `fonction` sans) Tj
+/F1 10 Tf
+1 0 0 1 48 458 Tm
+(garde `Schema::hasColumn\(...\)`.) Tj
+/F1 10 Tf
+1 0 0 1 48 443 Tm
+(? Sur une installation propre, cela est un blocker potentiel.) Tj
+/F1 10 Tf
+1 0 0 1 48 420 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 405 Tm
+(? `2026_05_09_140000_normalize_mission_workflow_statuses.php` met a jour) Tj
+/F1 10 Tf
+1 0 0 1 48 390 Tm
+(`missions.mission_status` avant que cette colonne n'existe dans la chronologie des) Tj
+/F1 10 Tf
+1 0 0 1 48 375 Tm
+(migrations.) Tj
+/F1 10 Tf
+1 0 0 1 48 352 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 337 Tm
+(? `2026_05_10_100004_add_institutional_fields_to_missions_table.php` garde un default DB) Tj
+/F1 10 Tf
+1 0 0 1 48 322 Tm
+(oriente legacy \(`draft`\) alors que le domaine applicatif travaille en `brouillon`.) Tj
+/F1 10 Tf
+1 0 0 1 48 299 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 284 Tm
+(? `2026_05_16_100000_phase2_enrich_services_table.php` et) Tj
+/F1 10 Tf
+1 0 0 1 48 269 Tm
+(`2026_05_16_100001_phase2_enrich_entretiens_table.php` utilisent des `if \(!) Tj
+/F1 10 Tf
+1 0 0 1 48 254 Tm
+(Schema::hasColumn\(...\)\)` dans `up\(\)`, mais leurs `down\(\)` suppriment les colonnes de facon) Tj
+/F1 10 Tf
+1 0 0 1 48 239 Tm
+(large. Une rollback peut retirer des colonnes preexistantes dans certains contextes.) Tj
+/F2 12 Tf
+1 0 0 1 48 216 Tm
+(4.4 Tables partiellement creees / derivees) Tj
+/F1 10 Tf
+1 0 0 1 48 190 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 175 Tm
+(? Les tables legacy des questionnaires coexistent avec les tables phase 1.5, sans couche) Tj
+/F1 10 Tf
+1 0 0 1 48 160 Tm
+(d'abstraction forte ni plan clair de decommission.) Tj
+/F1 10 Tf
+1 0 0 1 48 137 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 122 Tm
+(? `questionnaire_questions` est soft deletable, mais `questionnaire_sections` ne l'est pas) Tj
+/F1 10 Tf
+1 0 0 1 48 107 Tm
+(et peut hard-delete l'arbre.) Tj
+/F2 12 Tf
+1 0 0 1 48 84 Tm
+(4.5 Hardening migration recommande) Tj
+/F1 10 Tf
+1 0 0 1 48 58 Tm
+(1. Corriger l'ordre et/ou la garde de `normalize_mission_workflow_statuses`.) Tj
+ET
+endstream
+endobj
+30 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 29 0 R >>
+endobj
+31 0 obj
+<< /Length 2907 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(2. Fusionner ou rendre idempotentes les migrations `users` qui doublonnent.) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(3. Fixer explicitement le default DB de `mission_status`.) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(4. Normaliser les `down\(\)` des migrations phase 2.) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 716 Tm
+(5. Audit des policies) Tj
+/F2 12 Tf
+1 0 0 1 48 687 Tm
+(5.1 Models sans policy dediee) Tj
+/F1 10 Tf
+1 0 0 1 48 661 Tm
+(Models trouves sans policy explicite:) Tj
+/F1 10 Tf
+1 0 0 1 48 646 Tm
+(? `ActionCorrective`) Tj
+/F1 10 Tf
+1 0 0 1 48 631 Tm
+(? `Actif`) Tj
+/F1 10 Tf
+1 0 0 1 48 616 Tm
+(? `AuditLog`) Tj
+/F1 10 Tf
+1 0 0 1 48 601 Tm
+(? `Constat`) Tj
+/F1 10 Tf
+1 0 0 1 48 586 Tm
+(? `Controle`) Tj
+/F1 10 Tf
+1 0 0 1 48 571 Tm
+(? `EntretienResponse`) Tj
+/F1 10 Tf
+1 0 0 1 48 556 Tm
+(? `MissionRaciPreview`) Tj
+/F1 10 Tf
+1 0 0 1 48 541 Tm
+(? `MissionSwotPreview`) Tj
+/F1 10 Tf
+1 0 0 1 48 526 Tm
+(? `MissionTeamMember`) Tj
+/F1 10 Tf
+1 0 0 1 48 511 Tm
+(? `MissionWorkflowEvent`) Tj
+/F1 10 Tf
+1 0 0 1 48 496 Tm
+(? `Permission`) Tj
+/F1 10 Tf
+1 0 0 1 48 481 Tm
+(? `Processus`) Tj
+/F1 10 Tf
+1 0 0 1 48 466 Tm
+(? `Question`) Tj
+/F1 10 Tf
+1 0 0 1 48 451 Tm
+(? `Questionnaire`) Tj
+/F1 10 Tf
+1 0 0 1 48 436 Tm
+(? `QuestionnaireQuestion`) Tj
+/F1 10 Tf
+1 0 0 1 48 421 Tm
+(? `QuestionnaireSection`) Tj
+/F1 10 Tf
+1 0 0 1 48 406 Tm
+(? `RecommendationLibrary`) Tj
+/F1 10 Tf
+1 0 0 1 48 391 Tm
+(? `Reponse`) Tj
+/F1 10 Tf
+1 0 0 1 48 376 Tm
+(? `RiskLibrary`) Tj
+/F1 10 Tf
+1 0 0 1 48 361 Tm
+(? `Role`) Tj
+/F1 10 Tf
+1 0 0 1 48 338 Tm
+(Observation:) Tj
+/F1 10 Tf
+1 0 0 1 48 323 Tm
+(? tous n'ont pas necessairement besoin d'une policy dediee aujourd'hui;) Tj
+/F1 10 Tf
+1 0 0 1 48 308 Tm
+(? en revanche, pour des ressources avec ecriture directe, l'absence de policy devient un) Tj
+/F1 10 Tf
+1 0 0 1 48 293 Tm
+(risque.) Tj
+/F2 12 Tf
+1 0 0 1 48 270 Tm
+(5.2 Policies presentes mais non enregistrees) Tj
+/F1 10 Tf
+1 0 0 1 48 244 Tm
+(? Aucune policy trouvee dans `app/Policies` n'apparait orpheline.) Tj
+/F1 10 Tf
+1 0 0 1 48 229 Tm
+(? Les 10 policies presentes sont enregistrees dans `AppServiceProvider`.) Tj
+/F2 12 Tf
+1 0 0 1 48 206 Tm
+(5.3 Capacites incoherentes) Tj
+/F1 10 Tf
+1 0 0 1 48 180 Tm
+(#### CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 165 Tm
+(? `QuestionnaireTemplatePolicy` retourne `true` pour `view`, `create`, `update`, `delete`,) Tj
+/F1 10 Tf
+1 0 0 1 48 150 Tm
+(`duplicate`.) Tj
+/F1 10 Tf
+1 0 0 1 48 135 Tm
+(? Cela contredit directement `User::canManageQuestionnaireLibrary\(\)` et ouvre) Tj
+/F1 10 Tf
+1 0 0 1 48 120 Tm
+(l'administration de la bibliotheque a tout utilisateur authentifie.) Tj
+/F1 10 Tf
+1 0 0 1 48 97 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 82 Tm
+(? `MissionDocumentPolicy` et `ServicePolicy` sont bien presentes, mais la qualite de la) Tj
+/F1 10 Tf
+1 0 0 1 48 67 Tm
+(securisation reste partiellement affaiblie par les validations trop permissives des Form) Tj
+ET
+endstream
+endobj
+32 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 31 0 R >>
+endobj
+33 0 obj
+<< /Length 2926 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(Requests \(`chef_service_user_id`\).) Tj
+/F1 10 Tf
+1 0 0 1 48 769 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 754 Tm
+(? Plusieurs modeles d'ecriture continuent d'etre proteges seulement via les policies du) Tj
+/F1 10 Tf
+1 0 0 1 48 739 Tm
+(parent \(`Mission`, `Entretien`, `Risque`\) plutot que via leur propre policy.) Tj
+/F1 10 Tf
+1 0 0 1 48 716 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 693 Tm
+(6. Audit des vues Blade) Tj
+/F2 12 Tf
+1 0 0 1 48 664 Tm
+(6.1 Relations null dangereuses) Tj
+/F1 10 Tf
+1 0 0 1 48 638 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 623 Tm
+(? `resources/views/entretiens/index.blade.php` affiche l'action "Conduite" des qu'un) Tj
+/F1 10 Tf
+1 0 0 1 48 608 Tm
+(`questionnaire_template_id` est present. Si le template a ete soft-delete ou inactivate,) Tj
+/F1 10 Tf
+1 0 0 1 48 593 Tm
+(l'UI affiche encore un lien qui mene a un `404`.) Tj
+/F2 12 Tf
+1 0 0 1 48 570 Tm
+(6.2 Acces a colonnes inexistantes) Tj
+/F1 10 Tf
+1 0 0 1 48 544 Tm
+(? Aucun acces Blade critique a une colonne inexistante n'a ete confirme sur les vues phases) Tj
+/F1 10 Tf
+1 0 0 1 48 529 Tm
+(1.5 / 2.) Tj
+/F2 12 Tf
+1 0 0 1 48 506 Tm
+(6.3 Erreurs syntaxiques) Tj
+/F1 10 Tf
+1 0 0 1 48 480 Tm
+(? Aucune erreur syntaxique Blade evidente n'a ete confirmee dans les vues inspectees.) Tj
+/F2 12 Tf
+1 0 0 1 48 457 Tm
+(6.4 Encodage UTF-8 casse) Tj
+/F1 10 Tf
+1 0 0 1 48 431 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 416 Tm
+(? `resources/views/services/index.blade.php` contient du texte corrompu:) Tj
+/F1 10 Tf
+1 0 0 1 48 401 Tm
+(  - `Services auditùs`) Tj
+/F1 10 Tf
+1 0 0 1 48 386 Tm
+(  - `pùrimùtre dùaudit`) Tj
+/F1 10 Tf
+1 0 0 1 48 371 Tm
+(  - `Crùer le service`) Tj
+/F1 10 Tf
+1 0 0 1 48 356 Tm
+(  - `Rapport service ù bientùt`) Tj
+/F1 10 Tf
+1 0 0 1 48 341 Tm
+(? `routes/web.php` contient aussi des commentaires corrompus.) Tj
+/F2 12 Tf
+1 0 0 1 48 318 Tm
+(6.5 Vues stale / legacy) Tj
+/F1 10 Tf
+1 0 0 1 48 292 Tm
+(#### MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 277 Tm
+(? `resources/views/layouts/sidebar.blade.php` garde encore un lien legacy vers) Tj
+/F1 10 Tf
+1 0 0 1 48 262 Tm
+(`module.questionnaires`, alors que la navigation principale moderne passe par) Tj
+/F1 10 Tf
+1 0 0 1 48 247 Tm
+(`questionnaire-templates.*`.) Tj
+/F1 10 Tf
+1 0 0 1 48 232 Tm
+(? Cela entretient le double systeme legacy / phase 1.5.) Tj
+/F2 12 Tf
+1 0 0 1 48 209 Tm
+(6.6 Dashboard data correctness) Tj
+/F1 10 Tf
+1 0 0 1 48 183 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 168 Tm
+(? `resources/views/dashboard.blade.php` execute directement `User::query\(\)->where\('active',) Tj
+/F1 10 Tf
+1 0 0 1 48 153 Tm
+(true\)->count\(\)` dans la vue. Cela fuit un KPI global et melange presentation et data access.) Tj
+/F1 10 Tf
+1 0 0 1 48 130 Tm
+(#### MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 115 Tm
+(? Le graphe "Repartition des risques par service" repose sur des donnees preparees) Tj
+/F1 10 Tf
+1 0 0 1 48 100 Tm
+(incorrectement par le controller.) Tj
+/F1 10 Tf
+1 0 0 1 48 77 Tm
+(---) Tj
+ET
+endstream
+endobj
+34 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 33 0 R >>
+endobj
+35 0 obj
+<< /Length 3043 >>
+stream
+BT
+/F2 14 Tf
+1 0 0 1 48 792 Tm
+(7. Normalisation recommandee) Tj
+/F2 12 Tf
+1 0 0 1 48 763 Tm
+(7.1 `status`) Tj
+/F1 10 Tf
+1 0 0 1 48 737 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 722 Tm
+(? toujours une colonne `status` pour l'etat principal d'une ressource.) Tj
+/F1 10 Tf
+1 0 0 1 48 707 Tm
+(? valeurs enumerees en constantes de modele.) Tj
+/F1 10 Tf
+1 0 0 1 48 692 Tm
+(? default DB et default modele obligatoirement alignes.) Tj
+/F1 10 Tf
+1 0 0 1 48 669 Tm
+(Exemples:) Tj
+/F1 10 Tf
+1 0 0 1 48 654 Tm
+(? `missions.status` \(ou garder `mission_status` mais figer la convention\)) Tj
+/F1 10 Tf
+1 0 0 1 48 639 Tm
+(? `entretiens.status`) Tj
+/F1 10 Tf
+1 0 0 1 48 624 Tm
+(? `services.audit_status`) Tj
+/F2 12 Tf
+1 0 0 1 48 601 Tm
+(7.2 `active`) Tj
+/F1 10 Tf
+1 0 0 1 48 575 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 560 Tm
+(? utiliser `active BOOLEAN NOT NULL DEFAULT true` pour les ressources activables;) Tj
+/F1 10 Tf
+1 0 0 1 48 545 Tm
+(? pas de variantes `enabled`, `is_active`, `visible` si non necessaire;) Tj
+/F1 10 Tf
+1 0 0 1 48 530 Tm
+(? documenter clairement si `active=false` masque l'entite ou interdit son usage.) Tj
+/F2 12 Tf
+1 0 0 1 48 507 Tm
+(7.3 `deleted_at`) Tj
+/F1 10 Tf
+1 0 0 1 48 481 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 466 Tm
+(? utiliser `deleted_at` uniquement si le modele utilise `SoftDeletes`;) Tj
+/F1 10 Tf
+1 0 0 1 48 451 Tm
+(? eviter les suppressions dures sur les parents quand les enfants sont soft deletables;) Tj
+/F1 10 Tf
+1 0 0 1 48 436 Tm
+(? privilegier l'archivage sur les referentiels \(`questionnaire_templates`,) Tj
+/F1 10 Tf
+1 0 0 1 48 421 Tm
+(`questionnaire_questions`, `services`, `mission_documents`\).) Tj
+/F2 12 Tf
+1 0 0 1 48 398 Tm
+(7.4 `validation_status`) Tj
+/F1 10 Tf
+1 0 0 1 48 372 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 357 Tm
+(? reserver `validation_status` aux workflows de validation humaine distincts du cycle de vie) Tj
+/F1 10 Tf
+1 0 0 1 48 342 Tm
+(principal;) Tj
+/F1 10 Tf
+1 0 0 1 48 327 Tm
+(? valeurs conseillees: `pending`, `validated`, `rejected`, `returned`;) Tj
+/F1 10 Tf
+1 0 0 1 48 312 Tm
+(? ne pas l'utiliser a la place de `status`.) Tj
+/F2 12 Tf
+1 0 0 1 48 289 Tm
+(7.5 `metadata` JSON) Tj
+/F1 10 Tf
+1 0 0 1 48 263 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 248 Tm
+(? `metadata` uniquement pour les extensions non structurantes;) Tj
+/F1 10 Tf
+1 0 0 1 48 233 Tm
+(? ne pas stocker des champs metier majeurs dans `metadata`;) Tj
+/F1 10 Tf
+1 0 0 1 48 218 Tm
+(? documenter les cles admises par ressource;) Tj
+/F1 10 Tf
+1 0 0 1 48 203 Tm
+(? preferer des colonnes reelles pour:) Tj
+/F1 10 Tf
+1 0 0 1 48 188 Tm
+(  - statut) Tj
+/F1 10 Tf
+1 0 0 1 48 173 Tm
+(  - identifiants) Tj
+/F1 10 Tf
+1 0 0 1 48 158 Tm
+(  - proprietaires) Tj
+/F1 10 Tf
+1 0 0 1 48 143 Tm
+(  - niveaux de risque) Tj
+/F1 10 Tf
+1 0 0 1 48 128 Tm
+(  - dates de workflow) Tj
+/F2 12 Tf
+1 0 0 1 48 105 Tm
+(7.6 Conventions de nommage) Tj
+/F1 10 Tf
+1 0 0 1 48 79 Tm
+(Standard recommande:) Tj
+/F1 10 Tf
+1 0 0 1 48 64 Tm
+(? modeles singuliers: `MissionDocument`, `QuestionnaireTemplate`) Tj
+ET
+endstream
+endobj
+36 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 35 0 R >>
+endobj
+37 0 obj
+<< /Length 3804 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(? tables plurielles snake_case: `mission_documents`, `questionnaire_templates`) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(? FK en `_id`) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(? routes ressourcees scopees par parent quand metierement necessaire:) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(  - `missions/{mission}/services/{service}`) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(? eviter les alias de modele sans `$table` explicite si l'on herite d'une table legacy:) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(- `MissionService` doit soit definir `protected $table = 'services';`, soit disparaitre au profit) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(de `Service`.) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 656 Tm
+(8. Classification des erreurs) Tj
+/F2 12 Tf
+1 0 0 1 48 627 Tm
+(CRITICAL) Tj
+/F1 10 Tf
+1 0 0 1 48 601 Tm
+(1. `MissionService` vise implicitement `mission_services`, table inexistante.) Tj
+/F1 10 Tf
+1 0 0 1 48 586 Tm
+(2. Route binding `service` retourne `Service`, alors que les controllers phase 2 attendent) Tj
+/F1 10 Tf
+1 0 0 1 48 571 Tm
+(`MissionService`.) Tj
+/F1 10 Tf
+1 0 0 1 48 556 Tm
+(3. `Mission` depend de `AuditPlan` / `AuditProgramme` sans modeles presents.) Tj
+/F1 10 Tf
+1 0 0 1 48 541 Tm
+(4. `QuestionnaireTemplatePolicy` ouvre la bibliotheque a tous les utilisateurs authentifies.) Tj
+/F1 10 Tf
+1 0 0 1 48 526 Tm
+(5. `Api\\V1\\RiskController::store\(\)` bypass les contraintes de visibilite metier.) Tj
+/F1 10 Tf
+1 0 0 1 48 511 Tm
+(6. Migration `normalize_mission_workflow_statuses` execute des updates avant existence confirmee) Tj
+/F1 10 Tf
+1 0 0 1 48 496 Tm
+(de `mission_status`.) Tj
+/F1 10 Tf
+1 0 0 1 48 481 Tm
+(7. Doublon de migrations `users` sur `prenom` / `fonction`.) Tj
+/F2 12 Tf
+1 0 0 1 48 458 Tm
+(MAJOR) Tj
+/F1 10 Tf
+1 0 0 1 48 432 Tm
+(1. `Reponse` mappe `observation` alors que la colonne reelle est `commentaire`.) Tj
+/F1 10 Tf
+1 0 0 1 48 417 Tm
+(2. `Permission::roles\(\)->withTimestamps\(\)` sans timestamps sur `permission_role`.) Tj
+/F1 10 Tf
+1 0 0 1 48 402 Tm
+(3. `QuestionnaireSection` hard-delete des enfants `QuestionnaireQuestion` soft deletables et) Tj
+/F1 10 Tf
+1 0 0 1 48 387 Tm
+(potentiellement references.) Tj
+/F1 10 Tf
+1 0 0 1 48 372 Tm
+(4. `EntretienConduiteController` duplique les `identified_risks` sur sauvegardes progressives.) Tj
+/F1 10 Tf
+1 0 0 1 48 357 Tm
+(5. Dashboard: comptage des risques par service incorrect.) Tj
+/F1 10 Tf
+1 0 0 1 48 342 Tm
+(6. Dashboard Blade: KPI global `usersActive` calcule dans la vue.) Tj
+/F1 10 Tf
+1 0 0 1 48 327 Tm
+(7. `chef_service_user_id` accepte n'importe quel `users.id` existant, sans contrainte de perimetre) Tj
+/F1 10 Tf
+1 0 0 1 48 312 Tm
+(mission.) Tj
+/F1 10 Tf
+1 0 0 1 48 297 Tm
+(8. Default DB `missions.mission_status` incoherent avec le domaine.) Tj
+/F1 10 Tf
+1 0 0 1 48 282 Tm
+(9. Plusieurs ressources d'ecriture n'ont pas de policy dediee \(`Processus`, `Actif`, `Controle`,) Tj
+/F1 10 Tf
+1 0 0 1 48 267 Tm
+(`ActionCorrective`\).) Tj
+/F2 12 Tf
+1 0 0 1 48 244 Tm
+(MINOR) Tj
+/F1 10 Tf
+1 0 0 1 48 218 Tm
+(1. Mojibake / encodage casse dans `services/index` et certains commentaires.) Tj
+/F1 10 Tf
+1 0 0 1 48 203 Tm
+(2. Lien legacy `module.questionnaires` encore present.) Tj
+/F1 10 Tf
+1 0 0 1 48 188 Tm
+(3. `Entretien::questionnaireCompletionPercent\(\)` peut surevaluer la progression.) Tj
+/F1 10 Tf
+1 0 0 1 48 173 Tm
+(4. `ActionCorrective` manque d'un cast date explicite.) Tj
+/F1 10 Tf
+1 0 0 1 48 158 Tm
+(5. `Questionnaire` legacy sous-modele par rapport a son schema.) Tj
+/F1 10 Tf
+1 0 0 1 48 143 Tm
+(6. Verification "migrations jamais executees" impossible statiquement sans base runtime.) Tj
+/F1 10 Tf
+1 0 0 1 48 120 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 97 Tm
+(9. Plan de correction priorise) Tj
+/F2 12 Tf
+1 0 0 1 48 68 Tm
+(Etape 1 - Remettre le schema et le bootstrap en etat de migration propre) Tj
+ET
+endstream
+endobj
+38 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 37 0 R >>
+endobj
+39 0 obj
+<< /Length 3986 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(1. Corriger `MissionService`:) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(   - soit ajouter `protected $table = 'services';`) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(   - soit supprimer l'alias et revenir a `Service` partout.) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(2. Corriger `AppServiceProvider`:) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(   - binder `service` en retournant le meme type que celui attendu par les controllers;) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(   - idealement unifier sur `Service`.) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(3. Corriger les migrations `users` en doublon:) Tj
+/F1 10 Tf
+1 0 0 1 48 687 Tm
+(   - fusionner ou rendre idempotente `2026_03_05_174934_add_user_identity_fields.php`.) Tj
+/F1 10 Tf
+1 0 0 1 48 672 Tm
+(4. Corriger `2026_05_09_140000_normalize_mission_workflow_statuses.php`:) Tj
+/F1 10 Tf
+1 0 0 1 48 657 Tm
+(   - soit la deplacer apres l'ajout de `mission_status`,) Tj
+/F1 10 Tf
+1 0 0 1 48 642 Tm
+(   - soit la guarder par `Schema::hasColumn\('missions', 'mission_status'\)`.) Tj
+/F1 10 Tf
+1 0 0 1 48 627 Tm
+(5. Aligner le default DB de `missions.mission_status` sur `brouillon`.) Tj
+/F2 12 Tf
+1 0 0 1 48 604 Tm
+(Etape 2 - Fermer les failles de securite) Tj
+/F1 10 Tf
+1 0 0 1 48 578 Tm
+(6. Reparer `QuestionnaireTemplatePolicy` pour reutiliser `User::canManageQuestionnaireLibrary\(\)`) Tj
+/F1 10 Tf
+1 0 0 1 48 563 Tm
+(et le scope departemental.) Tj
+/F1 10 Tf
+1 0 0 1 48 548 Tm
+(7. Restreindre `StoreRisqueRequest` / `Api\\V1\\RiskController::store\(\)` avec une verification de) Tj
+/F1 10 Tf
+1 0 0 1 48 533 Tm
+(visibilite reelle sur `actif_id`.) Tj
+/F1 10 Tf
+1 0 0 1 48 518 Tm
+(8. Durcir `chef_service_user_id`:) Tj
+/F1 10 Tf
+1 0 0 1 48 503 Tm
+(   - n'accepter que les utilisateurs eligibles a la mission ou du bon departement / perimetre.) Tj
+/F2 12 Tf
+1 0 0 1 48 480 Tm
+(Etape 3 - Stabiliser les workflows phase 1.5 / 2) Tj
+/F1 10 Tf
+1 0 0 1 48 454 Tm
+(9. Corriger la suppression des sections/questionnaires:) Tj
+/F1 10 Tf
+1 0 0 1 48 439 Tm
+(   - interdiction si reponses existantes, ou archivage uniquement.) Tj
+/F1 10 Tf
+1 0 0 1 48 424 Tm
+(10. Empotentiser la creation des `identified_risks` en conduite:) Tj
+/F1 10 Tf
+1 0 0 1 48 409 Tm
+(   - `updateOrCreate\(\)` ou deduplication par `entretien_id + questionnaire_question_id + title`.) Tj
+/F1 10 Tf
+1 0 0 1 48 394 Tm
+(11. Corriger la resolution des templates soft-deletes dans les entretiens:) Tj
+/F1 10 Tf
+1 0 0 1 48 379 Tm
+(   - soit `withTrashed\(\)` cote relation,) Tj
+/F1 10 Tf
+1 0 0 1 48 364 Tm
+(   - soit masquer l'action "Conduite" si template indisponible,) Tj
+/F1 10 Tf
+1 0 0 1 48 349 Tm
+(   - soit interdire le soft delete d'un template encore lie.) Tj
+/F2 12 Tf
+1 0 0 1 48 326 Tm
+(Etape 4 - Corriger la dette de coherence applicative) Tj
+/F1 10 Tf
+1 0 0 1 48 300 Tm
+(12. Corriger `Reponse` pour utiliser `commentaire`.) Tj
+/F1 10 Tf
+1 0 0 1 48 285 Tm
+(13. Ajouter timestamps au pivot `permission_role` ou retirer `withTimestamps\(\)`.) Tj
+/F1 10 Tf
+1 0 0 1 48 270 Tm
+(14. Ajouter les modeles manquants `AuditPlan` / `AuditProgramme` ou neutraliser la logique tant) Tj
+/F1 10 Tf
+1 0 0 1 48 255 Tm
+(que non prete.) Tj
+/F1 10 Tf
+1 0 0 1 48 240 Tm
+(15. Ajouter les casts manquants \(`ActionCorrective::date_echeance`, autres dates legacy utiles\).) Tj
+/F2 12 Tf
+1 0 0 1 48 217 Tm
+(Etape 5 - Corriger les couches presentation et pilotage) Tj
+/F1 10 Tf
+1 0 0 1 48 191 Tm
+(16. Corriger le dashboard:) Tj
+/F1 10 Tf
+1 0 0 1 48 176 Tm
+(   - comptage de risques reellement par service;) Tj
+/F1 10 Tf
+1 0 0 1 48 161 Tm
+(   - suppression du `User::query\(\)` dans Blade;) Tj
+/F1 10 Tf
+1 0 0 1 48 146 Tm
+(   - toute la data doit venir du controller / service.) Tj
+/F1 10 Tf
+1 0 0 1 48 131 Tm
+(17. Corriger l'encodage des fichiers mojibake.) Tj
+/F1 10 Tf
+1 0 0 1 48 116 Tm
+(18. Nettoyer les liens legacy questionnaires si la bibliotheque phase 1.5 devient la seule source) Tj
+/F1 10 Tf
+1 0 0 1 48 101 Tm
+(officielle.) Tj
+/F2 12 Tf
+1 0 0 1 48 78 Tm
+(Etape 6 - Hardening gouvernance et conventions) Tj
+ET
+endstream
+endobj
+40 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 39 0 R >>
+endobj
+41 0 obj
+<< /Length 1903 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 48 792 Tm
+(19. Ajouter des policies dediees aux ressources d'ecriture encore non couvrettes:) Tj
+/F1 10 Tf
+1 0 0 1 48 777 Tm
+(   - `Processus`) Tj
+/F1 10 Tf
+1 0 0 1 48 762 Tm
+(   - `Actif`) Tj
+/F1 10 Tf
+1 0 0 1 48 747 Tm
+(   - `Controle`) Tj
+/F1 10 Tf
+1 0 0 1 48 732 Tm
+(   - `ActionCorrective`) Tj
+/F1 10 Tf
+1 0 0 1 48 717 Tm
+(20. Normaliser tous les `status`, `active`, `deleted_at`, `validation_status`, `metadata`.) Tj
+/F1 10 Tf
+1 0 0 1 48 702 Tm
+(21. Documenter officiellement la coexistence ou la deprecation des tables legacy questionnaires.) Tj
+/F1 10 Tf
+1 0 0 1 48 679 Tm
+(---) Tj
+/F2 14 Tf
+1 0 0 1 48 656 Tm
+(Conclusion) Tj
+/F1 10 Tf
+1 0 0 1 48 627 Tm
+(Les phases 1.5 et 2 ont apporte une vraie valeur metier:) Tj
+/F1 10 Tf
+1 0 0 1 48 612 Tm
+(? questionnaires dynamiques) Tj
+/F1 10 Tf
+1 0 0 1 48 597 Tm
+(? entretiens structures) Tj
+/F1 10 Tf
+1 0 0 1 48 582 Tm
+(? services audites) Tj
+/F1 10 Tf
+1 0 0 1 48 567 Tm
+(? documents de mission) Tj
+/F1 10 Tf
+1 0 0 1 48 552 Tm
+(? consolidation) Tj
+/F1 10 Tf
+1 0 0 1 48 529 Tm
+(Mais elles ont aussi introduit plusieurs incoherences structurelles majeures, dont certaines sont) Tj
+/F1 10 Tf
+1 0 0 1 48 514 Tm
+(des blockers de robustesse:) Tj
+/F1 10 Tf
+1 0 0 1 48 499 Tm
+(? alias `MissionService` non finalise) Tj
+/F1 10 Tf
+1 0 0 1 48 484 Tm
+(? policy questionnaires ouverte) Tj
+/F1 10 Tf
+1 0 0 1 48 469 Tm
+(? migrations `users` en doublon) Tj
+/F1 10 Tf
+1 0 0 1 48 454 Tm
+(? logique `Mission` referenceant des modeles absents) Tj
+/F1 10 Tf
+1 0 0 1 48 439 Tm
+(? creation API de risques insuffisamment protegee) Tj
+/F1 10 Tf
+1 0 0 1 48 416 Tm
+(Priorite absolue:) Tj
+/F1 10 Tf
+1 0 0 1 48 401 Tm
+(1. schema et migrations,) Tj
+/F1 10 Tf
+1 0 0 1 48 386 Tm
+(2. policies et securite,) Tj
+/F1 10 Tf
+1 0 0 1 48 371 Tm
+(3. stabilisation des workflows phase 1.5 / 2,) Tj
+/F1 10 Tf
+1 0 0 1 48 356 Tm
+(4. nettoyage dashboard / vues / legacy.) Tj
+ET
+endstream
+endobj
+42 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 41 0 R >>
+endobj
+xref
+0 43
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000247 00000 n 
+0000000344 00000 n 
+0000000446 00000 n 
+0000003607 00000 n 
+0000003743 00000 n 
+0000007105 00000 n 
+0000007241 00000 n 
+0000011038 00000 n 
+0000011175 00000 n 
+0000014575 00000 n 
+0000014713 00000 n 
+0000018287 00000 n 
+0000018425 00000 n 
+0000022245 00000 n 
+0000022383 00000 n 
+0000025746 00000 n 
+0000025884 00000 n 
+0000028818 00000 n 
+0000028956 00000 n 
+0000032298 00000 n 
+0000032436 00000 n 
+0000035408 00000 n 
+0000035546 00000 n 
+0000038347 00000 n 
+0000038485 00000 n 
+0000042391 00000 n 
+0000042529 00000 n 
+0000045960 00000 n 
+0000046098 00000 n 
+0000049058 00000 n 
+0000049196 00000 n 
+0000052175 00000 n 
+0000052313 00000 n 
+0000055409 00000 n 
+0000055547 00000 n 
+0000059404 00000 n 
+0000059542 00000 n 
+0000063581 00000 n 
+0000063719 00000 n 
+0000065675 00000 n 
+trailer
+<< /Size 43 /Root 1 0 R >>
+startxref
+65813
+%%EOF

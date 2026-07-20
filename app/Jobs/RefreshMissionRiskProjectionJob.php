@@ -17,14 +17,13 @@ class RefreshMissionRiskProjectionJob implements ShouldQueue, ShouldBeUnique
     use Queueable;
     use SerializesModels;
 
-    public bool $afterCommit = true;
-
     public int $tries;
 
     public function __construct(
         public int $missionId,
         public ?string $correlationId = null,
     ) {
+        $this->afterCommit();
         $this->queue = (string) config('core_runtime.projection_queue', 'projections');
         $this->tries = max(1, (int) config('core_runtime.projection_queue_tries', 3));
     }

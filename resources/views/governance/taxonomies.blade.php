@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <header class="space-y-2">
-            <p class="dgcpt-card-title">Taxonomy Engine</p>
-            <h1 class="dgcpt-page-title">Taxonomies enterprise</h1>
-            <p class="text-sm text-[#9FB3C8]">Taxonomies nationales et départementales pour risques, contrôles, workflows, questionnaires et formulaires.</p>
+            <p class="dgcpt-card-title">Taxonomie commune</p>
+            <h1 class="dgcpt-page-title">Langage harmonisé des risques DGCPT</h1>
+            <p class="text-sm text-[#9FB3C8]">Familles nationales utilisées pour consolider les risques issus de référentiels différents.</p>
         </header>
 
         <div class="grid gap-6 xl:grid-cols-2">
@@ -22,6 +22,12 @@
                     <div class="mt-4 grid gap-3 md:grid-cols-2">
                         <x-ui.kpi-card label="Termes" :value="$taxonomy->terms_count" accent="cyan" />
                         <x-ui.kpi-card label="Mappings" :value="$taxonomy->mappings_count" accent="violet" />
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($taxonomy->terms()->limit(8)->get() as $term)
+                            <span class="rounded-full bg-[rgba(255,255,255,0.08)] px-3 py-1 text-xs text-[#BFD2E6]">{{ $term->code }} · {{ $term->name }}</span>
+                        @endforeach
                     </div>
                 </div>
             @endforeach

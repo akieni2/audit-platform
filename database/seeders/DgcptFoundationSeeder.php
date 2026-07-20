@@ -27,6 +27,40 @@ class DgcptFoundationSeeder extends Seeder
             );
         }
 
+        $directionGenerale = Department::query()->updateOrCreate(
+            ['code' => 'DG'],
+            [
+                'name' => 'Direction Générale de la Comptabilité Publique et du Trésor',
+                'type' => 'direction_generale',
+                'description' => 'Sommet de l’organigramme institutionnel DGCPT.',
+                'active' => true,
+                'parent_department_id' => null,
+                'governance_scope' => 'national',
+                'executive_visibility' => true,
+                'intelligence_profile' => [
+                    'position_title' => 'Directeur Général',
+                    'position_description' => 'Autorité supérieure de pilotage, supervision et arbitrage institutionnel.',
+                    'position_activities' => [
+                        'Définir les orientations stratégiques',
+                        'Valider les dispositifs de gouvernance et de contrôle',
+                        'Superviser la consolidation nationale des risques',
+                    ],
+                    'top_manager_profile' => [
+                        'title' => 'Directeur Général',
+                    ],
+                ],
+            ]
+        );
+
+        Department::query()
+            ->whereIn('code', ['COMPTA', 'RISQUES', 'PILOTAGE', 'IT'])
+            ->whereNull('parent_department_id')
+            ->update([
+                'parent_department_id' => $directionGenerale->id,
+                'governance_scope' => 'inspection',
+                'executive_visibility' => true,
+            ]);
+
         $permissionSlugs = [
             ['slug' => 'view', 'name' => 'Consulter', 'group' => 'core'],
             ['slug' => 'create', 'name' => 'Créer', 'group' => 'core'],

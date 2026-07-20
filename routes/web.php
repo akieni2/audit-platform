@@ -521,6 +521,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         });
 
         Route::middleware(['can:manageDepartments'])->group(function (): void {
+            Route::get('/departments/organigramme', [DepartmentManagementController::class, 'organigramme'])
+                ->name('departments.organigramme');
             Route::resource('departments', DepartmentManagementController::class)->except(['show']);
         });
     });

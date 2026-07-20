@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ControlLibrary;
 use App\Models\MethodologyTemplate;
 use App\Models\Taxonomy;
+use App\Services\Methodologies\DgcptAuditProcedureGenerator;
 use App\Services\Governance\DepartmentConsolidationService;
 use App\Services\Methodologies\MethodologyWorkflowMappingService;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class EnterpriseCatalogController extends Controller
     public function __construct(
         private MethodologyWorkflowMappingService $methodologyMappings,
         private DepartmentConsolidationService $consolidation,
+        private DgcptAuditProcedureGenerator $procedureGenerator,
     ) {}
 
     public function methodologies(Request $request): View
@@ -34,6 +36,10 @@ class EnterpriseCatalogController extends Controller
                 ->take(6)
                 ->mapWithKeys(fn (MethodologyTemplate $template) => [
                     $template->id => $this->methodologyMappings->resolveStack($template, $actor->department_id),
+                ]),
+            'procedureSummaries' => $methodologies
+                ->mapWithKeys(fn (MethodologyTemplate $template) => [
+                    $template->id => $this->procedureGenerator->generate($template),
                 ]),
         ]);
     }

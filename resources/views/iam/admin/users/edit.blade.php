@@ -105,5 +105,20 @@
                 </button>
             </form>
         @endif
+        @can('deleteFromAdministration', $editUser)
+            @if (auth()->id() !== $editUser->id && ! $editUser->trashed())
+                <form method="post" action="{{ route('admin.users.destroy', $editUser) }}" class="rounded-xl border border-[rgba(255,90,90,0.45)] bg-[#10192B] p-4"
+                      onsubmit="return confirm(&quot;Supprimer cet utilisateur ? Son accès sera révoqué, mais les traces institutionnelles seront conservées.&quot;);">
+                    @csrf
+                    @method('delete')
+                    <p class="mb-2 text-sm font-semibold text-[#FF5A5A]">Suppression IAM</p>
+                    <button type="submit" class="inline-flex items-center gap-2 text-sm font-semibold text-[#FF5A5A] hover:underline">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12zM10 11v6M14 11v6"/></svg>
+                        Supprimer cet utilisateur
+                    </button>
+                    <p class="mt-2 text-xs text-[#9FB3C8]">Suppression logique: les missions, risques, journaux et traces restent conservés.</p>
+                </form>
+            @endif
+        @endcan
     </div>
 </x-app-layout>

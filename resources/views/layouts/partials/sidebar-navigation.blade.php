@@ -40,10 +40,15 @@
                     </a>
                 @endcan
                 @if ($canManageDepartmentsNav ?? false)
-                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
+                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit', 'admin.departments.organigramme']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
                         <span class="ni" aria-hidden="true">◫</span>
-                        Pôles / départements
+                        Organigramme
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
+                       href="{{ route('enterprise.methodologies') }}">
+                        <span class="ni" aria-hidden="true">⌘</span>
+                        Gestion des référentiels
                     </a>
                 @endif
             </div>
@@ -104,10 +109,15 @@
                     </a>
                 @endcan
                 @if ($canManageDepartmentsNav ?? false)
-                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
+                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit', 'admin.departments.organigramme']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
                         <span class="ni" aria-hidden="true">◫</span>
-                        Pôles / départements
+                        Organigramme
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
+                       href="{{ route('enterprise.methodologies') }}">
+                        <span class="ni" aria-hidden="true">⌘</span>
+                        Gestion des référentiels
                     </a>
                 @endif
             </div>
