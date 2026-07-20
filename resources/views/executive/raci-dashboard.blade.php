@@ -2,7 +2,7 @@
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <div>
             <p class="dgcpt-card-title">Executive RACI</p>
-            <h1 class="dgcpt-page-title">RACI Dashboard</h1>
+            <h1 class="dgcpt-page-title">Tableau de bord RACI</h1>
             <p class="mt-1 text-sm text-[#9FB3C8]">Conflits organisationnels, heatmap de responsabilites et gaps multi-departements.</p>
         </div>
 
@@ -35,7 +35,7 @@
                 <div class="mt-4 grid gap-4 md:grid-cols-2">
                     @foreach ($dashboard['heatmap'] as $row)
                         <div class="rounded-2xl bg-[rgba(255,255,255,0.03)] p-4">
-                            <p class="text-xs uppercase tracking-wide text-[#73D8FF]">{{ $row['status'] }}</p>
+                            <p class="text-xs uppercase tracking-wide text-[#73D8FF]">{{ \App\Support\UiLabel::translate($row['status']) }}</p>
                             <p class="mt-2 text-2xl font-bold text-[#E6EEF8]">{{ $row['count'] }}</p>
                         </div>
                     @endforeach

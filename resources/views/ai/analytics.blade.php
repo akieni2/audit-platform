@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="mx-auto max-w-6xl space-y-8 px-0 py-2">
         <div>
-            <p class="dgcpt-card-title">AI Analytics</p>
+            <p class="dgcpt-card-title">Analyse de l’IA</p>
             <h1 class="dgcpt-page-title">Observabilité copilote</h1>
         </div>
 

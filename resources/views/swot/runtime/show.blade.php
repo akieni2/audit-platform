@@ -8,12 +8,12 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Strategic SWOT Runtime</p>
+                <p class="dgcpt-card-title">Exécution stratégique SWOT</p>
                 <h1 class="dgcpt-page-title">{{ $mission->organisation }}</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Analyse SWOT mission-level, recommandations et consolidation enterprise.</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('swot.recommendations', $mission) }}" class="dgcpt-btn-outline">Recommendations</a>
+                <a href="{{ route('swot.recommendations', $mission) }}" class="dgcpt-btn-outline">Recommandations</a>
                 <a href="{{ route('swot.consolidation') }}" class="dgcpt-btn-outline">Consolidation</a>
             </div>
         </div>
@@ -51,7 +51,7 @@
         <div class="dgcpt-surface p-6 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <p class="dgcpt-card-title">Recommendations</p>
+                    <p class="dgcpt-card-title">Recommandations</p>
                     <h2 class="text-xl font-bold text-[#E6EEF8]">Actions prioritaires</h2>
                 </div>
             </div>

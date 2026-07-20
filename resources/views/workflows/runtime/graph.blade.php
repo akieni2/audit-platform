@@ -1,7 +1,7 @@
 <div class="dgcpt-surface p-6 shadow-sm">
     <div class="flex items-center justify-between gap-3">
         <div>
-            <p class="dgcpt-card-title">Workflow Graph</p>
+            <p class="dgcpt-card-title">Graphe du workflow</p>
             <h2 class="text-xl font-bold text-[#E6EEF8]">Visualisation BPMN-lite</h2>
         </div>
     </div>

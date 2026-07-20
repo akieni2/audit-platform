@@ -34,7 +34,7 @@
             </div>
 
             <div class="dgcpt-surface p-6">
-                <p class="dgcpt-card-title">Criticality</p>
+                <p class="dgcpt-card-title">Criticité</p>
                 <h2 class="text-xl font-bold text-[#E6EEF8]">Répartition par criticité</h2>
                 <div class="mt-4 space-y-2 text-sm text-[#BFD2E6]">
                     @foreach (data_get($overview, 'intelligence.criticality', []) as $level => $count)

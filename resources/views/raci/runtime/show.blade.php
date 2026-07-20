@@ -8,9 +8,9 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">RACI Runtime</p>
+                <p class="dgcpt-card-title">Exécution RACI</p>
                 <h1 class="dgcpt-page-title">{{ $mission->organisation }}</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Matrice RACI missionnelle, responsabilites runtime et validation hierarchique.</p>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Matrice RACI de la mission, responsabilités d’exécution et validation hiérarchique.</p>
             </div>
             <a href="{{ route('raci.analytics', $mission) }}" class="dgcpt-btn-outline">Analytics RACI</a>
         </div>
@@ -59,7 +59,7 @@
                             <td>{{ $assignment->raciRole?->name ?? 'Role' }}</td>
                             <td>{{ strtoupper(substr((string) $assignment->role_type, 0, 1)) }}</td>
                             <td>{{ $assignment->responsibility_level?->label() ?? $assignment->responsibility_level }}</td>
-                            <td>{{ $assignment->status }}</td>
+                            <td>{{ \App\Support\UiLabel::translate($assignment->status) }}</td>
                         </tr>
                     @empty
                         <tr>

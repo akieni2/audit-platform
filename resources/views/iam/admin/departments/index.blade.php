@@ -40,7 +40,7 @@
                         <th>Code</th>
                         <th>Nom</th>
                         <th>Rattachement</th>
-                        <th>Top manager</th>
+                        <th>Responsable hiérarchique</th>
                         <th class="text-right">Utilisateurs actifs</th>
                         <th class="text-right">Statut</th>
                         <th class="text-right">Actions</th>

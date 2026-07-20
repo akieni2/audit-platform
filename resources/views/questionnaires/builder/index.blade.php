@@ -8,8 +8,8 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Builder Enterprise</p>
-                <h1 class="dgcpt-page-title">Questionnaire Builder</h1>
+                <p class="dgcpt-card-title">Concepteur institutionnel</p>
+                <h1 class="dgcpt-page-title">Concepteur de questionnaires</h1>
                 <p class="mt-1 text-sm dgcpt-text-muted">
                     Création, structuration, versioning et publication des templates dynamiques du core officiel.
                 </p>
@@ -21,7 +21,7 @@
             <div class="dgcpt-surface space-y-4 p-6 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-[#E6EEF8]">Nouveau template</h2>
-                    <p class="mt-1 text-sm text-[#9FB3C8]">Chaque création démarre en brouillon, sans impacter le runtime entretien.</p>
+                    <p class="mt-1 text-sm text-[#9FB3C8]">Chaque création démarre en brouillon, sans affecter l’exécution des entretiens.</p>
                 </div>
 
                 <form method="POST" action="{{ route('questionnaire-builder.templates.store') }}" class="space-y-4">

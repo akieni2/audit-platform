@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>Audit Dashboard</title>
+<title>Tableau de bord d’audit</title>
 
 <style>
 
@@ -41,7 +41,7 @@ font-weight:bold;
 
 <body>
 
-<h1>Audit Dashboard</h1>
+<h1>Tableau de bord d’audit</h1>
 
 <div class="container">
 

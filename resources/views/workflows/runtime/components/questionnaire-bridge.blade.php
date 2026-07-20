@@ -7,7 +7,7 @@
         @endif
 
         <div class="dgcpt-surface p-8 shadow-sm">
-            <p class="dgcpt-card-title">Workflow Runtime</p>
+            <p class="dgcpt-card-title">Exécution du workflow</p>
             <h1 class="mt-2 text-3xl font-bold text-[#E6EEF8]">{{ $stage->name }}</h1>
             <p class="mt-3 text-sm text-[#9FB3C8]">
                 Ce stage utilise le runtime questionnaire historique pour préserver la compatibilité avec `Entretien` et `QuestionnaireRuntimeService`.
@@ -21,7 +21,7 @@
 
             <div class="mt-6 flex flex-wrap gap-3">
                 @if ($questionnaireUrl)
-                    <a href="{{ $questionnaireUrl }}" class="dgcpt-btn-primary">Ouvrir le runtime questionnaire</a>
+                    <a href="{{ $questionnaireUrl }}" class="dgcpt-btn-primary">Ouvrir l’exécution du questionnaire</a>
                 @endif
                 <a href="{{ route('missions.show', $instance->mission_id) }}" class="dgcpt-btn-outline">Retour mission</a>
             </div>

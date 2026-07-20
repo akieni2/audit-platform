@@ -20,6 +20,6 @@
         <button type="button" class="dgcpt-btn-outline !px-3 !py-2 text-xs" data-canvas-zoom="out">-</button>
         <span class="min-w-16 text-center text-xs font-semibold text-[#BFD2E6]" data-canvas-zoom-label>100%</span>
         <button type="button" class="dgcpt-btn-outline !px-3 !py-2 text-xs" data-canvas-zoom="in">+</button>
-        <button type="button" class="dgcpt-btn-outline !px-3 !py-2 text-xs" data-canvas-zoom="reset">Reset</button>
+        <button type="button" class="dgcpt-btn-outline !px-3 !py-2 text-xs" data-canvas-zoom="reset">Réinitialiser</button>
     </div>
 </div>

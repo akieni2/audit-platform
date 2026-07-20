@@ -11,7 +11,7 @@
             </p>
         </div>
         <span class="rounded-full bg-[rgba(0,168,107,0.12)] px-3 py-1 text-xs font-semibold text-[#7EF2BE]" data-autosave-indicator>
-            {{ strtoupper($autosaveData['status'] ?? 'draft') }}
+            {{ \App\Support\UiLabel::translate($autosaveData['status'] ?? 'draft') }}
         </span>
     </div>
 </div>

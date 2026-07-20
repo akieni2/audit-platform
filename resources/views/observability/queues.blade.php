@@ -1,4 +1,4 @@
-<x-dgcpt.card title="Queues" subtitle="Monitoring runtime">
+<x-dgcpt.card title="Files d’attente" subtitle="Supervision de l’exécution">
     <div class="grid gap-4 md:grid-cols-4">
         <x-dgcpt.stat label="Ready" :value="$queueHealth['ready']" />
         <x-dgcpt.stat label="Draft" :value="$queueHealth['draft']" accent="#F4D000" />

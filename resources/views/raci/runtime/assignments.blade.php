@@ -35,7 +35,7 @@
             <label class="dgcpt-label">Type</label>
             <select name="role_type" class="dgcpt-input">
                 <option value="responsible">Responsible</option>
-                <option value="accountable">Accountable</option>
+                <option value="accountable">Responsable final</option>
                 <option value="consulted">Consulted</option>
                 <option value="informed">Informed</option>
             </select>

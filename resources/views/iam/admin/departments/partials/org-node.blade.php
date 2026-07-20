@@ -12,7 +12,7 @@
         <span class="rounded-full bg-[rgba(0,209,255,0.12)] px-2 py-1 text-[11px] font-semibold text-[#73D8FF]">{{ $department->children->count() }} sous-structures</span>
     </div>
     <div class="mt-3 grid gap-2 text-xs text-[#BFD2E6]">
-        <p>Top manager: {{ $department->supervisor?->displayName() ?? data_get($profile, 'top_manager_profile.title', 'Non défini') }}</p>
+        <p>Responsable hiérarchique : {{ $department->supervisor?->displayName() ?? data_get($profile, 'top_manager_profile.title', 'Non défini') }}</p>
         @if (data_get($profile, 'position_title'))
             <p>Poste clé: {{ data_get($profile, 'position_title') }}</p>
         @endif

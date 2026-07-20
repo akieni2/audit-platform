@@ -7,9 +7,9 @@
         @endif
 
         <div class="dgcpt-surface p-8 shadow-sm">
-            <p class="dgcpt-card-title">Workflow Runtime</p>
+            <p class="dgcpt-card-title">Exécution du workflow</p>
             <h1 class="mt-2 text-3xl font-bold text-[#E6EEF8]">{{ $stage->name }}</h1>
-            <p class="mt-3 text-sm text-[#9FB3C8]">Execution SWOT integree au runtime visuel du workflow.</p>
+            <p class="mt-3 text-sm text-[#9FB3C8]">Exécution SWOT intégrée à la représentation visuelle du workflow.</p>
 
             <div class="mt-6 grid gap-4 md:grid-cols-4">
                 @foreach (($swotView['kpis'] ?? []) as $label => $value)

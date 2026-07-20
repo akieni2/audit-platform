@@ -21,7 +21,7 @@
                 <input type="text" name="name" class="dgcpt-input w-full" placeholder="Audit SI — TP Lambaréné">
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="dgcpt-btn-primary">Importer vers le builder</button>
+                <button type="submit" class="dgcpt-btn-primary">Importer vers le concepteur</button>
                 <a href="{{ route('dgcpt.hierarchy.index') }}" class="dgcpt-btn-outline">Retour hiérarchie</a>
             </div>
         </motion.form>

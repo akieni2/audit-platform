@@ -9,7 +9,7 @@
 <div class="dgcpt-surface p-6 shadow-sm">
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-            <p class="dgcpt-card-title">Runtime dynamique</p>
+            <p class="dgcpt-card-title">Exécution dynamique</p>
             <h2 class="text-2xl font-bold text-[#E6EEF8]">{{ data_get($form, 'snapshot.template.name', $stage->name) }}</h2>
             <p class="mt-1 text-sm text-[#9FB3C8]">{{ data_get($form, 'snapshot.template.description', $stage->description ?: 'Saisie dynamique de l’étape workflow.') }}</p>
         </div>

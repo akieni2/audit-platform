@@ -90,7 +90,7 @@
 
             <section class="space-y-4">
                 <div>
-                    <p class="text-lg font-bold text-[#E6EEF8]">Poste, activités et top manager</p>
+                    <p class="text-lg font-bold text-[#E6EEF8]">Poste, activités et responsable hiérarchique</p>
                     <p class="text-sm text-[#9FB3C8]">La structure peut avoir un profil de poste même si le compte utilisateur sera créé plus tard.</p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
@@ -120,7 +120,7 @@
                 <div class="rounded-lg border border-[rgba(0,209,255,0.14)] bg-[rgba(7,18,32,0.72)] p-4">
                     <label class="inline-flex items-center gap-2 text-sm font-medium text-[#E6EEF8]">
                         <input type="checkbox" name="create_top_manager" value="1" class="h-4 w-4 rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" @checked(old('create_top_manager')) />
-                        Voulez-vous créer le Top Manager de cette structure ?
+                        Voulez-vous créer le compte du responsable hiérarchique de cette structure ?
                     </label>
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
                         <div>

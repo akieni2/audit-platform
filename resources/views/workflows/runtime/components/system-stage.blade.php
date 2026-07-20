@@ -17,7 +17,7 @@
         @endif
 
         <div class="dgcpt-surface p-8 shadow-sm">
-            <p class="dgcpt-card-title">Workflow Runtime</p>
+            <p class="dgcpt-card-title">Exécution du workflow</p>
             <h1 class="mt-2 text-3xl font-bold text-[#E6EEF8]">{{ $stage->name }}</h1>
             <p class="mt-3 text-sm text-[#9FB3C8]">
                 Ce stage n’utilise pas un formulaire dédié. La validation s’appuie sur la logique métier existante ou sur une confirmation manuelle.

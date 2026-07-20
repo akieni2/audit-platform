@@ -2,13 +2,13 @@
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Workflow Runtime</p>
-                <h1 class="dgcpt-page-title">Dashboard live runtime</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Monitoring global des workflows actifs, des blocages, des validations et des temps d’exécution.</p>
+                <p class="dgcpt-card-title">Exécution des workflows</p>
+                <h1 class="dgcpt-page-title">Tableau de bord d’exécution en direct</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Supervision globale des workflows actifs, des blocages, des validations et des temps d’exécution.</p>
             </div>
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('workflow-runtime.observability') }}" class="dgcpt-btn-outline">Observability center</a>
-                <a href="{{ route('dashboard') }}" class="dgcpt-btn-outline">Retour dashboard</a>
+                <a href="{{ route('dashboard') }}" class="dgcpt-btn-outline">Retour au tableau de bord</a>
             </div>
         </div>
 
@@ -23,12 +23,12 @@
 
         <div class="grid gap-6 xl:grid-cols-[1.2fr,1.8fr]">
             <div class="dgcpt-surface p-6 shadow-sm">
-                <p class="dgcpt-card-title">Heatmap runtime</p>
+                <p class="dgcpt-card-title">Carte thermique d’exécution</p>
                 <h2 class="text-xl font-bold text-[#E6EEF8]">Répartition santé workflow</h2>
                 <div class="mt-5 grid gap-3">
                     <div class="rounded-2xl border border-[rgba(0,168,107,0.22)] bg-[rgba(6,28,22,0.72)] px-4 py-4 text-sm text-[#E6EEF8]">Healthy: {{ $runtimeDashboard['heatmap']['healthy'] }}</div>
                     <div class="rounded-2xl border border-[rgba(201,174,255,0.22)] bg-[rgba(28,15,39,0.72)] px-4 py-4 text-sm text-[#E6EEF8]">Attention: {{ $runtimeDashboard['heatmap']['attention'] }}</div>
-                    <div class="rounded-2xl border border-[rgba(255,90,90,0.22)] bg-[rgba(36,10,15,0.72)] px-4 py-4 text-sm text-[#E6EEF8]">Critical: {{ $runtimeDashboard['heatmap']['critical'] }}</div>
+                    <div class="rounded-2xl border border-[rgba(255,90,90,0.22)] bg-[rgba(36,10,15,0.72)] px-4 py-4 text-sm text-[#E6EEF8]">Critique : {{ $runtimeDashboard['heatmap']['critical'] }}</div>
                 </div>
             </div>
 

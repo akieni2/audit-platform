@@ -20,7 +20,7 @@
                 <thead>
                     <tr>
                         <th class="text-left">Processus</th>
-                        <th class="text-left">Missing accountable</th>
+                        <th class="text-left">Responsables finaux manquants</th>
                         <th class="text-left">Missing responsible</th>
                         <th class="text-left">Participants</th>
                     </tr>

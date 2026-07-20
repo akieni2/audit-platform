@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between gap-3">
         <div>
             <p class="dgcpt-card-title">Flux d’activité</p>
-            <h2 class="text-xl font-bold text-[#E6EEF8]">Dernières actions runtime</h2>
+            <h2 class="text-xl font-bold text-[#E6EEF8]">Dernières actions d’exécution</h2>
         </div>
         <span class="rounded-full bg-[rgba(0,209,255,0.08)] px-3 py-1 text-xs font-semibold text-[#73D8FF]">
             {{ $runtime->activityFeed->count() }} événements

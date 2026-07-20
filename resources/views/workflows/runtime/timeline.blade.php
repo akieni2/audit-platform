@@ -1,7 +1,7 @@
 <div class="dgcpt-surface p-6 shadow-sm">
     <div class="flex items-center justify-between gap-3">
         <div>
-            <p class="dgcpt-card-title">Timeline runtime</p>
+            <p class="dgcpt-card-title">Chronologie d’exécution</p>
             <h2 class="text-xl font-bold text-[#E6EEF8]">Journal chronologique</h2>
         </div>
     </div>
@@ -22,7 +22,7 @@
                     </div>
                     <div class="mt-2 flex flex-wrap gap-3 text-xs text-[#BFD2E6]">
                         <span>Source: {{ $entry->source }}</span>
-                        <span>Statut: {{ $entry->status }}</span>
+                        <span>Statut : {{ \App\Support\UiLabel::translate($entry->status) }}</span>
                         @if ($entry->stageName)
                             <span>Stage: {{ $entry->stageName }}</span>
                         @endif
@@ -33,7 +33,7 @@
                 </div>
             </div>
         @empty
-            <p class="text-sm text-[#9FB3C8]">La timeline runtime est vide pour cette mission.</p>
+            <p class="text-sm text-[#9FB3C8]">La chronologie d’exécution est vide pour cette mission.</p>
         @endforelse
     </div>
 </div>

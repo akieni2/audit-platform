@@ -18,7 +18,7 @@
 
 <!-- Dashboard -->
 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-Dashboard
+Tableau de bord
 </x-nav-link>
 
 <!-- Missions -->

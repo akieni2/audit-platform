@@ -23,7 +23,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Workflow Builder Enterprise</p>
+                <p class="dgcpt-card-title">Concepteur institutionnel de workflows</p>
                 <h1 class="dgcpt-page-title">{{ $template->name }}</h1>
                 <p class="mt-1 text-sm font-mono text-[#9FB3C8]">{{ $template->slug }} · v{{ $template->version }}</p>
             </div>
@@ -474,7 +474,7 @@
                                 <textarea name="form_schema_json_text" rows="5" class="dgcpt-textarea font-mono text-xs">{{ old('form_schema_json_text', json_encode($selectedStage->resolvedFormSchema(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}</textarea>
                             </div>
                             <div>
-                                <label class="dgcpt-label">Risk matrix JSON</label>
+                                <label class="dgcpt-label">Matrice des risques JSON</label>
                                 <textarea name="risk_matrix_schema_json_text" rows="5" class="dgcpt-textarea font-mono text-xs">{{ old('risk_matrix_schema_json_text', json_encode($selectedStage->resolvedRiskMatrixSchema(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}</textarea>
                             </div>
                             <div>

@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <motion.div data-dgcpt-motion="fade-up">
-            <p class="dgcpt-card-title">Runtime Diagnostics</p>
-            <h1 class="dgcpt-page-title">Diagnostics runtime</h1>
+            <p class="dgcpt-card-title">Diagnostic d’exécution</p>
+            <h1 class="dgcpt-page-title">Diagnostics d’exécution</h1>
         </motion.div>
 
         <x-dgcpt.card title="Mission courante" subtitle="Orphelins & workflow">

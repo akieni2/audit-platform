@@ -1,10 +1,10 @@
 <div class="sidebar">
 
-<h3>Audit System</h3>
+<h3>Système d’audit</h3>
 
 <ul>
 
-<li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+<li><a href="{{ route('dashboard') }}">Tableau de bord</a></li>
 
 <li>Missions
 <ul>
@@ -21,7 +21,7 @@
 
 <li><a href="{{ route('module.risques') }}">Risques</a></li>
 
-<li><a href="{{ route('risks.review-board') }}">Review board</a></li>
+<li><a href="{{ route('risks.review-board') }}">Comité de revue</a></li>
 
 <li><a href="{{ route('module.actions') }}">Actions correctives</a></li>
 
@@ -29,7 +29,7 @@
 
 <li><a href="{{ route('workflow-builder.index') }}">Workflows</a></li>
 
-<li><a href="{{ route('workflow-runtime.dashboard') }}">Runtime workflows</a></li>
+<li><a href="{{ route('workflow-runtime.dashboard') }}">Exécution des workflows</a></li>
 
 <li><a href="{{ route('enterprise.methodologies') }}">Méthodologies</a></li>
 

@@ -3,7 +3,7 @@
         <header class="space-y-2">
             <p class="dgcpt-card-title">Catalogue institutionnel DGCPT</p>
             <h1 class="dgcpt-page-title">Référentiels d’audit homologués</h1>
-            <p class="text-sm text-[#9FB3C8]">Référentiels adoptés, procédures générées, livrables attendus, bibliothèques de questions et mappings vers la taxonomie commune des risques.</p>
+            <p class="text-sm text-[#9FB3C8]">Référentiels adoptés, procédures générées, livrables attendus, bibliothèques de questions et correspondances vers la taxonomie commune des risques.</p>
         </header>
 
         <div class="grid gap-6 xl:grid-cols-2">
@@ -24,7 +24,7 @@
                         <x-ui.kpi-card label="Catégories" :value="$methodology->categories_count" accent="cyan" />
                         <x-ui.kpi-card label="Contrôles" :value="$methodology->controls_count" accent="green" />
                         <x-ui.kpi-card label="Exigences" :value="$methodology->requirements_count" accent="yellow" />
-                        <x-ui.kpi-card label="Mappings" :value="$methodology->mappings_count" accent="violet" />
+                        <x-ui.kpi-card label="Correspondances" :value="$methodology->mappings_count" accent="violet" />
                     </div>
 
                     @if (isset($methodologyStacks[$methodology->id]))
@@ -50,7 +50,7 @@
                                                 <p class="text-sm font-semibold text-[#E6EEF8]">{{ $stage['rank'] }}. {{ $stage['name'] }}</p>
                                                 <p class="mt-1 text-xs text-[#9FB3C8]">{{ $stage['objective'] }}</p>
                                             </div>
-                                            <span class="rounded-full bg-[rgba(126,242,190,0.1)] px-2 py-1 text-[11px] font-semibold text-[#7EF2BE]">{{ $stage['criticality'] }}</span>
+                                            <span class="rounded-full bg-[rgba(126,242,190,0.1)] px-2 py-1 text-[11px] font-semibold text-[#7EF2BE]">{{ \App\Domain\Risk\Enums\CriticalityLevel::fromMixed($stage['criticality'])?->label() ?? $stage['criticality'] }}</span>
                                         </div>
                                         <p class="mt-2 text-xs text-[#BFD2E6]">Livrables: {{ implode(', ', $stage['deliverables']) }}</p>
                                         @if (! empty($stage['questions']))

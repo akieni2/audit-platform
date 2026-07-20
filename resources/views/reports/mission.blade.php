@@ -35,7 +35,7 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
 <div class="meta">
     <p><strong>Description :</strong> {{ $mission->description }}</p>
     <p><strong>Période :</strong> {{ $mission->date_debut }} au {{ $mission->date_fin ?? '—' }}</p>
-    <p><strong>État de validation :</strong> {{ $mission->mission_status }}</p>
+    <p><strong>État de validation :</strong> {{ \App\Support\UiLabel::translate($mission->mission_status) }}</p>
     @if ($mission->department)
         <p><strong>Pôle / département :</strong> {{ $mission->department->code }} — {{ $mission->department->name }}</p>
     @endif
@@ -55,7 +55,7 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
 @forelse ($mission->workflowEvents as $evt)
 <tr>
     <td>{{ $evt->created_at?->format('d/m/Y H:i') }}</td>
-    <td>{{ $evt->action }} — {{ $evt->from_status }} → {{ $evt->to_status }}</td>
+    <td>{{ $evt->action }} — {{ \App\Support\UiLabel::translate($evt->from_status) }} → {{ \App\Support\UiLabel::translate($evt->to_status) }}</td>
     <td>{{ $evt->user?->displayName() ?? '—' }}</td>
     <td>{{ $evt->comment ?: '—' }}</td>
 </tr>

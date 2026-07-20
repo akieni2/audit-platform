@@ -2,7 +2,7 @@
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <div>
             <p class="dgcpt-card-title">Executive SWOT</p>
-            <h1 class="dgcpt-page-title">SWOT Dashboard</h1>
+            <h1 class="dgcpt-page-title">Tableau de bord SWOT</h1>
             <p class="mt-1 text-sm text-[#9FB3C8]">Tendances SWOT, consolidation nationale et alignement strategique.</p>
         </div>
 

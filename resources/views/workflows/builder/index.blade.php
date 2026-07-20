@@ -19,7 +19,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Workflow Builder Enterprise</p>
+                <p class="dgcpt-card-title">Concepteur institutionnel de workflows</p>
                 <h1 class="dgcpt-page-title">Bibliothèque des workflows</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Créez des workflows multi-départements configurables avec stages dynamiques, questionnaires, approbations et reporting.</p>
             </div>
@@ -92,7 +92,7 @@
                                 <p class="mt-1 font-mono text-xs text-[#7E92A7]">{{ $template->slug }} · v{{ $template->version }}</p>
                                 <p class="mt-3 text-sm text-[#9FB3C8]">{{ $template->description ?: 'Aucune description.' }}</p>
                             </div>
-                            <a href="{{ route('workflow-builder.edit', $template) }}" class="dgcpt-btn-outline">Ouvrir le builder</a>
+                            <a href="{{ route('workflow-builder.edit', $template) }}" class="dgcpt-btn-outline">Ouvrir le concepteur</a>
                         </div>
 
                         <div class="mt-5 grid gap-3 md:grid-cols-4">

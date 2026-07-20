@@ -21,7 +21,7 @@
             <div>
                 <p class="dgcpt-card-title">Dynamic Form Engine</p>
                 <h1 class="dgcpt-page-title">Bibliothèque des formulaires</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Définissez des formulaires low-code versionnés pour les stages workflow dynamiques.</p>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Définissez des formulaires à configuration simplifiée et versionnés pour les étapes dynamiques du workflow.</p>
             </div>
             <a href="{{ route('form-builder.create') }}" class="dgcpt-btn-primary">Nouveau formulaire</a>
         </div>
@@ -84,7 +84,7 @@
                                 <p class="mt-1 font-mono text-xs text-[#7E92A7]">{{ $template->slug }} · v{{ $template->version }}</p>
                                 <p class="mt-3 text-sm text-[#9FB3C8]">{{ $template->description ?: 'Aucune description.' }}</p>
                             </div>
-                            <a href="{{ route('form-builder.edit', $template) }}" class="dgcpt-btn-outline">Ouvrir le builder</a>
+                            <a href="{{ route('form-builder.edit', $template) }}" class="dgcpt-btn-outline">Ouvrir le concepteur</a>
                         </div>
 
                         <div class="mt-5 grid gap-3 md:grid-cols-4">

@@ -12,7 +12,7 @@
             <div class="border-b border-[rgba(0,209,255,0.08)] px-5 py-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-lg font-bold text-[#E6EEF8]">Canvas workflow</h2>
+                        <h2 class="text-lg font-bold text-[#E6EEF8]">Canevas du workflow</h2>
                         <p class="mt-1 text-sm text-[#9FB3C8]">Drag/drop, zoom, minimap, transitions dynamiques et autosave layout.</p>
                     </div>
                     <a href="{{ route('workflow-builder.edit', $template) }}" class="text-sm font-semibold text-[#73D8FF] hover:underline">Réinitialiser sélection</a>

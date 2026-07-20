@@ -19,7 +19,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Questionnaire Builder Enterprise</p>
+                <p class="dgcpt-card-title">Concepteur institutionnel de questionnaires</p>
                 <h1 class="dgcpt-page-title">{{ $template->name }}</h1>
                 <p class="mt-1 text-sm font-mono text-[#9FB3C8]">{{ $template->slug }} · v{{ $template->version }}</p>
             </div>

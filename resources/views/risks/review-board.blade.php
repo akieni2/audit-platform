@@ -2,8 +2,8 @@
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-                <p class="dgcpt-card-title">Risk Registry</p>
-                <h1 class="dgcpt-page-title">Enterprise Review Board</h1>
+                <p class="dgcpt-card-title">Registre des risques</p>
+                <h1 class="dgcpt-page-title">Comité institutionnel de revue</h1>
                 <p class="mt-2 text-sm text-[#9FB3C8]">
                     File officielle de revue des risques détectés, validation humaine, promotion vers le registre canonique et gouvernance lifecycle.
                 </p>

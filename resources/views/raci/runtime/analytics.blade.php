@@ -6,7 +6,7 @@
                 <h1 class="dgcpt-page-title">{{ $mission->organisation }}</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Surcharge, gaps organisationnels et pilotage des responsabilites.</p>
             </div>
-            <a href="{{ route('raci.show', $mission) }}" class="dgcpt-btn-outline">Retour runtime</a>
+            <a href="{{ route('raci.show', $mission) }}" class="dgcpt-btn-outline">Retour à l’exécution</a>
         </div>
 
         <div class="grid gap-4 md:grid-cols-4">

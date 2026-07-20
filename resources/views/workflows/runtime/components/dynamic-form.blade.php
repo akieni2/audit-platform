@@ -18,7 +18,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">Workflow Runtime</p>
+                <p class="dgcpt-card-title">Exécution du workflow</p>
                 <h1 class="dgcpt-page-title">{{ $stage->name }}</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Mission #{{ $instance->mission_id }} · composant {{ $stage->resolvedComponentKey() }}</p>
             </div>

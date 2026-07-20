@@ -8,7 +8,7 @@
 
         <div>
             <p class="dgcpt-card-title">Strategic Governance</p>
-            <h1 class="dgcpt-page-title">RACI Builder</h1>
+            <h1 class="dgcpt-page-title">Concepteur RACI</h1>
             <p class="mt-1 text-sm text-[#9FB3C8]">Design visuel des matrices de responsabilites workflow, departement et national.</p>
         </div>
 

@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="mx-auto max-w-7xl space-y-8 px-0 py-2">
         <header class="space-y-2">
-            <p class="dgcpt-card-title">Executive Analytics Platform</p>
-            <h1 class="dgcpt-page-title">Department Comparison</h1>
+            <p class="dgcpt-card-title">Plateforme d’analyse exécutive</p>
+            <h1 class="dgcpt-page-title">Comparaison des départements</h1>
             <p class="text-sm text-[#9FB3C8]">Comparaison transverse des départements sur les risques, workflows et charges de gouvernance.</p>
         </header>
 

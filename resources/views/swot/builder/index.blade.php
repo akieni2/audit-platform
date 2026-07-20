@@ -9,7 +9,7 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="dgcpt-card-title">Strategic Governance</p>
-                <h1 class="dgcpt-page-title">SWOT Builder</h1>
+                <h1 class="dgcpt-page-title">Concepteur SWOT</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">Templates SWOT dynamiques pour mission, departement et lecture nationale.</p>
             </div>
             <a href="{{ route('swot.consolidation') }}" class="dgcpt-btn-outline">Consolidation SWOT</a>
@@ -41,7 +41,7 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <a href="{{ route('swot-builder.edit', $template) }}" class="dgcpt-btn-primary">Ouvrir le builder</a>
+                            <a href="{{ route('swot-builder.edit', $template) }}" class="dgcpt-btn-primary">Ouvrir le concepteur</a>
                         </div>
                     </div>
                 @empty

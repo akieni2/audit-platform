@@ -178,7 +178,7 @@
         <a class="nav-link {{ request()->routeIs('workflow-runtime.*') ? 'active' : '' }}"
            href="{{ route('workflow-runtime.dashboard') }}">
             <span class="ni" aria-hidden="true">▤</span>
-            Runtime workflows
+            Exécution des workflows
         </a>
         <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
            href="{{ route('enterprise.methodologies') }}">
@@ -238,7 +238,7 @@
         <a class="nav-link {{ request()->routeIs('risks.review-board') ? 'active' : '' }}"
            href="{{ route('risks.review-board') }}">
             <span class="ni" aria-hidden="true">◌</span>
-            Review board
+            Comité de revue
         </a>
 
         <p class="nav-section-title">Suivi</p>
@@ -278,12 +278,12 @@
             <a class="nav-link {{ request()->routeIs('executive.swot-dashboard') ? 'active' : '' }}"
                href="{{ route('executive.swot-dashboard') }}">
                 <span class="ni" aria-hidden="true">⬒</span>
-                SWOT dashboard
+                Tableau de bord SWOT
             </a>
             <a class="nav-link {{ request()->routeIs('executive.raci-dashboard') ? 'active' : '' }}"
                href="{{ route('executive.raci-dashboard') }}">
                 <span class="ni" aria-hidden="true">⌗</span>
-                RACI dashboard
+                Tableau de bord RACI
             </a>
         @endcan
 

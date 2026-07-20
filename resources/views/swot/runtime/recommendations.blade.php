@@ -11,8 +11,8 @@
                 </span>
             </div>
             <div class="mt-3 flex flex-wrap gap-3 text-xs text-[#BFD2E6]">
-                <span>Role: {{ $recommendation->owner_role ?: 'A definir' }}</span>
-                <span>Statut: {{ $recommendation->status }}</span>
+                <span>Rôle : {{ $recommendation->owner_role ?: 'À définir' }}</span>
+                <span>Statut : {{ \App\Support\UiLabel::translate($recommendation->status) }}</span>
                 <span>Indice: {{ $recommendation->priority_index }}</span>
             </div>
         </div>

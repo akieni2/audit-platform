@@ -17,7 +17,7 @@
     <div class="dgcpt-surface p-6 shadow-sm">
         <div class="flex items-center justify-between gap-3">
             <div>
-                <p class="dgcpt-card-title">Intelligent Runtime</p>
+                <p class="dgcpt-card-title">Exécution intelligente</p>
                 <h2 class="text-xl font-bold text-[#E6EEF8]">Recommandations automatiques</h2>
             </div>
         </div>
@@ -27,7 +27,7 @@
                 <p class="text-sm font-semibold text-[#E6EEF8]">Score intelligent</p>
                 <div class="mt-2 flex flex-wrap gap-3 text-xs text-[#BFD2E6]">
                     <span>Confiance: {{ data_get($runtimeRecommendations, 'intelligent_score.confidence', 0) }}%</span>
-                    <span>Criticité suggérée: {{ data_get($runtimeRecommendations, 'intelligent_score.suggested_criticality', 'medium') }}</span>
+                    <span>Criticité suggérée : {{ \App\Support\UiLabel::translate(data_get($runtimeRecommendations, 'intelligent_score.suggested_criticality', 'medium')) }}</span>
                     <span>Méthodologie: {{ data_get($runtimeRecommendations, 'methodology.name', 'Aucune') }}</span>
                 </div>
             </div>

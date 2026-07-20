@@ -2,8 +2,8 @@
     <div class="mx-auto max-w-6xl space-y-8 px-0 py-2">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">AI Copilot</p>
-                <h1 class="dgcpt-page-title">Audit & Risk Copilot</h1>
+                <p class="dgcpt-card-title">Copilote IA</p>
+                <h1 class="dgcpt-page-title">Copilote d’audit et des risques</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">
                     Assistance IA — driver <span class="font-mono text-[#00D1FF]">{{ $driver }}</span>.
                     Aucune décision automatique.

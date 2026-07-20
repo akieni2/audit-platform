@@ -1,7 +1,7 @@
 <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
         <div class="flex flex-wrap items-center gap-2">
-            <p class="dgcpt-card-title">Visual Workflow Runtime</p>
+            <p class="dgcpt-card-title">Exécution visuelle du workflow</p>
             <span class="rounded-full border px-2.5 py-1 text-[11px] font-semibold {{ $runtime->workflowState['badge_classes'] }}">
                 {{ $runtime->workflowState['label'] }}
             </span>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="flex flex-wrap gap-3">
-        <a href="{{ route('workflow-runtime.dashboard') }}" class="dgcpt-btn-outline">Dashboard runtime</a>
+        <a href="{{ route('workflow-runtime.dashboard') }}" class="dgcpt-btn-outline">Tableau de bord d’exécution</a>
         <a href="{{ route('workflow-runtime.observability') }}" class="dgcpt-btn-outline">Observability center</a>
         <a href="{{ route('missions.show', $mission) }}" class="dgcpt-btn-outline">Retour mission</a>
     </div>

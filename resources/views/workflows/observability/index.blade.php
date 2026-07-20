@@ -3,12 +3,12 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="dgcpt-card-title">Observability Center</p>
-                <h1 class="dgcpt-page-title">Workflow observability center</h1>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Vue consolidée des `workflow_execution_logs`, `business_events`, `runtime_metrics` et contrôles d’intégrité.</p>
+                <h1 class="dgcpt-page-title">Centre d’observabilité des workflows</h1>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Vue consolidée des journaux d’exécution, événements métier, mesures d’exécution et contrôles d’intégrité.</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('workflow-runtime.dashboard') }}" class="dgcpt-btn-outline">Dashboard runtime</a>
-                <a href="{{ route('dashboard') }}" class="dgcpt-btn-outline">Retour dashboard</a>
+                <a href="{{ route('workflow-runtime.dashboard') }}" class="dgcpt-btn-outline">Tableau de bord d’exécution</a>
+                <a href="{{ route('dashboard') }}" class="dgcpt-btn-outline">Retour au tableau de bord</a>
             </div>
         </div>
 
@@ -25,7 +25,7 @@
                                 @if ($event->actor)
                                     <span>{{ $event->actor->displayName() }}</span>
                                 @endif
-                                <span>Status: {{ $event->status }}</span>
+                                <span>Statut : {{ \App\Support\UiLabel::translate($event->status) }}</span>
                             </div>
                         </div>
                     @empty
@@ -35,8 +35,8 @@
             </div>
 
             <div class="dgcpt-surface p-6 shadow-sm">
-                <p class="dgcpt-card-title">Runtime metrics</p>
-                <h2 class="text-xl font-bold text-[#E6EEF8]">Mesures runtime</h2>
+                <p class="dgcpt-card-title">Mesures d’exécution</p>
+                <h2 class="text-xl font-bold text-[#E6EEF8]">Mesures d’exécution</h2>
                 <div class="mt-5 space-y-3">
                     @forelse ($runtimeMetrics as $metric)
                         <div class="rounded-2xl border border-[rgba(0,209,255,0.10)] bg-[rgba(5,8,22,0.72)] p-4">
@@ -48,7 +48,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-[#9FB3C8]">Aucune métrique runtime visible.</p>
+                        <p class="text-sm text-[#9FB3C8]">Aucune mesure d’exécution visible.</p>
                     @endforelse
                 </div>
             </div>
@@ -63,7 +63,7 @@
                         <div class="rounded-2xl border border-[rgba(0,209,255,0.10)] bg-[rgba(5,8,22,0.72)] p-4">
                             <p class="text-sm font-semibold text-[#E6EEF8]">{{ $check->projection_type }}</p>
                             <div class="mt-2 flex flex-wrap gap-3 text-xs text-[#BFD2E6]">
-                                <span>Status: {{ $check->status }}</span>
+                                <span>Statut : {{ \App\Support\UiLabel::translate($check->status) }}</span>
                                 <span>Mismatches: {{ $check->mismatch_count }}</span>
                                 <span>{{ $check->checked_at?->format('d/m/Y H:i') }}</span>
                             </div>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="dgcpt-surface p-6 shadow-sm">
-                <p class="dgcpt-card-title">Templates workflow</p>
+                <p class="dgcpt-card-title">Modèles de workflow</p>
                 <h2 class="text-xl font-bold text-[#E6EEF8]">Définitions actives</h2>
                 <div class="mt-5 space-y-3">
                     @forelse ($workflowTemplates as $template)
@@ -84,11 +84,11 @@
                             <div class="mt-2 flex flex-wrap gap-3 text-xs text-[#BFD2E6]">
                                 <span>Stages: {{ $template->stages_count }}</span>
                                 <span>Instances: {{ $template->instances_count }}</span>
-                                <span>Status: {{ $template->status?->value ?? $template->status }}</span>
+                                <span>Statut : {{ \App\Support\UiLabel::translate($template->status) }}</span>
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-[#9FB3C8]">Aucun template workflow visible.</p>
+                        <p class="text-sm text-[#9FB3C8]">Aucun modèle de workflow visible.</p>
                     @endforelse
                 </div>
             </div>

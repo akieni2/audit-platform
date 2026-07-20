@@ -3,7 +3,7 @@
         <div>
             <p class="dgcpt-card-title">Properties panel</p>
             <h2 class="text-lg font-bold text-[#E6EEF8]">Stage & transitions</h2>
-            <p class="mt-1 text-sm text-[#9FB3C8]">Configuration rapide, validation visuelle et badges runtime.</p>
+            <p class="mt-1 text-sm text-[#9FB3C8]">Configuration rapide, validation visuelle et badges d’exécution.</p>
         </div>
         @if ($selectedStage)
             <span class="rounded-full bg-[rgba(0,168,107,0.12)] px-3 py-1 text-xs font-semibold text-[#7EF2BE]">
@@ -17,7 +17,7 @@
             <div class="rounded-2xl border border-[rgba(0,209,255,0.08)] bg-[rgba(5,8,22,0.72)] p-4">
                 <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Inline edition</p>
                 <p class="mt-2 text-sm text-[#E6EEF8]">{{ $selectedStage->resolvedComponentKey() }}</p>
-                <p class="mt-1 text-xs text-[#9FB3C8]">Lane: {{ collect($canvas['nodes'])->firstWhere('id', $selectedStage->id)['lane'] ?? 'Flow principal' }}</p>
+                <p class="mt-1 text-xs text-[#9FB3C8]">Couloir : {{ collect($canvas['nodes'])->firstWhere('id', $selectedStage->id)['lane'] ?? 'Flux principal' }}</p>
             </div>
             <div class="rounded-2xl border border-[rgba(0,209,255,0.08)] bg-[rgba(5,8,22,0.72)] p-4">
                 <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Visual validation</p>

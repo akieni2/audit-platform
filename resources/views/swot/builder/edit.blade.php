@@ -8,7 +8,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="dgcpt-card-title">SWOT Builder</p>
+                <p class="dgcpt-card-title">Concepteur SWOT</p>
                 <h1 class="dgcpt-page-title">{{ $template->name }}</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">{{ $template->department?->code ?? 'National' }} · {{ $template->analysis_scope }} · v{{ $template->version }}</p>
             </div>
@@ -19,7 +19,7 @@
             <div class="space-y-6">
                 <div class="dgcpt-surface p-6 shadow-sm">
                     <p class="dgcpt-card-title">Matrice SWOT</p>
-                    <h2 class="text-xl font-bold text-[#E6EEF8]">Vue builder dynamique</h2>
+                    <h2 class="text-xl font-bold text-[#E6EEF8]">Vue de conception dynamique</h2>
                     <div class="mt-5">
                         @include('swot.builder.matrix', ['builder' => $builder])
                     </div>
