@@ -27,7 +27,7 @@ class StoreDepartmentRequest extends FormRequest
             'active' => ['sometimes', 'boolean'],
             'parent_department_id' => ['nullable', 'exists:departments,id'],
             'governance_scope' => ['nullable', 'string', 'max:64'],
-            'default_methodology_template_id' => ['nullable', 'exists:methodology_templates,id'],
+            'default_methodology_template_id' => ['nullable', Rule::exists('methodology_templates', 'id')->where('active', true)],
             'default_taxonomy_id' => ['nullable', 'exists:taxonomies,id'],
             'executive_visibility' => ['sometimes', 'boolean'],
             'supervisor_user_id' => ['nullable', 'exists:users,id'],
@@ -53,6 +53,11 @@ class StoreDepartmentRequest extends FormRequest
             if (OrganizationStructure::requiresParent($type) && $parentId === null) {
                 $validator->errors()->add('parent_department_id', 'Cette structure doit être rattachée à une structure parente.');
                 return;
+            }
+
+
+            if (OrganizationStructure::requiresAuditMethodology($type) && ! $this->filled('default_methodology_template_id')) {
+                $validator->errors()->add('default_methodology_template_id', 'Un référentiel d’audit doit être choisi pour cette structure.');
             }
 
             if ($parentId !== null) {

@@ -17,21 +17,21 @@ class DepartmentPolicy
 
     public function view(User $user, Department $department): bool
     {
-        return $user->canManageDepartments();
+        return $user->canAdministerOrganization() || $user->isDepartmentSupervisorOf($department->id);
     }
 
     public function create(User $user): bool
     {
-        return $user->canManageDepartments();
+        return $user->canAdministerOrganization();
     }
 
     public function update(User $user, Department $department): bool
     {
-        return $user->canManageDepartments();
+        return $user->canAdministerOrganization() || $user->isDepartmentSupervisorOf($department->id);
     }
 
     public function delete(User $user, Department $department): bool
     {
-        return $user->canManageDepartments();
+        return $user->canAdministerOrganization();
     }
 }

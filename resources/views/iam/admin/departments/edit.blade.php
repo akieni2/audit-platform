@@ -82,13 +82,14 @@
                 </div>
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div>
-                        <label class="dgcpt-label">Référentiel par défaut</label>
+                        <label class="dgcpt-label">Référentiel d’audit <span class="text-red-400">*</span></label>
                         <select name="default_methodology_template_id" class="dgcpt-select">
-                            <option value="">Aucun</option>
+                            <option value="">Choisir le référentiel</option>
                             @foreach ($methodologies as $methodology)
                                 <option value="{{ $methodology->id }}" @selected(old('default_methodology_template_id', $department->default_methodology_template_id) == $methodology->id)>{{ $methodology->name }}</option>
                             @endforeach
                         </select>
+                        <p class="mt-1 text-xs text-[#73D8FF]">Le choix configure l’espace d’audit de cette structure.</p>
                     </div>
                     <div>
                         <label class="dgcpt-label">Taxonomie par défaut</label>
@@ -148,7 +149,7 @@
                         <div>
                             <label class="dgcpt-label">Rôle système</label>
                             <select name="top_manager_role_id" class="dgcpt-select">
-                                <option value="">Rôle le plus élevé disponible</option>
+                                <option value="">Rôle recommandé selon la structure</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->id }}" @selected(old('top_manager_role_id', data_get($topManager, 'role_id')) == $role->id)>{{ $role->name }}</option>
                                 @endforeach

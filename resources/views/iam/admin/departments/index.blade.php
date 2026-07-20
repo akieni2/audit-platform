@@ -9,7 +9,9 @@
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('admin.departments.organigramme') }}" class="dgcpt-btn-outline">Voir organigramme</a>
                 <a href="{{ route('enterprise.methodologies') }}" class="dgcpt-btn-outline">Gestion des référentiels</a>
-                <a href="{{ route('admin.departments.create') }}" class="dgcpt-btn-primary">Nouvelle structure</a>
+                @can('create', \App\Models\Department::class)
+                    <a href="{{ route('admin.departments.create') }}" class="dgcpt-btn-primary">Nouvelle structure</a>
+                @endcan
             </div>
         </div>
 
@@ -42,6 +44,7 @@
                         <th>Niveau organisationnel</th>
                         <th>Rattachement</th>
                         <th>Responsable hiérarchique</th>
+                        <th>Référentiel / espace d’audit</th>
                         <th class="text-right">Utilisateurs actifs</th>
                         <th class="text-right">Statut</th>
                         <th class="text-right">Actions</th>
@@ -55,6 +58,14 @@
                             <td class="text-[#9FB3C8]">{{ $d->typeLabel() }}</td>
                             <td class="text-[#9FB3C8]">{{ $d->parent?->code ?? 'Sommet' }}</td>
                             <td class="text-[#9FB3C8]">{{ $d->supervisor?->displayName() ?? data_get($d->intelligence_profile, 'top_manager_profile.title', 'Non défini') }}</td>
+                            <td class="text-[#9FB3C8]">
+                                <p>{{ $d->defaultMethodologyTemplate?->name ?? 'Non configuré' }}</p>
+                                @if (data_get($d->intelligence_profile, 'audit_environment.status') === 'ready' && $d->tenantContext?->active)
+                                    <span class="text-xs font-semibold text-[#00A86B]">Espace d’audit prêt</span>
+                                @else
+                                    <span class="text-xs font-semibold text-[#FFB020]">Configuration requise</span>
+                                @endif
+                            </td>
                             <td class="text-right font-semibold text-[#E6EEF8]">{{ $d->users_count }}</td>
                             <td class="text-right">
                                 @if ($d->active)

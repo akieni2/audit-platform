@@ -70,6 +70,18 @@ final class OrganizationStructure
         return in_array($type, [self::SOUS_DIRECTION, self::POLE, self::SERVICE, self::CELLULE], true);
     }
 
+    public static function requiresAuditMethodology(?string $type): bool
+    {
+        return in_array($type, [
+            self::ADMINISTRATION,
+            self::DIRECTION,
+            self::DEPARTEMENT,
+            self::INSPECTION_SERVICES,
+            self::SOUS_DIRECTION,
+            self::POLE,
+        ], true);
+    }
+
     /** @return list<string> */
     public static function allowedParentTypes(?string $type): array
     {

@@ -86,7 +86,7 @@ class TenantResolutionService
             return;
         }
 
-        foreach (['workflows', 'forms', 'questionnaires', 'missions', 'swot', 'raci', 'analytics'] as $module) {
+        foreach (['workflows', 'forms', 'questionnaires', 'missions', 'risks', 'controls', 'swot', 'raci', 'analytics'] as $module) {
             TenantAuditScope::query()->firstOrCreate(
                 ['tenant_context_id' => $tenant->id, 'module' => $module],
                 ['immutable_trail_enabled' => true, 'retention_days' => 2555],

@@ -44,4 +44,11 @@ class OrganizationStructureTest extends TestCase
             OrganizationStructure::typeOptions()[OrganizationStructure::DEPARTEMENT]
         );
     }
+
+    public function test_audit_bearing_structures_require_a_methodology(): void
+    {
+        $this->assertTrue(OrganizationStructure::requiresAuditMethodology(OrganizationStructure::DIRECTION));
+        $this->assertTrue(OrganizationStructure::requiresAuditMethodology(OrganizationStructure::POLE));
+        $this->assertFalse(OrganizationStructure::requiresAuditMethodology(OrganizationStructure::SERVICE));
+    }
 }

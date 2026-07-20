@@ -47,3 +47,17 @@ Les pôles et sous-directions doivent être rattachés à une direction, une adm
 Le catalogue de rôles inclut désormais Directeur, Directeur adjoint, Chef de service et Agent opérationnel, en complément des fonctions propres à l’Inspection des Services.
 
 Les fiches de poste sont préparées dans le profil organisationnel de chaque structure : appellation, description et activités principales. Elles pourront ensuite être enrichies sans modifier la hiérarchie de base.
+
+## Espace d’audit de la structure
+
+La création d’une administration, direction, inspection, département, sous-direction ou d’un pôle impose le choix d’un référentiel d’audit actif. Le système provisionne alors un espace isolé comprenant :
+
+- un workflow d’audit personnalisable ;
+- une bibliothèque de questions et de questionnaires ;
+- une bibliothèque de contrôles ;
+- le périmètre de cartographie des risques de la structure ;
+- un modèle RACI ;
+- un modèle SWOT ;
+- les journaux et règles d’isolation propres à la structure.
+
+Le provisionnement est idempotent. Une modification ultérieure du référentiel réaligne les liens de gouvernance sans supprimer les contenus personnalisés de la structure.

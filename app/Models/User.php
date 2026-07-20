@@ -456,6 +456,12 @@ class User extends Authenticatable
     /** Annuaire et structure des pôles — Gate « manageDepartments ». */
     public function canManageDepartments(): bool
     {
+        return $this->canAdministerOrganization()
+            || Department::query()->where('supervisor_user_id', $this->id)->exists();
+    }
+
+    public function canAdministerOrganization(): bool
+    {
         return $this->iamBool('manage_departments', function () {
             $this->loadIamRelations();
 

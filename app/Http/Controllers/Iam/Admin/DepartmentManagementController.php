@@ -10,9 +10,11 @@ use App\Models\MethodologyTemplate;
 use App\Models\Role;
 use App\Models\Taxonomy;
 use App\Models\User;
+use App\Services\Governance\DepartmentAuditEnvironmentService;
 use App\Support\OrganizationStructure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -21,19 +23,25 @@ use Illuminate\View\View;
  */
 class DepartmentManagementController extends Controller
 {
+    public function __construct(private readonly DepartmentAuditEnvironmentService $auditEnvironments)
+    {
+    }
+
     public function index(): View
     {
         $this->authorize('viewAny', Department::class);
 
+        $actor = request()->user();
         $departments = Department::query()
-            ->with(['supervisor', 'parent'])
+            ->when(! $actor->canAdministerOrganization(), fn ($query) => $query->where('supervisor_user_id', $actor->id))
+            ->with(['supervisor', 'parent', 'defaultMethodologyTemplate', 'tenantContext'])
             ->withCount(['users' => fn ($q) => $q->where('active', true)])
             ->orderBy('code')
             ->paginate(25);
 
         return view('iam.admin.departments.index', [
             'departments' => $departments,
-            'departmentTree' => $this->departmentTree(),
+            'departmentTree' => $this->departmentTree($actor),
         ]);
     }
 
@@ -42,7 +50,7 @@ class DepartmentManagementController extends Controller
         $this->authorize('viewAny', Department::class);
 
         return view('iam.admin.departments.organigramme', [
-            'departmentTree' => $this->departmentTree(),
+            'departmentTree' => $this->departmentTree(request()->user()),
         ]);
     }
 
@@ -56,15 +64,19 @@ class DepartmentManagementController extends Controller
     public function store(StoreDepartmentRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        $department = Department::query()->create(
-            $this->departmentPayload(
-                $validated,
-                $request->boolean('active', true),
-                $request->boolean('executive_visibility')
-            )
-        );
+        [$department, $topManagerPassword] = DB::transaction(function () use ($validated, $request): array {
+            $department = Department::query()->create(
+                $this->departmentPayload(
+                    $validated,
+                    $request->boolean('active', true),
+                    $request->boolean('executive_visibility')
+                )
+            );
+            $password = $this->createTopManagerIfRequested($validated, $department);
+            $this->provisionAuditEnvironment($department, $request->user());
 
-        $topManagerPassword = $this->createTopManagerIfRequested($validated, $department);
+            return [$department, $password];
+        });
 
         return redirect()
             ->route('admin.departments.index')
@@ -74,6 +86,14 @@ class DepartmentManagementController extends Controller
     public function edit(Department $department): View
     {
         $this->authorize('update', $department);
+
+        if (! request()->user()->canAdministerOrganization()) {
+            return view('iam.admin.departments.audit-environment', [
+                'department' => $department->load(['defaultMethodologyTemplate', 'tenantContext']),
+                'methodologies' => MethodologyTemplate::query()->where('active', true)->orderBy('name')->get(),
+                'taxonomies' => Taxonomy::query()->where('active', true)->orderByDesc('is_national')->orderBy('name')->get(),
+            ]);
+        }
 
         return view('iam.admin.departments.edit', $this->formData([
             'department' => $department->load(['parent', 'supervisor']),
@@ -89,15 +109,31 @@ class DepartmentManagementController extends Controller
     {
         $validated = $request->validated();
 
-        $department->update(
-            $this->departmentPayload(
-                $validated,
-                $request->boolean('active', $department->active),
-                $request->boolean('executive_visibility', $department->executive_visibility)
-            )
-        );
+        if (! $request->user()->canAdministerOrganization()) {
+            $department->update([
+                'default_methodology_template_id' => $validated['default_methodology_template_id'],
+                'default_taxonomy_id' => $validated['default_taxonomy_id'] ?? null,
+            ]);
+            $this->provisionAuditEnvironment($department->fresh(), $request->user());
 
-        $topManagerPassword = $this->createTopManagerIfRequested($validated, $department->fresh());
+            return redirect()
+                ->route('admin.departments.edit', $department)
+                ->with('status', 'Référentiel et espace d’audit enregistrés.');
+        }
+
+        $topManagerPassword = DB::transaction(function () use ($validated, $request, $department): ?string {
+            $department->update(
+                $this->departmentPayload(
+                    $validated,
+                    $request->boolean('active', $department->active),
+                    $request->boolean('executive_visibility', $department->executive_visibility)
+                )
+            );
+            $password = $this->createTopManagerIfRequested($validated, $department->fresh());
+            $this->provisionAuditEnvironment($department->fresh(), $request->user());
+
+            return $password;
+        });
 
         return redirect()
             ->route('admin.departments.edit', $department)
@@ -213,14 +249,28 @@ class DepartmentManagementController extends Controller
         return $password;
     }
 
+    private function provisionAuditEnvironment(Department $department, ?User $actor): void
+    {
+        if ($department->default_methodology_template_id === null) {
+            return;
+        }
+
+        $methodology = MethodologyTemplate::query()->findOrFail($department->default_methodology_template_id);
+        $this->auditEnvironments->provision($department, $methodology, $actor);
+    }
+
     /**
      * @return \Illuminate\Support\Collection<int, Department>
      */
-    private function departmentTree()
+    private function departmentTree(?User $actor = null)
     {
         return Department::query()
             ->with(['children.children.children.children', 'supervisor'])
-            ->whereNull('parent_department_id')
+            ->when(
+                $actor !== null && ! $actor->canAdministerOrganization(),
+                fn ($query) => $query->where('supervisor_user_id', $actor->id),
+                fn ($query) => $query->whereNull('parent_department_id')
+            )
             ->orderByRaw("case when code in ('DG', 'DGTCP', 'DGCPT', 'ADMIN_CENT') then 0 else 1 end")
             ->orderBy('code')
             ->get();
