@@ -10,6 +10,7 @@ use App\Models\MethodologyTemplate;
 use App\Models\Role;
 use App\Models\Taxonomy;
 use App\Models\User;
+use App\Support\OrganizationStructure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -67,7 +68,7 @@ class DepartmentManagementController extends Controller
 
         return redirect()
             ->route('admin.departments.index')
-            ->with('status', 'Département créé.'.($topManagerPassword ? ' Mot de passe temporaire top manager : '.$topManagerPassword : ''));
+            ->with('status', 'Structure créée.'.($topManagerPassword ? ' Mot de passe temporaire du responsable : '.$topManagerPassword : ''));
     }
 
     public function edit(Department $department): View
@@ -100,7 +101,7 @@ class DepartmentManagementController extends Controller
 
         return redirect()
             ->route('admin.departments.edit', $department)
-            ->with('status', 'Département enregistré.'.($topManagerPassword ? ' Mot de passe temporaire top manager : '.$topManagerPassword : ''));
+            ->with('status', 'Structure enregistrée.'.($topManagerPassword ? ' Mot de passe temporaire du responsable : '.$topManagerPassword : ''));
     }
 
     public function destroy(Department $department): RedirectResponse
@@ -126,6 +127,7 @@ class DepartmentManagementController extends Controller
             'methodologies' => MethodologyTemplate::query()->where('active', true)->orderBy('name')->get(),
             'taxonomies' => Taxonomy::query()->where('active', true)->orderByDesc('is_national')->orderBy('name')->get(),
             'roles' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->get(),
+            'structureTypes' => OrganizationStructure::typeOptions(),
         ], $extra);
     }
 
@@ -150,7 +152,7 @@ class DepartmentManagementController extends Controller
             'accent_color' => $validated['accent_color'] ?? null,
             'logo_path' => $validated['logo_path'] ?? null,
             'intelligence_profile' => [
-                'position_title' => $validated['position_title'] ?? null,
+                'position_title' => ($validated['position_title'] ?? null) ?: OrganizationStructure::defaultHeadTitle($validated['type'] ?? null),
                 'position_description' => $validated['position_description'] ?? null,
                 'position_activities' => $this->lines($validated['position_activities'] ?? null),
                 'top_manager_profile' => [
@@ -173,18 +175,34 @@ class DepartmentManagementController extends Controller
         }
 
         $password = 'TmpOrg'.Str::random(12).'Aa1!';
+        $department->loadMissing('parent');
+        $recommendedRole = OrganizationStructure::recommendedRoleSlug(
+            $department->type,
+            $department->parent?->type
+        );
+        $roleId = $validated['top_manager_role_id'] ?? null;
+
+        if ($roleId === null && $recommendedRole !== null) {
+            $roleId = Role::query()
+                ->where('active', true)
+                ->where('slug', $recommendedRole)
+                ->value('id');
+        }
+
+        $positionTitle = ($validated['top_manager_title'] ?? null)
+            ?: OrganizationStructure::defaultHeadTitle($department->type);
 
         $user = User::query()->create([
-            'name' => $validated['top_manager_name'] ?: ($validated['top_manager_title'] ?? 'Top manager '.$department->code),
+            'name' => $validated['top_manager_name'] ?: ($positionTitle.' '.$department->code),
             'email' => $validated['top_manager_email'],
             'password' => Hash::make($password),
             'password_changed_at' => now(),
             'must_change_password' => true,
             'department_id' => $department->id,
-            'role_id' => $validated['top_manager_role_id'] ?? Role::query()->where('active', true)->orderByDesc('hierarchy_level')->value('id'),
-            'position' => $validated['top_manager_title'] ?? 'Top manager',
+            'role_id' => $roleId,
+            'position' => $positionTitle,
             'active' => true,
-            'role' => 'manager',
+            'role' => $recommendedRole ?? 'manager',
             'approval_status' => 'approved',
             'approved_at' => now(),
             'approved_by' => auth()->id(),

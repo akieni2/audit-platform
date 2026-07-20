@@ -40,8 +40,13 @@
                     </a>
                 @endcan
                 @if ($canManageDepartmentsNav ?? false)
-                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit', 'admin.departments.organigramme']) ? 'active' : '' }}"
+                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
+                        <span class="ni" aria-hidden="true">◫</span>
+                        Structures et directions
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
+                       href="{{ route('admin.departments.organigramme') }}">
                         <span class="ni" aria-hidden="true">◫</span>
                         Organigramme
                     </a>
@@ -109,8 +114,13 @@
                     </a>
                 @endcan
                 @if ($canManageDepartmentsNav ?? false)
-                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit', 'admin.departments.organigramme']) ? 'active' : '' }}"
+                    <a class="nav-link {{ request()->routeIs(['admin.departments.index', 'admin.departments.create', 'admin.departments.edit']) ? 'active' : '' }}"
                        href="{{ route('admin.departments.index') }}">
+                        <span class="ni" aria-hidden="true">◫</span>
+                        Structures et directions
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
+                       href="{{ route('admin.departments.organigramme') }}">
                         <span class="ni" aria-hidden="true">◫</span>
                         Organigramme
                     </a>

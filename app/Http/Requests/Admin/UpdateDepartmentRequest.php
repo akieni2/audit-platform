@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Department;
+use App\Support\OrganizationStructure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class UpdateDepartmentRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:32', Rule::unique('departments', 'code')->ignore($id)],
             'description' => ['nullable', 'string'],
-            'type' => ['nullable', 'string', 'max:64'],
+            'type' => ['required', 'string', Rule::in(array_keys(OrganizationStructure::typeOptions()))],
             'active' => ['sometimes', 'boolean'],
             'parent_department_id' => ['nullable', 'exists:departments,id', Rule::notIn([$id])],
             'governance_scope' => ['nullable', 'string', 'max:64'],
@@ -47,5 +48,30 @@ class UpdateDepartmentRequest extends FormRequest
             'accent_color' => ['nullable', 'string', 'max:32'],
             'logo_path' => ['nullable', 'string', 'max:512'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            $department = $this->route('department');
+            $type = (string) $this->input('type');
+            $parentId = $this->integer('parent_department_id') ?: null;
+
+            if (OrganizationStructure::requiresParent($type) && $parentId === null) {
+                $validator->errors()->add('parent_department_id', 'Cette structure doit être rattachée à une structure parente.');
+                return;
+            }
+
+            if ($parentId !== null) {
+                $parent = Department::query()->find($parentId);
+                if ($parent !== null && ! in_array($parent->type, OrganizationStructure::allowedParentTypes($type), true)) {
+                    $validator->errors()->add('parent_department_id', 'Le type de structure parente est incompatible avec ce niveau hiérarchique.');
+                }
+
+                if ($department instanceof Department && $parent?->isDescendantOf($department)) {
+                    $validator->errors()->add('parent_department_id', 'Une structure ne peut pas être rattachée à l’une de ses propres sous-structures.');
+                }
+            }
+        });
     }
 }

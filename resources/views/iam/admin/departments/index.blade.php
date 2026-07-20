@@ -39,6 +39,7 @@
                     <tr>
                         <th>Code</th>
                         <th>Nom</th>
+                        <th>Niveau organisationnel</th>
                         <th>Rattachement</th>
                         <th>Responsable hiérarchique</th>
                         <th class="text-right">Utilisateurs actifs</th>
@@ -51,6 +52,7 @@
                         <tr>
                             <td class="font-semibold text-[#00D1FF]">{{ $d->code }}</td>
                             <td class="text-[#E6EEF8]">{{ $d->name }}</td>
+                            <td class="text-[#9FB3C8]">{{ $d->typeLabel() }}</td>
                             <td class="text-[#9FB3C8]">{{ $d->parent?->code ?? 'Sommet' }}</td>
                             <td class="text-[#9FB3C8]">{{ $d->supervisor?->displayName() ?? data_get($d->intelligence_profile, 'top_manager_profile.title', 'Non défini') }}</td>
                             <td class="text-right font-semibold text-[#E6EEF8]">{{ $d->users_count }}</td>

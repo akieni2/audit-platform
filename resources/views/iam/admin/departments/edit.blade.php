@@ -32,6 +32,11 @@
             @csrf
             @method('patch')
 
+            <div class="rounded-lg border border-[rgba(0,209,255,0.18)] bg-[rgba(0,209,255,0.05)] p-4 text-sm text-[#BFD2E6]">
+                <p class="font-semibold text-[#E6EEF8]">Position dans l’organigramme</p>
+                <p class="mt-1">Le type et la structure parente déterminent le niveau hiérarchique. Le responsable affecté supervise cette structure et peut gouverner ses missions selon ses habilitations.</p>
+            </div>
+
             <section class="space-y-4">
                 <div>
                     <p class="text-lg font-bold text-[#E6EEF8]">Identité et rattachement</p>
@@ -45,7 +50,7 @@
                     <div>
                         <label class="dgcpt-label">Type</label>
                         <select name="type" class="dgcpt-select">
-                            @foreach (['direction' => 'Direction', 'departement' => 'Département', 'service' => 'Service', 'pole' => 'Pôle', 'cabinet' => 'Cabinet', 'cellule' => 'Cellule'] as $value => $label)
+                            @foreach ($structureTypes as $value => $label)
                                 <option value="{{ $value }}" @selected(old('type', $department->type) === $value)>{{ $label }}</option>
                             @endforeach
                         </select>

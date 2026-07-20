@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\OrganizationStructure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,6 +48,36 @@ class Department extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_department_id')->orderBy('code');
+    }
+
+    public function typeLabel(): string
+    {
+        return OrganizationStructure::label($this->type);
+    }
+
+    public function headTitle(): string
+    {
+        return (string) (data_get($this->intelligence_profile, 'position_title')
+            ?: OrganizationStructure::defaultHeadTitle($this->type));
+    }
+
+    public function isDescendantOf(self $department): bool
+    {
+        $current = $this;
+        $visited = [];
+
+        while ($current->parent_department_id !== null && ! isset($visited[$current->id])) {
+            $visited[$current->id] = true;
+            if ((int) $current->parent_department_id === (int) $department->id) {
+                return true;
+            }
+            $current = $current->parent()->first();
+            if ($current === null) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     public function users(): HasMany

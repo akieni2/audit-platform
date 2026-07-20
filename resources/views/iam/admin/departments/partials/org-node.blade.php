@@ -7,12 +7,13 @@
     <div class="flex items-start justify-between gap-3">
         <div>
             <p class="text-sm font-bold text-[#E6EEF8]">{{ $department->name }}</p>
-            <p class="mt-1 text-xs uppercase tracking-wide text-[#73D8FF]">{{ $department->code }} · {{ $department->type ?? 'structure' }}</p>
+            <p class="mt-1 text-xs uppercase tracking-wide text-[#73D8FF]">{{ $department->code }} · {{ $department->typeLabel() }}</p>
         </div>
         <span class="rounded-full bg-[rgba(0,209,255,0.12)] px-2 py-1 text-[11px] font-semibold text-[#73D8FF]">{{ $department->children->count() }} sous-structures</span>
     </div>
     <div class="mt-3 grid gap-2 text-xs text-[#BFD2E6]">
-        <p>Responsable hiérarchique : {{ $department->supervisor?->displayName() ?? data_get($profile, 'top_manager_profile.title', 'Non défini') }}</p>
+        <p>Fonction dirigeante : {{ $department->headTitle() }}</p>
+        <p>Titulaire : {{ $department->supervisor?->displayName() ?? data_get($profile, 'top_manager_profile.name', 'Non défini') }}</p>
         @if (data_get($profile, 'position_title'))
             <p>Poste clé: {{ data_get($profile, 'position_title') }}</p>
         @endif

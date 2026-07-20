@@ -21,8 +21,8 @@ class AiRuntimeExperienceTest extends TestCase
         $this->actingAs($user)
             ->get(route('ai.mission', $mission))
             ->assertOk()
-            ->assertSee('Audit & Risk Copilot')
-            ->assertSee('validation humaine');
+            ->assertSee('Copilote d’audit et des risques')
+            ->assertSee('Validation humaine');
 
         $this->actingAs($user)
             ->get(route('ai.assistant', $mission))

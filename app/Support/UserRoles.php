@@ -26,6 +26,14 @@ final class UserRoles
 
     public const CHARGE_VERIFICATION = 'charge_verification';
 
+    public const DIRECTEUR = 'directeur';
+
+    public const DIRECTEUR_ADJOINT = 'directeur_adjoint';
+
+    public const CHEF_SERVICE = 'chef_service';
+
+    public const AGENT_OPERATIONNEL = 'agent_operationnel';
+
     /** @return list<string> */
     public static function all(): array
     {
@@ -35,6 +43,10 @@ final class UserRoles
             self::INSPECTEUR_VERIFICATEUR,
             self::INSPECTEUR_VERIFICATEUR_ADJOINT,
             self::CHARGE_VERIFICATION,
+            self::DIRECTEUR,
+            self::DIRECTEUR_ADJOINT,
+            self::CHEF_SERVICE,
+            self::AGENT_OPERATIONNEL,
             self::ADMIN,
             self::RISK_MANAGER,
             self::MANAGER,
@@ -54,6 +66,10 @@ final class UserRoles
             self::INSPECTEUR_VERIFICATEUR => 'Inspecteur vérificateur',
             self::INSPECTEUR_VERIFICATEUR_ADJOINT => 'Inspecteur vérificateur adjoint',
             self::CHARGE_VERIFICATION => 'Chargé de vérification',
+            self::DIRECTEUR => 'Directeur',
+            self::DIRECTEUR_ADJOINT => 'Directeur adjoint',
+            self::CHEF_SERVICE => 'Chef de service',
+            self::AGENT_OPERATIONNEL => 'Agent opérationnel',
             default => $role,
         };
     }

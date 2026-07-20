@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DgcptFoundationSeeder::class);
         $this->call(DgcptTreasuryFoundationSeeder::class);
         $this->call(DgcptReferentialCatalogSeeder::class);
+        $this->call(OrganizationalRoleCatalogSeeder::class);
         $this->call(SuperAdminSeeder::class);
     }
 }

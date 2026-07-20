@@ -19,6 +19,12 @@
         <form method="post" action="{{ route('admin.departments.store') }}" class="dgcpt-surface space-y-8 p-6 shadow-sm">
             @csrf
 
+            <div class="rounded-lg border border-[rgba(0,209,255,0.18)] bg-[rgba(0,209,255,0.05)] p-4 text-sm text-[#BFD2E6]">
+                <p class="font-semibold text-[#E6EEF8]">Chaîne organisationnelle</p>
+                <p class="mt-1">Créez d’abord une Direction ou l’Inspection des Services, puis rattachez ses pôles ou sous-directions, et enfin les services. Le responsable affecté à chaque structure devient son superviseur institutionnel.</p>
+                <p class="mt-2 text-xs text-[#73D8FF]">Exemple : Inspection des Services → PI / PMAR / PCPC → Inspecteurs vérificateurs. DSI → services → agents opérationnels.</p>
+            </div>
+
             <section class="space-y-4">
                 <div>
                     <p class="text-lg font-bold text-[#E6EEF8]">Identité et rattachement</p>
@@ -32,7 +38,7 @@
                     <div>
                         <label class="dgcpt-label">Type</label>
                         <select name="type" class="dgcpt-select">
-                            @foreach (['direction' => 'Direction', 'departement' => 'Département', 'service' => 'Service', 'pole' => 'Pôle', 'cabinet' => 'Cabinet', 'cellule' => 'Cellule'] as $value => $label)
+                            @foreach ($structureTypes as $value => $label)
                                 <option value="{{ $value }}" @selected(old('type') === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
