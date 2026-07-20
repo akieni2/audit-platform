@@ -22,6 +22,10 @@ Documentation opérationnelle de la plateforme enterprise (missions, workflows, 
 - URL de la plateforme fournie par l'administration
 - Rôle institutionnel adapté à la fonction (voir guide admin)
 
+## Journaux de déploiement
+
+- [Synchronisation GitHub / VPS et livraison DGCPT — 20 juillet 2026](deployments/2026-07-20-main-vps.md)
+
 ## Architecture fonctionnelle (vue d'ensemble)
 
 ```mermaid
