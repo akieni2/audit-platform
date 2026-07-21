@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Governance\OrganizationDeletionService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 
 class ResetOrganizationCommand extends Command
@@ -59,6 +60,15 @@ class ResetOrganizationCommand extends Command
         }
 
         DB::transaction(function () use ($protectedIds, $deletion): void {
+            $primarySuperAdminId = (int) $protectedIds->first();
+
+            if (Schema::hasTable('missions') && Schema::hasColumn('missions', 'auditeur_id')) {
+                DB::table('missions')->whereNotIn('auditeur_id', $protectedIds)->update(['auditeur_id' => $primarySuperAdminId]);
+            }
+            if (Schema::hasTable('audit_logs') && Schema::hasColumn('audit_logs', 'user_id')) {
+                DB::table('audit_logs')->whereNotNull('user_id')->whereNotIn('user_id', $protectedIds)->update(['user_id' => null]);
+            }
+
             DB::table('sessions')->whereNotNull('user_id')->whereNotIn('user_id', $protectedIds)->delete();
             DB::table('password_reset_tokens')->delete();
 
