@@ -34,7 +34,6 @@ class WorkflowExecutionService
 {
     public function __construct(
         private WorkflowEngineService $engine,
-        private WorkflowStageComponentRegistry $components,
         private WorkflowRuntimeNotificationService $notifications,
     ) {}
 
@@ -73,7 +72,11 @@ class WorkflowExecutionService
         array $payload = [],
         ?string $message = null,
     ): WorkflowStageExecution {
-        $component = $this->components->resolve($stage);
+        // Resolve the registry only when a stage is actually executed. The
+        // registry contains components which themselves use this service, so
+        // constructor injection here would create an endless container cycle:
+        // execution -> registry -> component -> execution.
+        $component = app(WorkflowStageComponentRegistry::class)->resolve($stage);
         $execution = WorkflowStageExecution::query()->firstOrCreate(
             [
                 'workflow_instance_id' => $instance->id,
