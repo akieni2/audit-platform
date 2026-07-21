@@ -13,8 +13,10 @@ use App\Services\Iam\SuperAdminProtectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserManagementController extends Controller
@@ -250,6 +252,51 @@ class UserManagementController extends Controller
         );
 
         return back()->with('status', 'Lien de réinitialisation envoyé à '.$user->email.'.');
+    }
+
+    public function generateTemporaryPassword(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('resetPassword', $user);
+
+        if ($request->user()->is($user)) {
+            return back()->withErrors([
+                'password' => 'Vous ne pouvez pas générer un mot de passe temporaire pour votre propre compte.',
+            ]);
+        }
+
+        $temporaryPassword = Str::password(20, true, true, true, false);
+
+        DB::transaction(function () use ($request, $user, $temporaryPassword): void {
+            $user->forceFill([
+                'password' => Hash::make($temporaryPassword),
+                'must_change_password' => true,
+                'password_changed_at' => null,
+                'password_expires_at' => null,
+                'failed_login_attempts' => 0,
+                'locked_until' => null,
+            ])->save();
+
+            $this->revokeUserSessionsAndTokens($user);
+
+            if (Schema::hasTable('password_reset_tokens')) {
+                DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+            }
+
+            app(SecurityAuditService::class)->log(
+                'temporary_password_generated',
+                'iam',
+                'Mot de passe temporaire généré — '.$user->email,
+                $request->user(),
+                $request,
+                ['target_user_id' => $user->id],
+            );
+        });
+
+        return back()->with('temporary_password', [
+            'display_name' => $user->displayName(),
+            'email' => $user->email,
+            'password' => $temporaryPassword,
+        ]);
     }
 
     public function destroy(Request $request, User $user): RedirectResponse

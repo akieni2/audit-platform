@@ -517,6 +517,7 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::patch('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
             Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
             Route::post('/users/{user}/password-reset', [UserManagementController::class, 'sendPasswordReset'])->name('users.password-reset');
+            Route::post('/users/{user}/temporary-password', [UserManagementController::class, 'generateTemporaryPassword'])->name('users.temporary-password');
             Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
         });
 

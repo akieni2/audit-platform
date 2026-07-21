@@ -14,6 +14,8 @@
             </div>
         @endif
 
+        @include('iam.admin.users.partials.temporary-password')
+
         @if ($errors->any())
             <div class="rounded-lg border border-[rgba(255,90,90,0.45)] bg-[#10192B] px-4 py-3 text-sm text-[#FF5A5A]">
                 <ul class="ms-5 list-disc space-y-1">
@@ -92,12 +94,25 @@
 
         <div class="rounded-xl border border-[rgba(244,208,0,0.35)] bg-[#10192B] p-4 shadow-sm">
             <p class="mb-2 text-sm font-semibold text-[#F4D000]">Réinitialisation du mot de passe</p>
-            <form method="post" action="{{ route('admin.users.password-reset', $editUser) }}">
-                @csrf
-                <button type="submit" class="dgcpt-btn-outline border-[rgba(244,208,0,0.35)] text-[#E6EEF8] hover:border-[rgba(244,208,0,0.55)]">
-                    Envoyer lien de réinitialisation par email
-                </button>
-            </form>
+            @if (config('mail.default') === 'array')
+                @if (auth()->id() !== $editUser->id)
+                    <form method="post" action="{{ route('admin.users.temporary-password', $editUser) }}" onsubmit="return confirm('Générer un nouveau mot de passe temporaire et déconnecter cet utilisateur ?');">
+                        @csrf
+                        <button type="submit" class="dgcpt-btn-outline border-[rgba(244,208,0,0.35)] text-[#E6EEF8] hover:border-[rgba(244,208,0,0.55)]">
+                            Générer un mot de passe temporaire
+                        </button>
+                    </form>
+                @else
+                    <p class="text-sm text-[#9FB3C8]">Utilisez la rubrique Sécurité du compte pour modifier votre propre mot de passe.</p>
+                @endif
+            @else
+                <form method="post" action="{{ route('admin.users.password-reset', $editUser) }}">
+                    @csrf
+                    <button type="submit" class="dgcpt-btn-outline border-[rgba(244,208,0,0.35)] text-[#E6EEF8] hover:border-[rgba(244,208,0,0.55)]">
+                        Envoyer le lien de réinitialisation par courriel
+                    </button>
+                </form>
+            @endif
         </div>
 
         @if (auth()->id() !== $editUser->id && $editUser->active)

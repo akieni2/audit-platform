@@ -23,6 +23,8 @@
             </div>
         @endif
 
+        @include('iam.admin.users.partials.temporary-password')
+
         @if ($errors->any())
             <div class="dgcpt-surface border-[#FF5A5A]/40 px-4 py-3 text-sm text-[#FF5A5A] ring-1 ring-[rgba(255,90,90,0.2)]">
                 <ul class="ms-5 list-disc space-y-1">
@@ -176,10 +178,19 @@
                                             <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Désactiver</button>
                                         </form>
                                     @endif
-                                    <form method="post" action="{{ route('admin.users.password-reset', $u) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="text-xs font-semibold text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Reset MDP</button>
-                                    </form>
+                                    @if (config('mail.default') === 'array')
+                                        @if (auth()->id() !== $u->id)
+                                            <form method="post" action="{{ route('admin.users.temporary-password', $u) }}" class="inline" onsubmit="return confirm('Générer un mot de passe temporaire et déconnecter cet utilisateur ?');">
+                                                @csrf
+                                                <button type="submit" class="text-xs font-semibold text-[#F4D000] hover:underline">MDP temporaire</button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <form method="post" action="{{ route('admin.users.password-reset', $u) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-xs font-semibold text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Réinitialiser MDP</button>
+                                        </form>
+                                    @endif
                                     @can('deleteFromAdministration', $u)
                                         @if (auth()->id() !== $u->id)
                                             <button
