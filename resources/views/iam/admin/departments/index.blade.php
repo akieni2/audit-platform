@@ -77,16 +77,15 @@
                             <td class="whitespace-nowrap text-right">
                                 <a href="{{ route('admin.departments.edit', $d) }}" class="text-xs font-semibold text-[#00D1FF] hover:underline">Modifier</a>
                                 @can('delete', $d)
-                                    @if ($d->active)
-                                        <form method="post" action="{{ route('admin.departments.destroy', $d) }}" class="ml-2 inline" onsubmit="return confirm('Supprimer cette structure de l’organigramme actif ? Elle sera désactivée afin de conserver les rattachements et historiques.');">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit" class="inline-flex items-center gap-1 text-xs font-semibold text-[#FF5A5A] hover:underline" title="Supprimer / désactiver la structure">
-                                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12zM10 11v6M14 11v6"/></svg>
-                                                Supprimer
-                                            </button>
-                                        </form>
-                                    @endif
+                                    <form method="post" action="{{ route('admin.departments.destroy', $d) }}" class="ml-2 inline" onsubmit="const value=prompt('Suppression définitive de cette structure et de toutes ses sous-structures. Saisissez le code {{ $d->code }} pour confirmer.'); if(value===null)return false; this.confirmation_code.value=value; return true;">
+                                        @csrf
+                                        @method('delete')
+                                        <input type="hidden" name="confirmation_code" value="">
+                                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-semibold text-[#FF5A5A] hover:underline" title="Supprimer définitivement la structure">
+                                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12zM10 11v6M14 11v6"/></svg>
+                                            Supprimer définitivement
+                                        </button>
+                                    </form>
                                 @endcan
                             </td>
                         </tr>

@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\Taxonomy;
 use App\Models\User;
 use App\Services\Governance\DepartmentAuditEnvironmentService;
+use App\Services\Governance\OrganizationDeletionService;
 use App\Support\OrganizationStructure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +26,10 @@ use Illuminate\View\View;
  */
 class DepartmentManagementController extends Controller
 {
-    public function __construct(private readonly DepartmentAuditEnvironmentService $auditEnvironments)
-    {
-    }
+    public function __construct(
+        private readonly DepartmentAuditEnvironmentService $auditEnvironments,
+        private readonly OrganizationDeletionService $organizationDeletion,
+    ) {}
 
     public function index(): View
     {
@@ -235,15 +237,23 @@ class DepartmentManagementController extends Controller
             ->with('status', 'Structure enregistrée.'.($topManagerPassword ? ' Mot de passe temporaire du responsable : '.$topManagerPassword : ''));
     }
 
-    public function destroy(Department $department): RedirectResponse
+    public function destroy(Request $request, Department $department): RedirectResponse
     {
         $this->authorize('delete', $department);
 
-        $department->update(['active' => false]);
+        $request->validate([
+            'confirmation_code' => ['required', 'string', function (string $attribute, mixed $value, \Closure $fail) use ($department): void {
+                if (strtoupper(trim((string) $value)) !== strtoupper($department->code)) {
+                    $fail('Le code de confirmation ne correspond pas à la structure.');
+                }
+            }],
+        ]);
+
+        $result = $this->organizationDeletion->deleteTree($department);
 
         return redirect()
             ->route('admin.departments.index')
-            ->with('status', 'Département désactivé.');
+            ->with('status', $result['departments'].' structure(s) supprimée(s) définitivement.');
     }
 
     /**

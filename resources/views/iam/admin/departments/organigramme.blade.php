@@ -130,6 +130,16 @@
                 event.dataTransfer.setData('application/json', JSON.stringify(dragged));
             });
         });
+        document.querySelectorAll('[data-org-delete]').forEach(button => {
+            button.addEventListener('click', async event => {
+                event.preventDefault(); event.stopPropagation();
+                const code = button.dataset.orgDeleteCode;
+                const confirmation = window.prompt(`Suppression définitive de cette structure et de ses sous-structures. Saisissez ${code} pour confirmer.`);
+                if (confirmation === null) return;
+                await send(`{{ url('/admin/departments') }}/${button.dataset.orgDelete}`, 'DELETE', {confirmation_code:confirmation});
+            });
+            button.addEventListener('dragstart', event => event.preventDefault());
+        });
 
         document.querySelectorAll('[data-org-drop-target], [data-org-drop-root]').forEach(zone => {
             zone.addEventListener('dragover', event => { event.preventDefault(); event.stopPropagation(); zone.classList.add('org-drop-active'); });

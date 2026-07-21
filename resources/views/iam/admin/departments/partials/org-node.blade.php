@@ -12,6 +12,10 @@
                 </div>
             </div>
             <span class="rounded-full bg-[rgba(0,209,255,.12)] px-2 py-1 text-[11px] font-semibold text-[#73D8FF]">{{ $department->children->count() }} liens</span>
+            @can('delete', $department)
+                <button type="button" draggable="false" data-org-delete="{{ $department->id }}" data-org-delete-code="{{ $department->code }}"
+                        class="rounded-lg border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-300 hover:bg-red-950/40">Supprimer</button>
+            @endcan
         </div>
         <div class="mt-3 grid gap-1 text-xs text-[#BFD2E6] sm:grid-cols-2">
             <p><span class="text-[#7F94AA]">Fonction :</span> {{ $department->headTitle() }}</p>

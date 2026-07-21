@@ -98,4 +98,18 @@ class VisualOrganigramBuilderTest extends TestCase
         $this->actingAs($user)->get(route('admin.departments.organigramme'))
             ->assertOk()->assertSee('Organigramme institutionnel global')->assertSee('Direction informatique');
     }
+
+    public function test_super_admin_permanently_deletes_a_confirmed_department_tree(): void
+    {
+        $role = Role::query()->create(['slug' => 'super_admin', 'name' => 'Super administrateur', 'hierarchy_level' => 1000, 'active' => true]);
+        $user = User::factory()->create(['role_id' => $role->id, 'role' => 'admin']);
+        $root = Department::query()->create(['name' => 'Administration', 'code' => 'ADM', 'type' => 'administration', 'active' => true]);
+        Department::query()->create(['name' => 'Direction', 'code' => 'DIR', 'type' => 'direction', 'active' => true, 'parent_department_id' => $root->id]);
+
+        $this->actingAs($user)->delete(route('admin.departments.destroy', $root), [
+            'confirmation_code' => 'ADM',
+        ])->assertRedirect(route('admin.departments.index'));
+
+        $this->assertSame(0, Department::query()->count());
+    }
 }

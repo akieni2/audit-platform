@@ -56,6 +56,8 @@ Les validations serveur restent obligatoires : interdiction des cycles, compatib
 
 Chaque responsable construit uniquement l’organigramme fonctionnel situé sous sa propre structure. Les utilisateurs rattachés au même département disposent d’une consultation en lecture seule. La vue institutionnelle globale est réservée à la Direction générale, aux Ressources humaines et aux administrateurs du système.
 
+La suppression définitive d’une structure est réservée aux administrateurs et exige la saisie de son code. Elle supprime aussi ses sous-structures. Pour une reconstruction complète, la commande `organization:reset` purge toutes les structures et tous les comptes hors super administrateurs après une prévisualisation et une phrase de confirmation obligatoire.
+
 ## Espace d’audit de la structure
 
 La création d’une administration, direction, inspection, département, sous-direction ou d’un pôle impose le choix d’un référentiel d’audit actif. Le système provisionne alors un espace isolé comprenant :
