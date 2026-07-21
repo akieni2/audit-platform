@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password',
         'prenom',
         'telephone',
+        'intercom',
         'matricule',
         'date_naissance',
         'fonction',

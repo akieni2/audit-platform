@@ -39,7 +39,8 @@ class UserManagementController extends Controller
                 $w->where('name', 'like', $q)
                     ->orWhere('prenom', 'like', $q)
                     ->orWhere('email', 'like', $q)
-                    ->orWhere('matricule', 'like', $q);
+                    ->orWhere('matricule', 'like', $q)
+                    ->orWhere('intercom', 'like', $q);
             });
         }
 
@@ -122,6 +123,7 @@ class UserManagementController extends Controller
             'position' => $data['position'] ?? null,
             'matricule' => $data['matricule'] ?? null,
             'telephone' => $data['telephone'] ?? null,
+            'intercom' => $data['intercom'] ?? null,
             'active' => $request->boolean('active'),
             'role' => 'auditeur',
             'approval_status' => 'approved',
@@ -181,6 +183,7 @@ class UserManagementController extends Controller
             'position' => $data['position'] ?? null,
             'matricule' => $data['matricule'] ?? null,
             'telephone' => $data['telephone'] ?? null,
+            'intercom' => $data['intercom'] ?? null,
         ]);
 
         $user->active = $request->boolean('active');

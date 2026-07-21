@@ -61,6 +61,7 @@ class StoreUserRequest extends FormRequest
             'position' => ['nullable', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:64'],
             'telephone' => ['nullable', 'string', 'max:32'],
+            'intercom' => ['nullable', 'string', 'max:64'],
         ];
     }
 }

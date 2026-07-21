@@ -70,6 +70,10 @@
                     <label class="dgcpt-label">Matricule</label>
                     <input type="text" name="matricule" value="{{ old('matricule', $editUser->matricule) }}" class="dgcpt-input" />
                 </div>
+                <div>
+                    <label class="dgcpt-label">Intercom <span class="font-normal text-[#9FB3C8]">(facultatif)</span></label>
+                    <input type="text" name="intercom" value="{{ old('intercom', $editUser->intercom) }}" placeholder="Ex. 53018" class="dgcpt-input" />
+                </div>
             </div>
             <div>
                 <label class="dgcpt-label">Téléphone</label>

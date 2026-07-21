@@ -89,7 +89,7 @@
         <form method="get" action="{{ route('admin.users.index') }}" class="dgcpt-filter-bar flex-wrap">
             <div class="min-w-[180px] flex-1">
                 <label class="dgcpt-card-title mb-1 block">Recherche</label>
-                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Nom, email, matricule…"
+                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Nom, email, matricule, intercom…"
                        class="block w-full rounded-lg border border-[rgba(0,209,255,0.22)] bg-[#050816] px-3 py-2 text-sm text-[#E6EEF8] placeholder:text-[#9FB3C8]/70 focus:border-[#00D1FF] focus:outline-none focus:ring-1 focus:ring-[#00D1FF]" />
             </div>
             <div>

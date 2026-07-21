@@ -254,6 +254,20 @@
                         <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
+                <div>
+                    <label for="user-intercom" class="dgcpt-label">Intercom <span class="font-normal text-[#9FB3C8]">(facultatif)</span></label>
+                    <input
+                        id="user-intercom"
+                        type="text"
+                        name="intercom"
+                        value="{{ old('intercom') }}"
+                        class="dgcpt-input @error('intercom') border-red-500 ring-1 ring-red-500 @enderror"
+                        placeholder="Ex. 53018"
+                    />
+                    @error('intercom')
+                        <p class="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div>
