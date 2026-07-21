@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Services\Governance\DepartmentAuditEnvironmentService;
 use App\Support\OrganizationStructure;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -51,7 +53,92 @@ class DepartmentManagementController extends Controller
 
         return view('iam.admin.departments.organigramme', [
             'departmentTree' => $this->departmentTree(request()->user()),
+            'structureTypes' => OrganizationStructure::typeOptions(),
+            'positionTypes' => OrganizationStructure::positionOptions(),
+            'methodologies' => MethodologyTemplate::query()->where('active', true)->orderBy('name')->get(),
+            'canBuildOrganigramme' => request()->user()->canAdministerOrganization(),
         ]);
+    }
+
+    public function visualStore(Request $request): JsonResponse
+    {
+        $this->authorize('create', Department::class);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'max:32', 'unique:departments,code'],
+            'type' => ['required', 'string', \Illuminate\Validation\Rule::in(array_keys(OrganizationStructure::typeOptions()))],
+            'parent_department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'default_methodology_template_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('methodology_templates', 'id')->where('active', true)],
+        ]);
+
+        $this->validateVisualPlacement($validated['type'], $validated['parent_department_id'] ?? null);
+
+        if (OrganizationStructure::requiresAuditMethodology($validated['type']) && empty($validated['default_methodology_template_id'])) {
+            return response()->json(['message' => 'Le référentiel d’audit est obligatoire pour cette structure.'], 422);
+        }
+
+        $department = DB::transaction(function () use ($validated, $request): Department {
+            $department = Department::query()->create([
+                'name' => $validated['name'],
+                'code' => strtoupper($validated['code']),
+                'type' => $validated['type'],
+                'active' => true,
+                'parent_department_id' => $validated['parent_department_id'] ?? null,
+                'default_methodology_template_id' => $validated['default_methodology_template_id'] ?? null,
+                'executive_visibility' => true,
+                'intelligence_profile' => [
+                    'position_title' => OrganizationStructure::defaultHeadTitle($validated['type']),
+                    'position_activities' => [],
+                ],
+            ]);
+            $this->provisionAuditEnvironment($department, $request->user());
+
+            return $department;
+        });
+
+        return response()->json(['message' => 'Structure créée.', 'id' => $department->id], 201);
+    }
+
+    public function visualMove(Request $request, Department $department): JsonResponse
+    {
+        $this->authorize('update', $department);
+        abort_unless($request->user()->canAdministerOrganization(), 403);
+
+        $validated = $request->validate([
+            'parent_department_id' => ['nullable', 'integer', 'exists:departments,id'],
+        ]);
+        $parentId = $validated['parent_department_id'] ?? null;
+
+        if ($parentId !== null && (int) $parentId === (int) $department->id) {
+            return response()->json(['message' => 'Une structure ne peut pas devenir sa propre parente.'], 422);
+        }
+
+        $parent = $parentId !== null ? Department::query()->findOrFail($parentId) : null;
+        if ($parent?->isDescendantOf($department)) {
+            return response()->json(['message' => 'Ce déplacement créerait une boucle hiérarchique.'], 422);
+        }
+
+        $this->validateVisualPlacement($department->type, $parentId);
+        $department->update(['parent_department_id' => $parentId]);
+
+        return response()->json(['message' => 'Organigramme actualisé.']);
+    }
+
+    public function visualPosition(Request $request, Department $department): JsonResponse
+    {
+        $this->authorize('update', $department);
+        $validated = $request->validate([
+            'position_title' => ['required', 'string', \Illuminate\Validation\Rule::in(array_keys(OrganizationStructure::positionOptions()))],
+        ]);
+
+        $department->update([
+            'intelligence_profile' => array_replace_recursive($department->intelligence_profile ?? [], [
+                'position_title' => $validated['position_title'],
+            ]),
+        ]);
+
+        return response()->json(['message' => 'Fonction dirigeante affectée.']);
     }
 
     public function create(): View
@@ -257,6 +344,22 @@ class DepartmentManagementController extends Controller
 
         $methodology = MethodologyTemplate::query()->findOrFail($department->default_methodology_template_id);
         $this->auditEnvironments->provision($department, $methodology, $actor);
+    }
+
+    private function validateVisualPlacement(string $type, ?int $parentId): void
+    {
+        if (OrganizationStructure::requiresParent($type) && $parentId === null) {
+            abort(response()->json(['message' => 'Cette structure doit être rattachée à une structure parente.'], 422));
+        }
+
+        if ($parentId === null) {
+            return;
+        }
+
+        $parentType = Department::query()->whereKey($parentId)->value('type');
+        if (! in_array($parentType, OrganizationStructure::allowedParentTypes($type), true)) {
+            abort(response()->json(['message' => 'Ce niveau hiérarchique ne peut pas être déposé sur cette structure.'], 422));
+        }
     }
 
     /**

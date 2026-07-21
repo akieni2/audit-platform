@@ -48,6 +48,12 @@ Le catalogue de rôles inclut désormais Directeur, Directeur adjoint, Chef de s
 
 Les fiches de poste sont préparées dans le profil organisationnel de chaque structure : appellation, description et activités principales. Elles pourront ensuite être enrichies sans modifier la hiérarchie de base.
 
+## Constructeur visuel de l’organigramme
+
+Le menu Organigramme propose un canevas par glisser-déposer. La palette regroupe les objets administratifs et les fonctions dirigeantes. Un objet déposé sur une structure devient son enfant ; une structure existante peut être déplacée vers une nouvelle parente ; une fonction déposée sur une carte devient la fonction dirigeante affichée.
+
+Les validations serveur restent obligatoires : interdiction des cycles, compatibilité des niveaux hiérarchiques, contrôle des habilitations et choix du référentiel pour les structures porteuses d’un espace d’audit.
+
 ## Espace d’audit de la structure
 
 La création d’une administration, direction, inspection, département, sous-direction ou d’un pôle impose le choix d’un référentiel d’audit actif. Le système provisionne alors un espace isolé comprenant :

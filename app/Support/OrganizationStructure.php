@@ -52,6 +52,25 @@ final class OrganizationStructure
         };
     }
 
+    /** @return array<string, string> */
+    public static function positionOptions(): array
+    {
+        return [
+            'Directeur général' => 'Directeur général',
+            'Inspecteur des Services' => 'Inspecteur des Services',
+            'Inspecteur des Services adjoint' => 'Inspecteur des Services adjoint',
+            'Directeur' => 'Directeur',
+            'Directeur adjoint' => 'Directeur adjoint',
+            'Chef de département' => 'Chef de département',
+            'Chef de service' => 'Chef de service',
+            'Chef de cellule' => 'Chef de cellule',
+            'Responsable de pôle' => 'Responsable de pôle',
+            'Inspecteur vérificateur' => 'Inspecteur vérificateur',
+            'Inspecteur vérificateur adjoint' => 'Inspecteur vérificateur adjoint',
+            'Agent opérationnel' => 'Agent opérationnel',
+        ];
+    }
+
     public static function recommendedRoleSlug(?string $type, ?string $parentType = null): ?string
     {
         return match ($type) {
