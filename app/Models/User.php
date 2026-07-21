@@ -460,6 +460,31 @@ class User extends Authenticatable
             || Department::query()->where('supervisor_user_id', $this->id)->exists();
     }
 
+    public function canAccessOrganizationChart(): bool
+    {
+        return $this->canViewGlobalOrganization() || $this->department_id !== null;
+    }
+
+    public function canViewGlobalOrganization(): bool
+    {
+        if ($this->canAdministerOrganization()) {
+            return true;
+        }
+
+        $this->loadIamRelations();
+        $role = (string) ($this->institutionalRole?->slug ?? '');
+        $departmentCode = strtoupper((string) $this->department?->code);
+
+        return in_array($role, ['directeur_general', 'directeur_général', 'ressources_humaines', 'drh'], true)
+            || in_array($departmentCode, ['DG', 'DGCPT', 'DGTCP', 'DRH', 'RH', 'HR'], true);
+    }
+
+    public function canBuildFunctionalOrganization(): bool
+    {
+        return $this->canAdministerOrganization()
+            || ($this->department_id !== null && $this->isDepartmentSupervisorOf((int) $this->department_id));
+    }
+
     public function canAdministerOrganization(): bool
     {
         return $this->iamBool('manage_departments', function () {

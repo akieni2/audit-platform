@@ -51,4 +51,51 @@ class VisualOrganigramBuilderTest extends TestCase
 
         $this->actingAs($user)->patchJson(route('admin.departments.visual-move', $direction), ['parent_department_id' => $cell->id])->assertUnprocessable();
     }
+
+    public function test_department_supervisor_builds_only_inside_own_functional_chart(): void
+    {
+        $role = Role::query()->create(['slug' => 'directeur', 'name' => 'Directeur', 'hierarchy_level' => 90, 'active' => true]);
+        $root = Department::query()->create(['name' => 'Direction informatique', 'code' => 'DSI', 'type' => 'direction', 'active' => true]);
+        $other = Department::query()->create(['name' => 'Direction financière', 'code' => 'DF', 'type' => 'direction', 'active' => true]);
+        $supervisor = User::factory()->create(['role_id' => $role->id, 'role' => 'directeur', 'department_id' => $root->id]);
+        $root->update(['supervisor_user_id' => $supervisor->id]);
+
+        $this->actingAs($supervisor)->get(route('admin.departments.organigramme'))
+            ->assertOk()->assertSee('Organigramme fonctionnel du département')->assertSee('Direction informatique')->assertDontSee('Direction financière');
+
+        $response = $this->actingAs($supervisor)->postJson(route('admin.departments.visual-store'), [
+            'name' => 'Service infrastructure', 'code' => 'INFRA', 'type' => 'service', 'parent_department_id' => $root->id,
+        ])->assertCreated();
+        $service = Department::query()->findOrFail($response->json('id'));
+        $this->assertSame($root->id, $service->parent_department_id);
+
+        $this->actingAs($supervisor)->patchJson(route('admin.departments.visual-move', $service), [
+            'parent_department_id' => $other->id,
+        ])->assertForbidden();
+    }
+
+    public function test_department_user_can_view_local_chart_but_cannot_build_it(): void
+    {
+        $role = Role::query()->create(['slug' => 'agent_operationnel', 'name' => 'Agent', 'hierarchy_level' => 10, 'active' => true]);
+        $root = Department::query()->create(['name' => 'Direction informatique', 'code' => 'DSI', 'type' => 'direction', 'active' => true]);
+        $user = User::factory()->create(['role_id' => $role->id, 'role' => 'agent_operationnel', 'department_id' => $root->id]);
+
+        $this->actingAs($user)->get(route('admin.departments.organigramme'))
+            ->assertOk()->assertSee('Direction informatique')->assertSee('Son responsable est habilité');
+
+        $this->actingAs($user)->postJson(route('admin.departments.visual-store'), [
+            'name' => 'Cellule interdite', 'code' => 'NOPE', 'type' => 'cellule', 'parent_department_id' => $root->id,
+        ])->assertForbidden();
+    }
+
+    public function test_human_resources_user_can_view_the_global_chart(): void
+    {
+        $role = Role::query()->create(['slug' => 'ressources_humaines', 'name' => 'Ressources humaines', 'hierarchy_level' => 70, 'active' => true]);
+        $hr = Department::query()->create(['name' => 'Direction des ressources humaines', 'code' => 'DRH', 'type' => 'direction', 'active' => true]);
+        Department::query()->create(['name' => 'Direction informatique', 'code' => 'DSI', 'type' => 'direction', 'active' => true]);
+        $user = User::factory()->create(['role_id' => $role->id, 'role' => 'manager', 'department_id' => $hr->id]);
+
+        $this->actingAs($user)->get(route('admin.departments.organigramme'))
+            ->assertOk()->assertSee('Organigramme institutionnel global')->assertSee('Direction informatique');
+    }
 }

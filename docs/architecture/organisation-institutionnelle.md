@@ -54,6 +54,8 @@ Le menu Organigramme propose un canevas par glisser-déposer. La palette regroup
 
 Les validations serveur restent obligatoires : interdiction des cycles, compatibilité des niveaux hiérarchiques, contrôle des habilitations et choix du référentiel pour les structures porteuses d’un espace d’audit.
 
+Chaque responsable construit uniquement l’organigramme fonctionnel situé sous sa propre structure. Les utilisateurs rattachés au même département disposent d’une consultation en lecture seule. La vue institutionnelle globale est réservée à la Direction générale, aux Ressources humaines et aux administrateurs du système.
+
 ## Espace d’audit de la structure
 
 La création d’une administration, direction, inspection, département, sous-direction ou d’un pôle impose le choix d’un référentiel d’audit actif. Le système provisionne alors un espace isolé comprenant :

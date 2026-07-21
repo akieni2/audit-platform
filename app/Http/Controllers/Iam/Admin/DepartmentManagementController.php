@@ -50,19 +50,22 @@ class DepartmentManagementController extends Controller
     public function organigramme(): View
     {
         $this->authorize('viewAny', Department::class);
+        $actor = request()->user();
 
         return view('iam.admin.departments.organigramme', [
-            'departmentTree' => $this->departmentTree(request()->user()),
+            'departmentTree' => $this->departmentTree($actor),
             'structureTypes' => OrganizationStructure::typeOptions(),
             'positionTypes' => OrganizationStructure::positionOptions(),
             'methodologies' => MethodologyTemplate::query()->where('active', true)->orderBy('name')->get(),
-            'canBuildOrganigramme' => request()->user()->canAdministerOrganization(),
+            'canBuildOrganigramme' => $actor->canBuildFunctionalOrganization(),
+            'isGlobalOrganigramme' => $actor->canViewGlobalOrganization(),
         ]);
     }
 
     public function visualStore(Request $request): JsonResponse
     {
-        $this->authorize('create', Department::class);
+        $actor = $request->user();
+        abort_unless($actor->canBuildFunctionalOrganization(), 403);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -73,6 +76,7 @@ class DepartmentManagementController extends Controller
         ]);
 
         $this->validateVisualPlacement($validated['type'], $validated['parent_department_id'] ?? null);
+        $this->authorizeVisualParent($actor, $validated['parent_department_id'] ?? null);
 
         if (OrganizationStructure::requiresAuditMethodology($validated['type']) && empty($validated['default_methodology_template_id'])) {
             return response()->json(['message' => 'Le référentiel d’audit est obligatoire pour cette structure.'], 422);
@@ -102,13 +106,15 @@ class DepartmentManagementController extends Controller
 
     public function visualMove(Request $request, Department $department): JsonResponse
     {
-        $this->authorize('update', $department);
-        abort_unless($request->user()->canAdministerOrganization(), 403);
+        $actor = $request->user();
+        abort_unless($actor->canBuildFunctionalOrganization(), 403);
 
         $validated = $request->validate([
             'parent_department_id' => ['nullable', 'integer', 'exists:departments,id'],
         ]);
         $parentId = $validated['parent_department_id'] ?? null;
+        $this->authorizeVisualDepartment($actor, $department, false);
+        $this->authorizeVisualParent($actor, $parentId);
 
         if ($parentId !== null && (int) $parentId === (int) $department->id) {
             return response()->json(['message' => 'Une structure ne peut pas devenir sa propre parente.'], 422);
@@ -127,7 +133,9 @@ class DepartmentManagementController extends Controller
 
     public function visualPosition(Request $request, Department $department): JsonResponse
     {
-        $this->authorize('update', $department);
+        $actor = $request->user();
+        abort_unless($actor->canBuildFunctionalOrganization(), 403);
+        $this->authorizeVisualDepartment($actor, $department, true);
         $validated = $request->validate([
             'position_title' => ['required', 'string', \Illuminate\Validation\Rule::in(array_keys(OrganizationStructure::positionOptions()))],
         ]);
@@ -362,6 +370,30 @@ class DepartmentManagementController extends Controller
         }
     }
 
+    private function authorizeVisualParent(User $actor, ?int $parentId): void
+    {
+        if ($actor->canAdministerOrganization()) {
+            return;
+        }
+
+        abort_if($parentId === null || $actor->department_id === null, 403);
+        $parent = Department::query()->findOrFail($parentId);
+        $root = Department::query()->findOrFail($actor->department_id);
+        abort_unless((int) $parent->id === (int) $root->id || $parent->isDescendantOf($root), 403);
+    }
+
+    private function authorizeVisualDepartment(User $actor, Department $department, bool $allowRoot): void
+    {
+        if ($actor->canAdministerOrganization()) {
+            return;
+        }
+
+        abort_if($actor->department_id === null, 403);
+        $root = Department::query()->findOrFail($actor->department_id);
+        $isRoot = (int) $department->id === (int) $root->id;
+        abort_unless(($allowRoot && $isRoot) || $department->isDescendantOf($root), 403);
+    }
+
     /**
      * @return \Illuminate\Support\Collection<int, Department>
      */
@@ -370,8 +402,8 @@ class DepartmentManagementController extends Controller
         return Department::query()
             ->with(['children.children.children.children', 'supervisor'])
             ->when(
-                $actor !== null && ! $actor->canAdministerOrganization(),
-                fn ($query) => $query->where('supervisor_user_id', $actor->id),
+                $actor !== null && ! $actor->canViewGlobalOrganization(),
+                fn ($query) => $query->whereKey($actor->department_id),
                 fn ($query) => $query->whereNull('parent_department_id')
             )
             ->orderByRaw("case when code in ('DG', 'DGTCP', 'DGCPT', 'ADMIN_CENT') then 0 else 1 end")

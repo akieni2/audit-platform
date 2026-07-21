@@ -12,12 +12,18 @@ class DepartmentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->canManageDepartments();
+        return $user->canAccessOrganizationChart();
     }
 
     public function view(User $user, Department $department): bool
     {
-        return $user->canAdministerOrganization() || $user->isDepartmentSupervisorOf($department->id);
+        if ($user->canViewGlobalOrganization()) {
+            return true;
+        }
+
+        $root = $user->department;
+
+        return $root !== null && ((int) $department->id === (int) $root->id || $department->isDescendantOf($root));
     }
 
     public function create(User $user): bool

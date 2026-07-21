@@ -22,6 +22,7 @@ class LoadIamContext
                 'iamContextReady' => true,
                 'canManageUsers' => $user->canAccessAdministrationMenu(),
                 'canManageDepartmentsNav' => $user->canManageDepartments(),
+                'canViewOrganizationChartNav' => $user->canAccessOrganizationChart(),
                 'canViewExecutiveNav' => $user->canViewExecutiveDashboard(),
             ]);
         }

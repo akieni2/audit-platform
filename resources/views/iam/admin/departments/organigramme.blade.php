@@ -17,15 +17,15 @@
     <div class="mx-auto max-w-[1600px] space-y-6 px-0 py-2">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="dgcpt-card-title">Constructeur d’organigramme</p>
-                <h1 class="dgcpt-page-title">Organisation institutionnelle dynamique</h1>
+                <p class="dgcpt-card-title">{{ $isGlobalOrganigramme ? 'Organigramme institutionnel global' : 'Organigramme fonctionnel du département' }}</p>
+                <h1 class="dgcpt-page-title">{{ $isGlobalOrganigramme ? 'Organisation institutionnelle dynamique' : auth()->user()?->department?->name }}</h1>
                 <p class="mt-1 text-sm dgcpt-text-muted">Glissez une structure ou une fonction sur le niveau cible. Les liens hiérarchiques sont reconstruits automatiquement.</p>
             </div>
             <a href="{{ route('admin.departments.index') }}" class="dgcpt-btn-outline">Retour structures</a>
         </div>
 
         @if (! $canBuildOrganigramme)
-            <div class="dgcpt-surface border-[#FFB020]/30 p-4 text-sm text-[#BFD2E6]">Vous consultez votre périmètre. Seul l’administrateur organisationnel peut déplacer ou créer les structures.</div>
+            <div class="dgcpt-surface border-[#FFB020]/30 p-4 text-sm text-[#BFD2E6]">Consultation de l’organigramme fonctionnel de votre département. Son responsable est habilité à le construire.</div>
         @endif
 
         <div class="org-builder">
@@ -51,7 +51,7 @@
                 <div class="grid gap-2">
                     @foreach ($positionTypes as $value => $label)
                         <div class="org-tool rounded-lg border border-[rgba(124,92,255,.24)] bg-[rgba(124,92,255,.08)] px-3 py-2 text-sm text-[#C8BCFF]"
-                             draggable="true"
+                             draggable="{{ $canBuildOrganigramme ? 'true' : 'false' }}"
                              data-org-payload='@json(["kind" => "position", "position" => $value])'>
                             <span class="mr-2">●</span>{{ $label }}
                         </div>

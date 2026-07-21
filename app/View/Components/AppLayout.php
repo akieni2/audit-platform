@@ -40,6 +40,7 @@ class AppLayout extends Component
             'sidebarDepartments' => $sidebarDepartments,
             'canManageUsers' => $user !== null && $user->canAccessAdministrationMenu(),
             'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
+            'canViewOrganizationChartNav' => $user !== null && $user->canAccessOrganizationChart(),
             'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),
             'unreadNotificationsCount' => $user !== null ? $user->unreadNotifications()->count() : 0,
             'canManageEnrollments' => $canManageEnrollments,

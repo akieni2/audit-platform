@@ -4,7 +4,7 @@
 
 @auth
     @if ($nav === 'technical_admin')
-        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false))
+        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false))
             <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration technique">
                 <p class="nav-card-title">Administration</p>
                 @if ($canManageUsers ?? false)
@@ -45,15 +45,17 @@
                         <span class="ni" aria-hidden="true">◫</span>
                         Structures et directions
                     </a>
-                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
-                       href="{{ route('admin.departments.organigramme') }}">
-                        <span class="ni" aria-hidden="true">◫</span>
-                        Organigramme
-                    </a>
                     <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
                        href="{{ route('enterprise.methodologies') }}">
                         <span class="ni" aria-hidden="true">⌘</span>
                         Gestion des référentiels
+                    </a>
+                @endif
+                @if ($canViewOrganizationChartNav ?? false)
+                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
+                       href="{{ route('admin.departments.organigramme') }}">
+                        <span class="ni" aria-hidden="true">◫</span>
+                        {{ auth()->user()?->canViewGlobalOrganization() ? 'Organigramme global' : 'Organigramme du département' }}
                     </a>
                 @endif
             </div>
@@ -78,7 +80,7 @@
             Tableau de bord
         </a>
 
-        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false))
+        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false))
             <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration">
                 <p class="nav-card-title">Administration</p>
                 @if ($canManageUsers ?? false)
@@ -119,15 +121,17 @@
                         <span class="ni" aria-hidden="true">◫</span>
                         Structures et directions
                     </a>
-                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
-                       href="{{ route('admin.departments.organigramme') }}">
-                        <span class="ni" aria-hidden="true">◫</span>
-                        Organigramme
-                    </a>
                     <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
                        href="{{ route('enterprise.methodologies') }}">
                         <span class="ni" aria-hidden="true">⌘</span>
                         Gestion des référentiels
+                    </a>
+                @endif
+                @if ($canViewOrganizationChartNav ?? false)
+                    <a class="nav-link {{ request()->routeIs('admin.departments.organigramme') ? 'active' : '' }}"
+                       href="{{ route('admin.departments.organigramme') }}">
+                        <span class="ni" aria-hidden="true">◫</span>
+                        {{ auth()->user()?->canViewGlobalOrganization() ? 'Organigramme global' : 'Organigramme du département' }}
                     </a>
                 @endif
             </div>

@@ -520,15 +520,16 @@ Route::middleware(['auth', 'active'])->group(function () {
             Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
         });
 
+        Route::get('/departments/organigramme', [DepartmentManagementController::class, 'organigramme'])
+            ->name('departments.organigramme');
+        Route::post('/departments/organigramme/structures', [DepartmentManagementController::class, 'visualStore'])
+            ->name('departments.visual-store');
+        Route::patch('/departments/{department}/organigramme/move', [DepartmentManagementController::class, 'visualMove'])
+            ->name('departments.visual-move');
+        Route::patch('/departments/{department}/organigramme/position', [DepartmentManagementController::class, 'visualPosition'])
+            ->name('departments.visual-position');
+
         Route::middleware(['can:manageDepartments'])->group(function (): void {
-            Route::get('/departments/organigramme', [DepartmentManagementController::class, 'organigramme'])
-                ->name('departments.organigramme');
-            Route::post('/departments/organigramme/structures', [DepartmentManagementController::class, 'visualStore'])
-                ->name('departments.visual-store');
-            Route::patch('/departments/{department}/organigramme/move', [DepartmentManagementController::class, 'visualMove'])
-                ->name('departments.visual-move');
-            Route::patch('/departments/{department}/organigramme/position', [DepartmentManagementController::class, 'visualPosition'])
-                ->name('departments.visual-position');
             Route::resource('departments', DepartmentManagementController::class)->except(['show']);
         });
     });
