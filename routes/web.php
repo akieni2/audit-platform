@@ -163,6 +163,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'index'])->name('missions.services.documents.index');
     Route::post('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'store'])->name('missions.services.documents.store');
     Route::delete('/mission-documents/{mission_document}', [MissionDocumentController::class, 'destroy'])->name('mission-documents.destroy');
+    Route::get('/mission-documents/{mission_document}/download', [MissionDocumentController::class, 'download'])->name('mission-documents.download');
 
     Route::post('/missions/{mission}/consolidations', [DepartmentAuditConsolidationController::class, 'store'])->name('missions.consolidations.store');
 

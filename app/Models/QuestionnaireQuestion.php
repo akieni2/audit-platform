@@ -124,4 +124,9 @@ class QuestionnaireQuestion extends Model
     {
         return $this->hasMany(IdentifiedRisk::class, 'questionnaire_question_id');
     }
+
+    public function missionDocuments(): HasMany
+    {
+        return $this->hasMany(MissionDocument::class, 'questionnaire_question_id');
+    }
 }

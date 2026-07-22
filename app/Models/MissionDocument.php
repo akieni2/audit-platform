@@ -14,16 +14,22 @@ class MissionDocument extends Model
         'mission_id',
         'service_id',
         'entretien_id',
+        'questionnaire_question_id',
+        'mission_audit_group_id',
         'uploaded_by',
         'filename',
         'original_name',
         'mime_type',
         'disk',
         'path',
+        'checksum_sha256',
         'size',
         'category',
+        'expected_document_label',
+        'receipt_status',
         'description',
         'version',
+        'provided_at',
         'metadata',
     ];
 
@@ -33,6 +39,7 @@ class MissionDocument extends Model
             'metadata' => 'array',
             'size' => 'integer',
             'version' => 'integer',
+            'provided_at' => 'datetime',
         ];
     }
 
@@ -54,5 +61,25 @@ class MissionDocument extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by')->withTrashed();
+    }
+
+    public function questionnaireQuestion(): BelongsTo
+    {
+        return $this->belongsTo(QuestionnaireQuestion::class)->withTrashed();
+    }
+
+    public function auditGroup(): BelongsTo
+    {
+        return $this->belongsTo(MissionAuditGroup::class, 'mission_audit_group_id');
+    }
+
+    /** @return array<string, string> */
+    public static function receiptStatusLabels(): array
+    {
+        return [
+            'received' => 'Reçu',
+            'partial' => 'Partiel / incomplet',
+            'to_review' => 'À examiner',
+        ];
     }
 }
