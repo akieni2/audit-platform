@@ -21,6 +21,8 @@ class LoadIamContext
             View::share([
                 'iamContextReady' => true,
                 'canManageUsers' => $user->canAccessAdministrationMenu() || $user->canManageDepartmentUsers(),
+                'canAccessAdminConsoleNav' => $user->canAccessAdministrationMenu(),
+                'canAccessSecurityLogsNav' => $user->canAccessSecurityLogs(),
                 'canManageDepartmentsNav' => $user->canManageDepartments(),
                 'canViewOrganizationChartNav' => $user->canAccessOrganizationChart(),
                 'canViewExecutiveNav' => $user->canViewExecutiveDashboard(),

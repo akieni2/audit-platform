@@ -301,7 +301,8 @@ class MissionGovernanceTest extends TestCase
             ->get(route('admin.users.index'))
             ->assertOk()
             ->assertSee('Agent Interne Visible')
-            ->assertDontSee('Agent Externe Masqué');
+            ->assertDontSee('Agent Externe Masqué')
+            ->assertDontSee('Journal sécurité');
     }
 
     public function test_chef_de_mission_cannot_update_deadlines_gate(): void

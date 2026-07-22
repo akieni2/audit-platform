@@ -26,16 +26,20 @@
                         <span class="ni" aria-hidden="true">◇</span>
                         Créer utilisateur
                     </a>
-                    <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
-                       href="{{ route('admin.home') }}">
-                        <span class="ni" aria-hidden="true">◎</span>
-                        Console administration
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
-                       href="{{ route('admin.security.audit-logs') }}">
-                        <span class="ni" aria-hidden="true">▤</span>
-                        Journal sécurité
-                    </a>
+                    @if ($canAccessAdminConsoleNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
+                           href="{{ route('admin.home') }}">
+                            <span class="ni" aria-hidden="true">◎</span>
+                            Console administration
+                        </a>
+                    @endif
+                    @if ($canAccessSecurityLogsNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
+                           href="{{ route('admin.security.audit-logs') }}">
+                            <span class="ni" aria-hidden="true">▤</span>
+                            Journal sécurité
+                        </a>
+                    @endif
                 @endif
                 @can('manageEnrollmentRequests')
                     <a class="nav-link {{ request()->routeIs('admin.enrollments.*') ? 'active' : '' }}"
@@ -102,16 +106,20 @@
                         <span class="ni" aria-hidden="true">◇</span>
                         Créer utilisateur
                     </a>
-                    <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
-                       href="{{ route('admin.home') }}">
-                        <span class="ni" aria-hidden="true">◎</span>
-                        Tableau de bord admin
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
-                       href="{{ route('admin.security.audit-logs') }}">
-                        <span class="ni" aria-hidden="true">▤</span>
-                        Journal sécurité
-                    </a>
+                    @if ($canAccessAdminConsoleNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
+                           href="{{ route('admin.home') }}">
+                            <span class="ni" aria-hidden="true">◎</span>
+                            Tableau de bord admin
+                        </a>
+                    @endif
+                    @if ($canAccessSecurityLogsNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.security.audit-logs') ? 'active' : '' }}"
+                           href="{{ route('admin.security.audit-logs') }}">
+                            <span class="ni" aria-hidden="true">▤</span>
+                            Journal sécurité
+                        </a>
+                    @endif
                 @endif
                 @can('manageEnrollmentRequests')
                     <a class="nav-link {{ request()->routeIs('admin.enrollments.*') ? 'active' : '' }}"
