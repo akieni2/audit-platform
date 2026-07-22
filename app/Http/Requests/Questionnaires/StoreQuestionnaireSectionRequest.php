@@ -20,6 +20,8 @@ class StoreQuestionnaireSectionRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'section_type' => ['sometimes', 'required', 'string', 'in:theme,thematic,subtheme'],
+            'parent_section_id' => ['nullable', 'integer', 'exists:questionnaire_sections,id'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }

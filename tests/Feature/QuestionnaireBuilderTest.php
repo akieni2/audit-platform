@@ -19,6 +19,55 @@ class QuestionnaireBuilderTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_builder_creates_editable_theme_thematic_subtheme_hierarchy(): void
+    {
+        $user = $this->inspecteurNational();
+        $this->actingAs($user);
+        $template = QuestionnaireTemplate::query()->create([
+            'name' => 'Audit du management DSI',
+            'slug' => 'audit-management-dsi-hierarchy',
+            'active' => false,
+            'lifecycle_status' => QuestionnaireTemplate::STATUS_DRAFT,
+            'created_by' => $user->id,
+        ]);
+
+        $this->post(route('questionnaire-builder.sections.store', $template), [
+            'title' => 'Alignement stratégique',
+            'section_type' => QuestionnaireSection::TYPE_THEME,
+        ])->assertRedirect(route('questionnaire-builder.edit', $template));
+        $theme = $template->sections()->where('title', 'Alignement stratégique')->firstOrFail();
+
+        $this->post(route('questionnaire-builder.sections.store', $template), [
+            'title' => 'Alignement SDSI',
+            'section_type' => QuestionnaireSection::TYPE_THEMATIC,
+            'parent_section_id' => $theme->id,
+        ])->assertRedirect(route('questionnaire-builder.edit', $template));
+        $thematic = $template->sections()->where('title', 'Alignement SDSI')->firstOrFail();
+
+        $this->post(route('questionnaire-builder.sections.store', $template), [
+            'title' => 'Vision et stratégie',
+            'section_type' => QuestionnaireSection::TYPE_SUBTHEME,
+            'parent_section_id' => $thematic->id,
+        ])->assertRedirect(route('questionnaire-builder.edit', $template));
+
+        $this->assertDatabaseHas('questionnaire_sections', [
+            'questionnaire_template_id' => $template->id,
+            'title' => 'Vision et stratégie',
+            'section_type' => QuestionnaireSection::TYPE_SUBTHEME,
+            'parent_section_id' => $thematic->id,
+        ]);
+
+        $this->post(route('questionnaire-builder.sections.store', $template), [
+            'title' => 'Sous-thématique mal placée',
+            'section_type' => QuestionnaireSection::TYPE_SUBTHEME,
+            'parent_section_id' => $theme->id,
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('questionnaire_sections', [
+            'title' => 'Sous-thématique mal placée',
+        ]);
+    }
+
     public function test_builder_can_create_template_section_question_and_reorder(): void
     {
         $user = $this->inspecteurNational();

@@ -48,7 +48,7 @@
                     </div>
 
                     <div class="grid gap-3 text-sm text-[#9FB3C8] sm:grid-cols-2">
-                        <p><span class="font-semibold text-[#E6EEF8]">Sections :</span> {{ $template->sections->count() }}</p>
+                        <p><span class="font-semibold text-[#E6EEF8]">Éléments structurants :</span> {{ $template->sections->count() }}</p>
                         <p><span class="font-semibold text-[#E6EEF8]">Questions :</span> {{ $template->sections->sum(fn ($section) => $section->questions->count()) }}</p>
                         <p><span class="font-semibold text-[#E6EEF8]">Mission type :</span> {{ $template->mission_type ?: '—' }}</p>
                         <p><span class="font-semibold text-[#E6EEF8]">Signature :</span> <span class="font-mono text-xs">{{ $template->signature_hash ?: '—' }}</span></p>
@@ -137,15 +137,15 @@
                     <input type="hidden" name="template_id" value="{{ $template->id }}">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-[#73D8FF]">Ordre des sections</p>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-[#73D8FF]">Ordre des thèmes et sous-niveaux</p>
                             <p class="mt-1 text-sm text-[#9FB3C8]">Ajustez les positions, puis appliquez le nouvel ordre.</p>
                         </div>
-                        <button type="submit" class="dgcpt-btn-outline">Réordonner les sections</button>
+                        <button type="submit" class="dgcpt-btn-outline">Réordonner la structure</button>
                     </div>
                     <div class="mt-4 grid gap-3 md:grid-cols-2">
                         @foreach ($template->sections->sortBy('sort_order') as $section)
                             <label class="rounded-xl border border-[rgba(0,209,255,0.08)] bg-[rgba(5,8,22,0.7)] p-3">
-                                <span class="block text-xs font-semibold uppercase tracking-wide text-[#73D8FF]">Section {{ $loop->iteration }}</span>
+                                <span class="block text-xs font-semibold uppercase tracking-wide text-[#73D8FF]">{{ $section->typeLabel() }}</span>
                                 <span class="mt-1 block text-sm text-[#E6EEF8]">{{ $section->title }}</span>
                                 <input name="positions[{{ $section->id }}]" type="number" min="0" value="{{ $section->sort_order }}" class="dgcpt-input mt-3" />
                             </label>
@@ -154,7 +154,7 @@
                 </form>
 
                 <div class="dgcpt-surface p-6 shadow-sm">
-                    <h2 class="text-lg font-bold text-[#E6EEF8]">Nouvelle section</h2>
+                    <h2 class="text-lg font-bold text-[#E6EEF8]">Nouvel élément du questionnaire</h2>
                     <form method="POST" action="{{ route('questionnaire-builder.sections.store', $template) }}" class="mt-4 grid gap-4 md:grid-cols-2">
                         @csrf
                         <div class="md:col-span-2">
@@ -166,11 +166,29 @@
                             <textarea name="description" rows="2" class="dgcpt-textarea"></textarea>
                         </div>
                         <div>
+                            <label class="dgcpt-label">Niveau</label>
+                            <select name="section_type" required class="dgcpt-select">
+                                @foreach (\App\Models\QuestionnaireSection::typeLabels() as $type => $label)
+                                    <option value="{{ $type }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="dgcpt-label">Structure parente</label>
+                            <select name="parent_section_id" class="dgcpt-select">
+                                <option value="">Aucune — thème principal</option>
+                                @foreach ($template->sections->sortBy('sort_order') as $parentOption)
+                                    <option value="{{ $parentOption->id }}">{{ $parentOption->typeLabel() }} — {{ $parentOption->title }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-[#7F94AA]">Thématique → Thème ; Sous-thématique → Thématique.</p>
+                        </div>
+                        <div>
                             <label class="dgcpt-label">Ordre</label>
                             <input name="sort_order" type="number" min="0" value="{{ $template->sections->count() }}" class="dgcpt-input" />
                         </div>
                         <div class="flex items-end">
-                            <button type="submit" class="dgcpt-btn-primary">Ajouter la section</button>
+                            <button type="submit" class="dgcpt-btn-primary">Ajouter l’élément</button>
                         </div>
                     </form>
                 </div>
@@ -180,7 +198,7 @@
                         @include('questionnaires.builder.partials.section-card', ['section' => $section, 'template' => $template])
                     @empty
                         <div class="dgcpt-surface p-8 text-center text-sm text-[#9FB3C8] shadow-sm">
-                            Aucune section pour ce template. Commencez par structurer le questionnaire.
+                            Aucun thème pour ce modèle. Commencez par créer un thème, puis ses thématiques et sous-thématiques.
                         </div>
                     @endforelse
                 </div>

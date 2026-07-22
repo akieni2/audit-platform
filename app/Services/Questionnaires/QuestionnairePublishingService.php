@@ -55,14 +55,18 @@ final class QuestionnairePublishingService
                 'updated_by' => $actor?->id ?? $template->updated_by,
             ]);
 
-            foreach ($template->sections as $section) {
+            $sectionMap = [];
+            foreach ($template->sections->sortBy(fn (QuestionnaireSection $section) => $this->sectionDepth($section)) as $section) {
                 $draftSection = QuestionnaireSection::query()->create([
                     'questionnaire_template_id' => $draft->id,
                     'title' => $section->title,
                     'description' => $section->description,
+                    'section_type' => $section->section_type,
+                    'parent_section_id' => $section->parent_section_id ? ($sectionMap[$section->parent_section_id] ?? null) : null,
                     'sort_order' => $section->sort_order,
                     'source_section_id' => $section->id,
                 ]);
+                $sectionMap[$section->id] = $draftSection->id;
 
                 foreach ($section->questions as $question) {
                     QuestionnaireQuestion::query()->create([
@@ -87,6 +91,15 @@ final class QuestionnairePublishingService
 
             return $draft->fresh(['sections.questions' => fn ($query) => $query->orderBy('sort_order')]);
         });
+    }
+
+    private function sectionDepth(QuestionnaireSection $section): int
+    {
+        return match ($section->section_type) {
+            QuestionnaireSection::TYPE_SUBTHEME => 2,
+            QuestionnaireSection::TYPE_THEMATIC => 1,
+            default => 0,
+        };
     }
 
     public function publish(QuestionnaireTemplate $template, ?User $actor = null): QuestionnaireTemplate
@@ -150,9 +163,10 @@ final class QuestionnairePublishingService
 
         foreach ($sections as $section) {
             $questions = $section->questions->where('active', true)->values();
-            if ($questions->isEmpty()) {
+            $hasChildren = $sections->contains(fn (QuestionnaireSection $candidate) => (int) $candidate->parent_section_id === (int) $section->id);
+            if (! $hasChildren && $questions->isEmpty()) {
                 throw new InvalidArgumentException(sprintf(
-                    'La section "%s" doit contenir au moins une question active.',
+                    'Le dernier niveau "%s" doit contenir au moins une question active.',
                     $section->title
                 ));
             }
@@ -206,6 +220,8 @@ final class QuestionnairePublishingService
                 return [
                     'title' => (string) $section->title,
                     'description' => $section->description,
+                    'section_type' => $section->section_type,
+                    'parent_section_id' => $section->parent_section_id,
                     'sort_order' => (int) $section->sort_order,
                     'questions' => $section->questions->sortBy('sort_order')->values()->map(function (QuestionnaireQuestion $question) {
                         return [

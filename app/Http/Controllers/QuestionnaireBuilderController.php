@@ -54,6 +54,7 @@ class QuestionnaireBuilderController extends Controller
 
         $template->load([
             'sections.questions' => fn ($query) => $query->orderBy('sort_order'),
+            'sections.parent',
             'sourceTemplate',
         ]);
 
@@ -117,6 +118,7 @@ class QuestionnaireBuilderController extends Controller
 
         DB::transaction(function () use ($editableTemplate, $request) {
             $validated = $request->validated();
+            $validated['parent_section_id'] = $this->validatedParentId($editableTemplate, $validated);
             $editableTemplate->sections()->create([
                 ...$validated,
                 'sort_order' => $validated['sort_order'] ?? ($editableTemplate->sections()->max('sort_order') + 1),
@@ -138,8 +140,10 @@ class QuestionnaireBuilderController extends Controller
 
         [$editableTemplate, $editableSection, $cloned] = $this->editableSectionContext($section, $request->user());
 
-        DB::transaction(function () use ($editableSection, $request) {
-            $editableSection->update($request->validated());
+        DB::transaction(function () use ($editableTemplate, $editableSection, $request) {
+            $validated = $request->validated();
+            $validated['parent_section_id'] = $this->validatedParentId($editableTemplate, $validated, $editableSection);
+            $editableSection->update($validated);
         });
 
         return redirect()
@@ -156,6 +160,12 @@ class QuestionnaireBuilderController extends Controller
         $this->authorize('update', $template);
 
         [$editableTemplate, $editableSection, $cloned] = $this->editableSectionContext($section, $request->user());
+
+        if ($editableSection->children()->exists()) {
+            return redirect()
+                ->route('questionnaire-builder.edit', $editableTemplate)
+                ->withErrors(['section' => 'Déplacez ou archivez d’abord les éléments enfants de cette structure.']);
+        }
 
         DB::transaction(function () use ($editableSection) {
             $editableSection->questions()->delete();
@@ -431,6 +441,35 @@ class QuestionnaireBuilderController extends Controller
             ->withCount('sections')
             ->orderByDesc('version')
             ->get();
+    }
+
+    /** @param array<string, mixed> $validated */
+    private function validatedParentId(
+        QuestionnaireTemplate $template,
+        array $validated,
+        ?QuestionnaireSection $section = null,
+    ): ?int {
+        $parentId = isset($validated['parent_section_id']) ? (int) $validated['parent_section_id'] : null;
+        $type = $validated['section_type'] ?? QuestionnaireSection::TYPE_THEME;
+
+        if ($type === QuestionnaireSection::TYPE_THEME) {
+            return null;
+        }
+
+        abort_if($parentId === null, 422, 'Une structure parente est obligatoire.');
+        abort_if($section && $parentId === (int) $section->id, 422, 'Une structure ne peut pas être sa propre parente.');
+
+        $parent = $template->sections()
+            ->where(function ($query) use ($parentId): void {
+                $query->whereKey($parentId)->orWhere('source_section_id', $parentId);
+            })
+            ->firstOrFail();
+        $expectedParentType = $type === QuestionnaireSection::TYPE_THEMATIC
+            ? QuestionnaireSection::TYPE_THEME
+            : QuestionnaireSection::TYPE_THEMATIC;
+        abort_unless($parent->section_type === $expectedParentType, 422, 'Le niveau de la structure parente est invalide.');
+
+        return $parent->id;
     }
 
     /**

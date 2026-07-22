@@ -7,12 +7,15 @@
     <summary class="flex cursor-pointer list-none flex-wrap items-start justify-between gap-4">
         <div>
             <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full bg-[#173050] px-2.5 py-1 text-xs font-semibold text-[#73D8FF]">Section {{ $loop->iteration }}</span>
+                <span class="rounded-full bg-[#173050] px-2.5 py-1 text-xs font-semibold text-[#73D8FF]">{{ $section->typeLabel() }}</span>
                 <span class="rounded-full bg-[rgba(0,168,107,0.12)] px-2.5 py-1 text-xs font-semibold text-[#7EF2BE]">
                     {{ $section->questions->count() }} question(s)
                 </span>
             </div>
             <h2 class="mt-3 text-lg font-bold text-[#E6EEF8]">{{ $section->title }}</h2>
+            @if ($section->parent)
+                <p class="mt-1 text-xs text-[#73D8FF]">Sous : {{ $section->parent->title }}</p>
+            @endif
             @if ($section->description)
                 <p class="mt-1 text-sm text-[#9FB3C8]">{{ $section->description }}</p>
             @endif
@@ -37,7 +40,24 @@
                     <label class="dgcpt-label">Description</label>
                     <textarea name="description" rows="2" class="dgcpt-textarea">{{ $section->description }}</textarea>
                 </div>
-                <button type="submit" class="dgcpt-btn-outline w-fit">Mettre à jour la section</button>
+                <div>
+                    <label class="dgcpt-label">Niveau</label>
+                    <select name="section_type" required class="dgcpt-select">
+                        @foreach (\App\Models\QuestionnaireSection::typeLabels() as $type => $label)
+                            <option value="{{ $type }}" @selected($section->section_type === $type)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="dgcpt-label">Structure parente</label>
+                    <select name="parent_section_id" class="dgcpt-select">
+                        <option value="">Aucune</option>
+                        @foreach ($template->sections->where('id', '!=', $section->id)->sortBy('sort_order') as $parentOption)
+                            <option value="{{ $parentOption->id }}" @selected((int) $section->parent_section_id === (int) $parentOption->id)>{{ $parentOption->typeLabel() }} — {{ $parentOption->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="dgcpt-btn-outline w-fit">Mettre à jour l’élément</button>
             </form>
 
             <form method="POST" action="{{ route('questionnaire-builder.sections.destroy', $section) }}" onsubmit="return confirm('Archiver cette section et ses questions ?');">

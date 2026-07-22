@@ -122,14 +122,22 @@ class QuestionnaireTemplateController extends Controller
                 'updated_by' => $request->user()?->id,
             ]);
 
-            foreach ($questionnaire_template->sections as $section) {
+            $sectionMap = [];
+            foreach ($questionnaire_template->sections->sortBy(fn (QuestionnaireSection $section) => match ($section->section_type) {
+                QuestionnaireSection::TYPE_SUBTHEME => 2,
+                QuestionnaireSection::TYPE_THEMATIC => 1,
+                default => 0,
+            }) as $section) {
                 $sec = QuestionnaireSection::query()->create([
                     'questionnaire_template_id' => $new->id,
                     'title' => $section->title,
                     'description' => $section->description,
+                    'section_type' => $section->section_type,
+                    'parent_section_id' => $section->parent_section_id ? ($sectionMap[$section->parent_section_id] ?? null) : null,
                     'sort_order' => $section->sort_order,
                     'source_section_id' => $section->id,
                 ]);
+                $sectionMap[$section->id] = $sec->id;
 
                 foreach ($section->questions as $question) {
                     QuestionnaireQuestion::query()->create([
