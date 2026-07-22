@@ -2,6 +2,11 @@
 
 return [
 
+    'institution_name' => env(
+        'DGCPT_INSTITUTION_NAME',
+        'DGCPT — Direction Générale de la Comptabilité Publique et du Trésor'
+    ),
+
     /*
     |--------------------------------------------------------------------------
     | Compte système Super Administrateur

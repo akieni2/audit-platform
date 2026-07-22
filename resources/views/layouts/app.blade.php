@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'DGCPT') }}</title>
+    <title>{{ config('dgcpt.institution_name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/branding/dgcpt-logo.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/branding/dgcpt-logo.png') }}">
@@ -43,7 +43,7 @@
                     <img src="{{ asset('assets/branding/dgcpt-logo.png') }}" width="48" height="48" alt="DGCPT">
                     <div>
                         <p class="brand-title">DGCPT</p>
-                        <p class="brand-sub">Trésor public gabonais</p>
+                        <p class="brand-sub" style="letter-spacing:0.04em;line-height:1.45;">Direction Générale de la Comptabilité Publique et du Trésor</p>
                     </div>
                 </div>
                 <p class="brand-sub" style="margin-top:0.65rem;letter-spacing:0.04em;">Plateforme d’audit &amp; pilotage</p>

@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'DGCPT — Audit & gouvernance'),
+    'name' => env('APP_NAME', 'DGCPT — Direction Générale de la Comptabilité Publique et du Trésor'),
 
     /*
     |--------------------------------------------------------------------------

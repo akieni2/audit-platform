@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name') }}</title>
+    <title>{{ config('dgcpt.institution_name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/branding/dgcpt-logo.png') }}">
     <script>
         (function () {
@@ -27,7 +27,7 @@
 <div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6">
     <a href="{{ url('/') }}" class="mb-8 flex flex-col items-center gap-3 text-center transition hover:opacity-95">
         <img src="{{ asset('assets/branding/dgcpt-logo.png') }}" alt="DGCPT" class="h-24 w-24 rounded-full object-contain shadow-[0_0_40px_rgba(0,209,255,0.25)] ring-2 ring-dgcpt-cyan/30">
-        <span class="text-[0.65rem] font-bold uppercase tracking-[0.28em] text-dgcpt-cyan/90">Trésor public gabonais</span>
+        <span class="max-w-md text-[0.65rem] font-bold uppercase tracking-[0.16em] text-dgcpt-cyan/90">DGCPT — Direction Générale de la Comptabilité Publique et du Trésor</span>
     </a>
 
     <div class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">

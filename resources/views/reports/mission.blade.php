@@ -25,7 +25,7 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
     @endif
     <div>
         <div style="font-size: 11px; font-weight: 700;">RÉPUBLIQUE — RAPPORT D'AUDIT INSTITUTIONNEL</div>
-        <div class="sub">DGCPT · Trésor public gabonais · Traçabilité workflow · Document confidentiel</div>
+        <div class="sub">DGCPT · Direction Générale de la Comptabilité Publique et du Trésor · Traçabilité workflow · Document confidentiel</div>
     </div>
 </div>
 

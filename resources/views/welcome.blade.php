@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name') }} — Trésor public gabonais</title>
+    <title>{{ config('dgcpt.institution_name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/branding/dgcpt-logo.png') }}">
     <script>
         (function () {
@@ -27,7 +27,7 @@
             <img src="{{ asset('assets/branding/dgcpt-logo.png') }}" alt="" class="h-11 w-11 rounded-full object-contain shadow-[0_0_20px_rgba(0,209,255,0.25)]" width="44" height="44">
             <div>
                 <p class="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-dgcpt-cyan/90">DGCPT</p>
-                <p class="text-xs font-semibold text-slate-300">Trésor public gabonais</p>
+                <p class="max-w-sm text-xs font-semibold text-slate-300">Direction Générale de la Comptabilité Publique et du Trésor</p>
             </div>
         </div>
         <nav class="flex items-center gap-2 text-sm font-semibold">
@@ -52,7 +52,7 @@
             Plateforme d’audit,<br>
             de gouvernance<br>
             et de suivi de performance<br>
-            <span class="text-[#00D1FF]">du Trésor public gabonais</span>
+            <span class="text-[#00D1FF]">de la Direction Générale de la Comptabilité Publique et du Trésor</span>
         </h1>
         <p class="max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
             Centre intelligent de contrôle, d’audit, de gouvernance et de pilotage de la performance institutionnelle.
@@ -77,7 +77,7 @@
 </main>
 
 <footer class="relative z-10 border-t border-white/5 bg-black/40 py-6 text-center text-xs text-slate-500">
-    © {{ date('Y') }} DGCPT — Trésor public gabonais. Tous droits réservés.
+    © {{ date('Y') }} DGCPT — Direction Générale de la Comptabilité Publique et du Trésor. Tous droits réservés.
     <span class="mx-2 text-slate-600">·</span>
     Plateforme sécurisée — données institutionnelles protégées.
 </footer>
