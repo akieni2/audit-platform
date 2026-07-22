@@ -31,8 +31,6 @@
 
 <li><a href="{{ route('workflow-runtime.dashboard') }}">Exécution des workflows</a></li>
 
-<li><a href="{{ route('enterprise.methodologies') }}">Méthodologies</a></li>
-
 <li><a href="{{ route('enterprise.taxonomies') }}">Taxonomies</a></li>
 
 <li><a href="{{ route('enterprise.controls') }}">Contrôles</a></li>

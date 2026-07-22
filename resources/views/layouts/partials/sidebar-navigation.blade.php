@@ -210,11 +210,6 @@
             <span class="ni" aria-hidden="true">▤</span>
             Exécution des workflows
         </a>
-        <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
-           href="{{ route('enterprise.methodologies') }}">
-            <span class="ni" aria-hidden="true">⌘</span>
-            Méthodologies
-        </a>
         <a class="nav-link {{ request()->routeIs('enterprise.taxonomies') ? 'active' : '' }}"
            href="{{ route('enterprise.taxonomies') }}">
             <span class="ni" aria-hidden="true">⋔</span>
