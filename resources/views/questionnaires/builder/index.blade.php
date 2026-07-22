@@ -14,7 +14,10 @@
                     Création, structuration, versioning et publication des templates dynamiques du core officiel.
                 </p>
             </div>
-            <a href="{{ route('module.questionnaires') }}" class="dgcpt-btn-outline">Vue module</a>
+            <div class="flex gap-3">
+                <a href="{{ route('dgcpt.questionnaire-import.index') }}" class="dgcpt-btn-primary">Importer un questionnaire Word</a>
+                <a href="{{ route('module.questionnaires') }}" class="dgcpt-btn-outline">Vue module</a>
+            </div>
         </div>
 
         <div class="grid gap-6 xl:grid-cols-[1.1fr,1.9fr]">

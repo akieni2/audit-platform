@@ -28,41 +28,70 @@ class WordQuestionnaireExtractionService
         $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
 
         $tables = [];
-        foreach ($xpath->query('//w:body/w:tbl') as $table) {
-            $rows = [];
-            foreach ($xpath->query('./w:tr', $table) as $row) {
-                $cells = [];
-                foreach ($xpath->query('./w:tc', $row) as $cell) {
-                    $texts = [];
-                    foreach ($xpath->query('.//w:t', $cell) as $text) {
-                        $texts[] = $text->textContent;
-                    }
-                    $cells[] = trim(implode(' ', $texts));
-                }
-                $rows[] = $cells;
-            }
-            $tables[] = $rows;
-        }
-
-        $metadata = $this->keyValueTable($tables[0] ?? []);
-        $context = $tables[1] ?? [];
         $questions = [];
-        foreach (array_slice($tables, 2) as $index => $rows) {
-            if (count($rows) < 2) {
+        $theme = $thematic = $subtheme = null;
+        foreach ($xpath->query('//w:body/*') as $element) {
+            if ($element->localName === 'p') {
+                $paragraph = $this->nodeText($xpath, $element);
+                if (preg_match('/^\s*\d+\.\s*(.+)$/u', $paragraph, $matches)) {
+                    $theme = $this->cleanHeading($matches[1]);
+                    $thematic = $subtheme = null;
+                } elseif (preg_match('/^\s*Th.matique\s*\d+\s*:\s*(.+)$/iu', $paragraph, $matches)) {
+                    $thematic = $this->cleanHeading($matches[1]);
+                    $subtheme = null;
+                } elseif (preg_match('/^\s*Sous\s*-\s*Th.matique\s*:\s*(.+)$/iu', $paragraph, $matches)) {
+                    $subtheme = $this->cleanHeading($matches[1]);
+                }
+
                 continue;
             }
+
+            if ($element->localName !== 'tbl') {
+                continue;
+            }
+
+            $rows = $this->tableRows($xpath, $element);
+            $tables[] = $rows;
+            if ($theme === null || count($rows) < 2) {
+                continue;
+            }
+
             $header = $rows[0];
             $question = $rows[1];
-            $observation = trim((string) ($rows[3][0] ?? ''));
             $questions[] = [
-                'sequence' => $index + 1,
-                'theme' => trim((string) ($header[0] ?? '')),
+                'sequence' => count($questions) + 1,
+                'theme' => $theme,
+                'thematic' => $thematic ?: 'Thématique importée',
+                'subtheme' => $subtheme ?: trim((string) ($header[0] ?? 'Questions importées')),
                 'question' => trim((string) ($question[0] ?? '')),
                 'answer' => $this->normalizeAnswer((string) ($question[1] ?? '')),
                 'expected_documents' => trim((string) ($question[2] ?? '')),
                 'stakeholders' => trim((string) ($question[3] ?? '')),
-                'observation' => $observation,
+                'observation' => trim((string) ($rows[3][0] ?? '')),
             ];
+        }
+
+        $metadata = $this->keyValueTable($tables[0] ?? []);
+        $context = $tables[1] ?? [];
+        if ($questions === []) {
+            foreach (array_slice($tables, 2) as $rows) {
+                if (count($rows) < 2) {
+                    continue;
+                }
+                $header = $rows[0];
+                $question = $rows[1];
+                $questions[] = [
+                    'sequence' => count($questions) + 1,
+                    'theme' => 'Questionnaire importé',
+                    'thematic' => 'Questions importées',
+                    'subtheme' => trim((string) ($header[0] ?? 'Questions importées')),
+                    'question' => trim((string) ($question[0] ?? '')),
+                    'answer' => $this->normalizeAnswer((string) ($question[1] ?? '')),
+                    'expected_documents' => trim((string) ($question[2] ?? '')),
+                    'stakeholders' => trim((string) ($question[3] ?? '')),
+                    'observation' => trim((string) ($rows[3][0] ?? '')),
+                ];
+            }
         }
 
         return [
@@ -71,6 +100,36 @@ class WordQuestionnaireExtractionService
             'questions' => $questions,
             'question_count' => count($questions),
         ];
+    }
+
+    private function nodeText(DOMXPath $xpath, \DOMNode $node): string
+    {
+        $texts = [];
+        foreach ($xpath->query('.//w:t', $node) as $text) {
+            $texts[] = $text->textContent;
+        }
+
+        return trim(implode('', $texts));
+    }
+
+    /** @return list<list<string>> */
+    private function tableRows(DOMXPath $xpath, \DOMNode $table): array
+    {
+        $rows = [];
+        foreach ($xpath->query('./w:tr', $table) as $row) {
+            $cells = [];
+            foreach ($xpath->query('./w:tc', $row) as $cell) {
+                $cells[] = $this->nodeText($xpath, $cell);
+            }
+            $rows[] = $cells;
+        }
+
+        return $rows;
+    }
+
+    private function cleanHeading(string $heading): string
+    {
+        return trim(preg_replace('/\s+/u', ' ', $heading) ?: $heading);
     }
 
     /** @param array<string, mixed> $extracted @return array<string, mixed> */

@@ -24,6 +24,12 @@
                 <p class="mt-1 text-sm font-mono text-[#9FB3C8]">{{ $template->slug }} · v{{ $template->version }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
+                @can('duplicate', $template)
+                    <form method="POST" action="{{ route('questionnaire-templates.duplicate', $template) }}">
+                        @csrf
+                        <button type="submit" class="dgcpt-btn-primary">Cloner comme base de travail</button>
+                    </form>
+                @endcan
                 <a href="{{ route('questionnaire-builder.index') }}" class="dgcpt-btn-outline">Retour bibliothèque</a>
                 <a href="{{ route('questionnaire-templates.index') }}" class="dgcpt-btn-outline">UI legacy</a>
             </div>
@@ -52,6 +58,9 @@
                         <p><span class="font-semibold text-[#E6EEF8]">Questions :</span> {{ $template->sections->sum(fn ($section) => $section->questions->count()) }}</p>
                         <p><span class="font-semibold text-[#E6EEF8]">Mission type :</span> {{ $template->mission_type ?: '—' }}</p>
                         <p><span class="font-semibold text-[#E6EEF8]">Signature :</span> <span class="font-mono text-xs">{{ $template->signature_hash ?: '—' }}</span></p>
+                        @if ($template->source_document_path)
+                            <p class="sm:col-span-2"><span class="font-semibold text-[#E6EEF8]">Document source :</span> <a href="{{ route('dgcpt.questionnaire-import.source', $template) }}" class="text-[#73D8FF] hover:underline">{{ $template->source_document_name }}</a></p>
+                        @endif
                     </div>
 
                     @if ($template->isImmutable())

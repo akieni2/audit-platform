@@ -479,6 +479,8 @@ Route::middleware(['auth', 'active'])->group(function () {
             ->name('questionnaire-import.index');
         Route::post('/import-questionnaire', [\App\Http\Controllers\Dgcpt\QuestionnaireImportController::class, 'store'])
             ->name('questionnaire-import.store');
+        Route::get('/questionnaires/{template}/source', [\App\Http\Controllers\Dgcpt\QuestionnaireImportController::class, 'downloadSource'])
+            ->name('questionnaire-import.source');
     });
 
     /*
