@@ -28,6 +28,7 @@ class QuestionnaireTemplate extends Model
         'source_document_sha256',
         'mission_type',
         'methodology_template_id',
+        'mission_id',
         'department_scope',
         'visibility_scope',
         'sharing_mode',
@@ -59,6 +60,7 @@ class QuestionnaireTemplate extends Model
             'deprecated_at' => 'datetime',
             'archived_at' => 'datetime',
             'source_template_id' => 'integer',
+            'mission_id' => 'integer',
         ];
     }
 
@@ -93,6 +95,11 @@ class QuestionnaireTemplate extends Model
     public function methodologyTemplate(): BelongsTo
     {
         return $this->belongsTo(MethodologyTemplate::class);
+    }
+
+    public function mission(): BelongsTo
+    {
+        return $this->belongsTo(Mission::class);
     }
 
     public function sourceTemplate(): BelongsTo
@@ -148,5 +155,11 @@ class QuestionnaireTemplate extends Model
         }
 
         return false;
+    }
+
+    public function isAvailableForMission(Mission $mission): bool
+    {
+        return ($this->mission_id === null || (int) $this->mission_id === (int) $mission->id)
+            && $this->isVisibleToDepartment($mission->department_id !== null ? (int) $mission->department_id : null);
     }
 }

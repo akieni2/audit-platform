@@ -12,6 +12,7 @@ use App\Http\Controllers\IdentifiedRiskController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\MissionAuditGroupController;
 use App\Http\Controllers\MissionDocumentController;
+use App\Http\Controllers\MissionQuestionnaireWizardController;
 use App\Http\Controllers\MissionTeamMemberController;
 use App\Http\Controllers\Questionnaires\QuestionnaireTemplateController;
 use App\Http\Controllers\ProcessusController;
@@ -136,6 +137,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::patch('/missions/{mission}/audit-groups/{audit_group}', [MissionAuditGroupController::class, 'update'])->name('missions.audit-groups.update');
     Route::delete('/missions/{mission}/audit-groups/{audit_group}', [MissionAuditGroupController::class, 'destroy'])->name('missions.audit-groups.destroy');
     Route::post('/missions/{mission}/audit-groups/{audit_group}/questionnaire-import', [MissionAuditGroupController::class, 'importQuestionnaire'])->name('missions.audit-groups.import');
+    Route::get('/missions/{mission}/questionnaires/assistant', [MissionQuestionnaireWizardController::class, 'create'])->name('missions.questionnaires.wizard.create');
+    Route::post('/missions/{mission}/questionnaires/assistant', [MissionQuestionnaireWizardController::class, 'store'])->name('missions.questionnaires.wizard.store');
 
 
     /*

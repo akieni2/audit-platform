@@ -134,6 +134,9 @@ class MissionController extends Controller
         $workflowRuntime = $workflow->workflowViewData($mission, $actor);
         $questionnaireChoices = QuestionnaireTemplate::query()
             ->where('active', true)
+            ->where(function ($query) use ($mission): void {
+                $query->whereNull('mission_id')->orWhere('mission_id', $mission->id);
+            })
             ->where(function ($query): void {
                 $query->whereIn('lifecycle_status', [QuestionnaireTemplate::STATUS_PUBLISHED, QuestionnaireTemplate::STATUS_DRAFT])
                     ->orWhereNull('lifecycle_status');

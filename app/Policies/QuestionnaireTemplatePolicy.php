@@ -14,7 +14,13 @@ class QuestionnaireTemplatePolicy
 
     public function view(User $user, QuestionnaireTemplate $template): bool
     {
-        return true;
+        if ($template->mission_id === null) {
+            return true;
+        }
+
+        $template->loadMissing('mission');
+
+        return $template->mission !== null && $user->can('view', $template->mission);
     }
 
     public function create(User $user): bool
@@ -24,21 +30,27 @@ class QuestionnaireTemplatePolicy
 
     public function update(User $user, QuestionnaireTemplate $template): bool
     {
-        return true;
+        return $this->userCanEditTemplateScope($user, $template);
     }
 
     public function delete(User $user, QuestionnaireTemplate $template): bool
     {
-        return true;
+        return $this->userCanEditTemplateScope($user, $template);
     }
 
     public function duplicate(User $user, QuestionnaireTemplate $template): bool
     {
-        return true;
+        return $this->userCanEditTemplateScope($user, $template);
     }
 
     private function userCanEditTemplateScope(User $user, QuestionnaireTemplate $template): bool
     {
+        if ($template->mission_id !== null) {
+            $template->loadMissing('mission');
+
+            return $template->mission !== null && $user->can('assignTeamMembers', $template->mission);
+        }
+
         return true;
     }
 }

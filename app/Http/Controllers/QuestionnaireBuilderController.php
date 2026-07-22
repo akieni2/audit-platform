@@ -30,6 +30,7 @@ class QuestionnaireBuilderController extends Controller
     public function index(): View
     {
         $templates = QuestionnaireTemplate::query()
+            ->whereNull('mission_id')
             ->withCount(['sections', 'entretiens'])
             ->with(['sections.questions', 'sourceTemplate'])
             ->orderByRaw("CASE lifecycle_status

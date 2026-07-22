@@ -118,7 +118,7 @@ class MissionAuditGroupController extends Controller
         ]);
 
         $questionnaire = QuestionnaireTemplate::query()->findOrFail($data['questionnaire_template_id']);
-        if (! $questionnaire->isVisibleToDepartment($mission->department_id)) {
+        if (! $questionnaire->isAvailableForMission($mission)) {
             abort(403, 'Ce questionnaire n’est pas accessible au département de la mission.');
         }
 

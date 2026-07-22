@@ -37,6 +37,9 @@ class EntretienController extends Controller
             $deptId = $mission->department_id !== null ? (int) $mission->department_id : null;
             $templateChoices = QuestionnaireTemplate::query()
                 ->where('active', true)
+                ->where(function ($query) use ($mission): void {
+                    $query->whereNull('mission_id')->orWhere('mission_id', $mission->id);
+                })
                 ->where(function ($q) use ($deptId) {
                     $q->whereNull('department_scope')
                         ->orWhereJsonLength('department_scope', 0);
@@ -69,7 +72,7 @@ class EntretienController extends Controller
                 ->where('active', true)
                 ->firstOrFail();
             abort_unless(
-                $tpl->isVisibleToDepartment($mission->department_id !== null ? (int) $mission->department_id : null),
+                $tpl->isAvailableForMission($mission),
                 403
             );
         }
@@ -155,7 +158,7 @@ class EntretienController extends Controller
         $tpl = QuestionnaireTemplate::query()->findOrFail((int) $validated['questionnaire_template_id']);
         abort_unless($tpl->active, 422);
         abort_unless(
-            $tpl->isVisibleToDepartment($mission->department_id !== null ? (int) $mission->department_id : null),
+            $tpl->isAvailableForMission($mission),
             403
         );
 

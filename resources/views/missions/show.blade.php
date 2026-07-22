@@ -338,9 +338,16 @@
         </div>
 
         <div class="dgcpt-surface space-y-5 p-6 shadow-sm">
-            <div>
-                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Groupes d’audit par questionnaire</h2>
-                <p class="mt-1 text-sm text-[#9FB3C8]">Répartissez les inspecteurs, le questionnaire et la personne à auditionner. Chaque groupe conserve ses propres résultats.</p>
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Groupes d’audit par questionnaire</h2>
+                    <p class="mt-1 text-sm text-[#9FB3C8]">Répartissez les inspecteurs, le questionnaire et la personne à auditionner. Chaque groupe conserve ses propres résultats.</p>
+                </div>
+                @can('assignTeamMembers', $mission)
+                    <a href="{{ route('missions.questionnaires.wizard.create', $mission) }}" class="dgcpt-btn-outline">
+                        Créer un questionnaire visuellement
+                    </a>
+                @endcan
             </div>
 
             @forelse ($mission->auditGroups as $auditGroup)
