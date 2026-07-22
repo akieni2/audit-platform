@@ -40,6 +40,10 @@ class QuestionnaireTemplatePolicy
 
     public function duplicate(User $user, QuestionnaireTemplate $template): bool
     {
+        if ($template->mission_id !== null) {
+            return false;
+        }
+
         return $this->userCanEditTemplateScope($user, $template);
     }
 
@@ -48,7 +52,9 @@ class QuestionnaireTemplatePolicy
         if ($template->mission_id !== null) {
             $template->loadMissing('mission');
 
-            return $template->mission !== null && $user->can('assignTeamMembers', $template->mission);
+            return $template->mission !== null
+                && $template->review_status !== QuestionnaireTemplate::REVIEW_ADOPTED
+                && $user->can('createQuestionnaire', $template->mission);
         }
 
         return true;

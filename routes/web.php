@@ -139,6 +139,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/missions/{mission}/audit-groups/{audit_group}/questionnaire-import', [MissionAuditGroupController::class, 'importQuestionnaire'])->name('missions.audit-groups.import');
     Route::get('/missions/{mission}/questionnaires/assistant', [MissionQuestionnaireWizardController::class, 'create'])->name('missions.questionnaires.wizard.create');
     Route::post('/missions/{mission}/questionnaires/assistant', [MissionQuestionnaireWizardController::class, 'store'])->name('missions.questionnaires.wizard.store');
+    Route::post('/missions/{mission}/questionnaires/{template}/submit-review', [MissionQuestionnaireWizardController::class, 'submitReview'])->name('missions.questionnaires.submit-review');
+    Route::post('/missions/{mission}/questionnaires/{template}/review', [MissionQuestionnaireWizardController::class, 'review'])->name('missions.questionnaires.review');
+    Route::post('/missions/{mission}/questionnaires/{template}/adopt', [MissionQuestionnaireWizardController::class, 'adopt'])->name('missions.questionnaires.adopt');
 
 
     /*

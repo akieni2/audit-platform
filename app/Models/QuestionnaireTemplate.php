@@ -19,6 +19,12 @@ class QuestionnaireTemplate extends Model
 
     public const STATUS_ARCHIVED = 'archived';
 
+    public const REVIEW_DRAFT = 'draft';
+
+    public const REVIEW_IN_REVIEW = 'in_review';
+
+    public const REVIEW_ADOPTED = 'adopted';
+
     protected $fillable = [
         'name',
         'slug',
@@ -38,6 +44,10 @@ class QuestionnaireTemplate extends Model
         'active',
         'version',
         'lifecycle_status',
+        'review_status',
+        'review_requested_at',
+        'adopted_at',
+        'adopted_by',
         'signature_hash',
         'published_at',
         'deprecated_at',
@@ -59,6 +69,8 @@ class QuestionnaireTemplate extends Model
             'published_at' => 'datetime',
             'deprecated_at' => 'datetime',
             'archived_at' => 'datetime',
+            'review_requested_at' => 'datetime',
+            'adopted_at' => 'datetime',
             'source_template_id' => 'integer',
             'mission_id' => 'integer',
         ];
@@ -100,6 +112,40 @@ class QuestionnaireTemplate extends Model
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(QuestionnaireTemplateReview::class);
+    }
+
+    public function adopter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'adopted_by');
+    }
+
+    public function reviewStatusLabel(): string
+    {
+        return match ($this->review_status) {
+            self::REVIEW_IN_REVIEW => 'En relecture collective',
+            self::REVIEW_ADOPTED => 'Version finale adoptée',
+            default => 'Brouillon collaboratif',
+        };
+    }
+
+    public function invalidateReviews(): void
+    {
+        if ($this->mission_id === null || $this->review_status === self::REVIEW_DRAFT) {
+            return;
+        }
+
+        $this->reviews()->delete();
+        $this->forceFill([
+            'review_status' => self::REVIEW_DRAFT,
+            'review_requested_at' => null,
+            'adopted_at' => null,
+            'adopted_by' => null,
+        ])->saveQuietly();
     }
 
     public function sourceTemplate(): BelongsTo

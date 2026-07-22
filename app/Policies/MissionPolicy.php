@@ -93,6 +93,17 @@ class MissionPolicy
         return $this->governMission($user, $mission);
     }
 
+    public function createQuestionnaire(User $user, Mission $mission): bool
+    {
+        if (! Mission::query()->whereKey($mission->id)->visibleToUser($user)->exists()) {
+            return false;
+        }
+
+        return $this->governMission($user, $mission)
+            || $user->isInspector()
+            || $user->isMissionOperationalContributor($mission);
+    }
+
     /** Une mission non démarrée peut être archivée par son responsable d'unité. */
     public function delete(User $user, Mission $mission): bool
     {

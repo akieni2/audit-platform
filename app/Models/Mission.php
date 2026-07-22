@@ -213,6 +213,11 @@ class Mission extends Model
         return $this->hasMany(MissionAuditGroup::class)->orderBy('name');
     }
 
+    public function questionnaireTemplates()
+    {
+        return $this->hasMany(QuestionnaireTemplate::class);
+    }
+
     /**
      * Utilisateurs pouvant être affectés à l’équipe de mission (IAM ≠ rôle missionnel).
      *

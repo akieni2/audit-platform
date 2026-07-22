@@ -181,6 +181,21 @@ class User extends Authenticatable
         return false;
     }
 
+    public function isInspector(): bool
+    {
+        $this->loadMissing('institutionalRole');
+
+        $roleSlug = (string) ($this->institutionalRole?->slug ?: $this->role);
+
+        return in_array($roleSlug, [
+            \App\Support\UserRoles::INSPECTEUR_SERVICES,
+            \App\Support\UserRoles::INSPECTEUR_ADJOINT,
+            \App\Support\UserRoles::INSPECTEUR_VERIFICATEUR,
+            \App\Support\UserRoles::INSPECTEUR_VERIFICATEUR_ADJOINT,
+            \App\Support\UserRoles::CHARGE_VERIFICATION,
+        ], true);
+    }
+
     /** Rôle institutionnel DGCPT (table roles). */
     public function institutionalRole(): BelongsTo
     {

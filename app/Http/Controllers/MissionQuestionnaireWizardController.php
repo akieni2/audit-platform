@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mission;
+use App\Models\MissionTeamMember;
 use App\Models\QuestionnaireQuestion;
 use App\Models\QuestionnaireSection;
 use App\Models\QuestionnaireTemplate;
+use App\Models\QuestionnaireTemplateReview;
 use App\Services\Questionnaires\QuestionnairePublishingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,12 +15,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class MissionQuestionnaireWizardController extends Controller
 {
     public function create(Mission $mission): View
     {
-        $this->authorize('assignTeamMembers', $mission);
+        $this->authorize('createQuestionnaire', $mission);
 
         return view('missions.questionnaire-wizard', compact('mission'));
     }
@@ -26,9 +29,8 @@ class MissionQuestionnaireWizardController extends Controller
     public function store(
         Request $request,
         Mission $mission,
-        QuestionnairePublishingService $publishing,
     ): RedirectResponse {
-        $this->authorize('assignTeamMembers', $mission);
+        $this->authorize('createQuestionnaire', $mission);
 
         $validated = $request->validate([
             'structure' => ['required', 'string', 'max:1000000'],
@@ -41,7 +43,7 @@ class MissionQuestionnaireWizardController extends Controller
 
         $this->validateStructure($structure);
 
-        $template = DB::transaction(function () use ($structure, $mission, $request, $publishing): QuestionnaireTemplate {
+        $template = DB::transaction(function () use ($structure, $mission, $request): QuestionnaireTemplate {
             $themeTitle = trim((string) $structure['theme']);
             $template = QuestionnaireTemplate::query()->create([
                 'name' => $themeTitle.' — '.$mission->organisation,
@@ -56,6 +58,7 @@ class MissionQuestionnaireWizardController extends Controller
                 'active' => false,
                 'version' => 1,
                 'lifecycle_status' => QuestionnaireTemplate::STATUS_DRAFT,
+                'review_status' => QuestionnaireTemplate::REVIEW_DRAFT,
                 'created_by' => $request->user()?->id,
                 'updated_by' => $request->user()?->id,
             ]);
@@ -99,12 +102,114 @@ class MissionQuestionnaireWizardController extends Controller
                 }
             }
 
-            return $publishing->publish($template, $request->user());
+            return $template->fresh(['sections.questions']);
         });
 
         return redirect()
-            ->route('missions.show', $mission)
-            ->with('status', 'Questionnaire « '.$template->name.' » créé et mis à la disposition des équipes de la mission.');
+            ->route('questionnaire-builder.edit', $template)
+            ->with('status', 'Brouillon collaboratif créé. Les inspecteurs peuvent maintenant le relire et le modifier avant adoption.');
+    }
+
+    public function submitReview(
+        Request $request,
+        Mission $mission,
+        QuestionnaireTemplate $template,
+        QuestionnairePublishingService $publishing,
+    ): RedirectResponse {
+        $this->authorizeTemplate($mission, $template);
+        $this->authorize('update', $template);
+        try {
+            $publishing->validateStructure($template);
+        } catch (InvalidArgumentException $exception) {
+            throw ValidationException::withMessages(['structure' => $exception->getMessage()]);
+        }
+
+        DB::transaction(function () use ($template, $request): void {
+            $template->reviews()->delete();
+            QuestionnaireTemplateReview::query()->create([
+                'questionnaire_template_id' => $template->id,
+                'reviewer_id' => $request->user()->id,
+                'decision' => QuestionnaireTemplateReview::DECISION_APPROVED,
+                'comment' => 'Version proposée pour adoption collective.',
+            ]);
+            $template->forceFill([
+                'review_status' => QuestionnaireTemplate::REVIEW_IN_REVIEW,
+                'review_requested_at' => now(),
+            ])->saveQuietly();
+        });
+
+        return back()->with('status', 'Questionnaire soumis à la relecture des autres inspecteurs.');
+    }
+
+    public function review(Request $request, Mission $mission, QuestionnaireTemplate $template): RedirectResponse
+    {
+        $this->authorizeTemplate($mission, $template);
+        $this->authorize('createQuestionnaire', $mission);
+        abort_unless($template->review_status === QuestionnaireTemplate::REVIEW_IN_REVIEW, 422);
+
+        $validated = $request->validate([
+            'decision' => ['required', 'in:approved,changes_requested'],
+            'comment' => ['nullable', 'string', 'max:3000', 'required_if:decision,changes_requested'],
+        ]);
+
+        QuestionnaireTemplateReview::query()->updateOrCreate(
+            ['questionnaire_template_id' => $template->id, 'reviewer_id' => $request->user()->id],
+            ['decision' => $validated['decision'], 'comment' => $validated['comment'] ?? null],
+        );
+
+        return back()->with('status', $validated['decision'] === QuestionnaireTemplateReview::DECISION_APPROVED
+            ? 'Votre approbation a été enregistrée.'
+            : 'Votre demande de modification a été enregistrée.');
+    }
+
+    public function adopt(
+        Request $request,
+        Mission $mission,
+        QuestionnaireTemplate $template,
+        QuestionnairePublishingService $publishing,
+    ): RedirectResponse {
+        $this->authorizeTemplate($mission, $template);
+        $this->authorize('governMission', $mission);
+        abort_unless($template->review_status === QuestionnaireTemplate::REVIEW_IN_REVIEW, 422);
+
+        $approvedReviewerIds = $template->reviews()
+            ->where('decision', QuestionnaireTemplateReview::DECISION_APPROVED)
+            ->pluck('reviewer_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique();
+        $requiredReviewerIds = $mission->missionTeamMembers()
+            ->whereIn('mission_role', [
+                MissionTeamMember::ROLE_CHEF_MISSION,
+                MissionTeamMember::ROLE_INSPECTEUR_VERIFICATEUR,
+                MissionTeamMember::ROLE_INSPECTEUR_VERIFICATEUR_ADJOINT,
+            ])
+            ->pluck('user_id')
+            ->push((int) $template->created_by)
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique();
+        $changesRequested = $template->reviews()->where('decision', QuestionnaireTemplateReview::DECISION_CHANGES_REQUESTED)->exists();
+        $missingRequiredApproval = $requiredReviewerIds->diff($approvedReviewerIds)->isNotEmpty();
+        if ($approvedReviewerIds->count() < 2 || $missingRequiredApproval || $changesRequested) {
+            throw ValidationException::withMessages([
+                'adoption' => 'L’adoption exige l’approbation du créateur, de tous les inspecteurs affectés à la mission, au moins deux avis distincts et aucune demande de modification en attente.',
+            ]);
+        }
+
+        $published = $publishing->publish($template, $request->user());
+        $published->forceFill([
+            'review_status' => QuestionnaireTemplate::REVIEW_ADOPTED,
+            'adopted_at' => now(),
+            'adopted_by' => $request->user()->id,
+        ])->saveQuietly();
+
+        return redirect()->route('missions.show', $mission)
+            ->with('status', 'Version finale adoptée et disponible pour les groupes d’audit.');
+    }
+
+    private function authorizeTemplate(Mission $mission, QuestionnaireTemplate $template): void
+    {
+        abort_unless((int) $template->mission_id === (int) $mission->id, 404);
     }
 
     private function createSection(

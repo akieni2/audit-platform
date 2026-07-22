@@ -17,6 +17,12 @@
             </div>
         @endif
 
+        @cannot('update', $template)
+            <div class="dgcpt-surface border-[rgba(115,216,255,.25)] px-4 py-3 text-sm text-[#BFD2E6]">
+                Cette version est consultable en lecture seule. Une version finale adoptée ne peut plus être modifiée.
+            </div>
+        @endcannot
+
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="dgcpt-card-title">Concepteur institutionnel de questionnaires</p>
@@ -30,8 +36,11 @@
                         <button type="submit" class="dgcpt-btn-primary">Cloner comme base de travail</button>
                     </form>
                 @endcan
-                <a href="{{ route('questionnaire-builder.index') }}" class="dgcpt-btn-outline">Retour bibliothèque</a>
-                <a href="{{ route('questionnaire-templates.index') }}" class="dgcpt-btn-outline">UI legacy</a>
+                @if ($template->mission)
+                    <a href="{{ route('missions.show', $template->mission) }}" class="dgcpt-btn-outline">Retour à la mission</a>
+                @else
+                    <a href="{{ route('questionnaire-builder.index') }}" class="dgcpt-btn-outline">Retour bibliothèque</a>
+                @endif
             </div>
         </div>
 
@@ -50,6 +59,9 @@
                         </span>
                         @if ($template->isImmutable())
                             <span class="rounded-full bg-[#173050] px-2.5 py-1 text-xs font-semibold text-[#73D8FF]">Immutable</span>
+                        @endif
+                        @if ($template->mission_id)
+                            <span class="rounded-full bg-[#173050] px-2.5 py-1 text-xs font-semibold text-[#73D8FF]">{{ $template->reviewStatusLabel() }}</span>
                         @endif
                     </div>
 
@@ -102,7 +114,7 @@
                     </form>
 
                     <div class="flex flex-wrap gap-3 border-t border-[rgba(0,209,255,0.12)] pt-4">
-                        @if ($template->lifecycle_status !== \App\Models\QuestionnaireTemplate::STATUS_PUBLISHED)
+                        @if ($template->mission_id === null && $template->lifecycle_status !== \App\Models\QuestionnaireTemplate::STATUS_PUBLISHED)
                             <form method="POST" action="{{ route('questionnaire-builder.templates.publish', $template) }}">
                                 @csrf
                                 <button type="submit" class="dgcpt-btn-primary">Publier</button>
@@ -214,4 +226,10 @@
             </div>
         </div>
     </div>
+
+    @cannot('update', $template)
+        <script>
+            document.querySelectorAll('form input, form textarea, form select, form button').forEach(element => element.disabled = true);
+        </script>
+    @endcannot
 </x-app-layout>

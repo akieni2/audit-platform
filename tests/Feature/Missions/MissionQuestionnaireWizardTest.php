@@ -6,6 +6,8 @@ use App\Models\Department;
 use App\Models\Mission;
 use App\Models\QuestionnaireSection;
 use App\Models\QuestionnaireTemplate;
+use App\Models\QuestionnaireTemplateReview;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +16,7 @@ class MissionQuestionnaireWizardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_mission_supervisor_creates_a_published_questionnaire_with_visual_hierarchy(): void
+    public function test_mission_supervisor_creates_a_collaborative_questionnaire_with_visual_hierarchy(): void
     {
         [$mission, $supervisor] = $this->missionWithSupervisor();
         $structure = [
@@ -40,11 +42,12 @@ class MissionQuestionnaireWizardTest extends TestCase
             ->post(route('missions.questionnaires.wizard.store', $mission), [
                 'structure' => json_encode($structure, JSON_THROW_ON_ERROR),
             ])
-            ->assertRedirect(route('missions.show', $mission));
+            ->assertRedirect();
 
         $template = QuestionnaireTemplate::query()->where('mission_id', $mission->id)->firstOrFail();
-        $this->assertSame(QuestionnaireTemplate::STATUS_PUBLISHED, $template->lifecycle_status);
-        $this->assertTrue($template->active);
+        $this->assertSame(QuestionnaireTemplate::STATUS_DRAFT, $template->lifecycle_status);
+        $this->assertSame(QuestionnaireTemplate::REVIEW_DRAFT, $template->review_status);
+        $this->assertFalse($template->active);
         $this->assertSame([$mission->department_id], $template->department_scope);
         $this->assertTrue($supervisor->can('update', $template));
         $this->assertDatabaseHas('questionnaire_sections', [
@@ -61,6 +64,46 @@ class MissionQuestionnaireWizardTest extends TestCase
             'question' => 'La vision SI est-elle formalisée ?',
             'expected_documents' => 'SDSI validé',
         ]);
+    }
+
+    public function test_another_inspector_can_review_and_governance_can_adopt_the_final_version(): void
+    {
+        [$mission, $supervisor] = $this->missionWithSupervisor();
+        $role = Role::query()->create([
+            'slug' => 'inspecteur_verificateur',
+            'name' => 'Inspecteur vérificateur',
+            'hierarchy_level' => 40,
+            'active' => true,
+        ]);
+        $reviewer = User::factory()->create([
+            'department_id' => $mission->department_id,
+            'role_id' => $role->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $template = $this->draftTemplate($mission, $supervisor);
+
+        $this->assertTrue($reviewer->can('createQuestionnaire', $mission));
+        $this->assertTrue($reviewer->can('update', $template));
+
+        $this->actingAs($supervisor)
+            ->post(route('missions.questionnaires.submit-review', [$mission, $template]))
+            ->assertRedirect();
+        $this->actingAs($reviewer)
+            ->post(route('missions.questionnaires.review', [$mission, $template]), [
+                'decision' => QuestionnaireTemplateReview::DECISION_APPROVED,
+                'comment' => 'Libellés relus et approuvés.',
+            ])
+            ->assertRedirect();
+        $this->actingAs($supervisor)
+            ->post(route('missions.questionnaires.adopt', [$mission, $template]))
+            ->assertRedirect(route('missions.show', $mission));
+
+        $template->refresh();
+        $this->assertSame(QuestionnaireTemplate::REVIEW_ADOPTED, $template->review_status);
+        $this->assertSame(QuestionnaireTemplate::STATUS_PUBLISHED, $template->lifecycle_status);
+        $this->assertTrue($template->active);
+        $this->assertSame($supervisor->id, $template->adopted_by);
     }
 
     public function test_normal_agent_cannot_open_or_submit_the_mission_wizard(): void
@@ -125,5 +168,46 @@ class MissionQuestionnaireWizardTest extends TestCase
         ]);
 
         return [$mission, $supervisor];
+    }
+
+    private function draftTemplate(Mission $mission, User $creator): QuestionnaireTemplate
+    {
+        $template = QuestionnaireTemplate::query()->create([
+            'name' => 'Questionnaire collaboratif',
+            'slug' => 'questionnaire-collaboratif-'.$mission->id,
+            'mission_id' => $mission->id,
+            'department_scope' => [$mission->department_id],
+            'active' => false,
+            'lifecycle_status' => QuestionnaireTemplate::STATUS_DRAFT,
+            'review_status' => QuestionnaireTemplate::REVIEW_DRAFT,
+            'created_by' => $creator->id,
+        ]);
+        $theme = $template->sections()->create([
+            'title' => 'Gouvernance',
+            'section_type' => QuestionnaireSection::TYPE_THEME,
+            'sort_order' => 1,
+        ]);
+        $thematic = $template->sections()->create([
+            'title' => 'Organisation',
+            'section_type' => QuestionnaireSection::TYPE_THEMATIC,
+            'parent_section_id' => $theme->id,
+            'sort_order' => 1,
+        ]);
+        $subtheme = $template->sections()->create([
+            'title' => 'Rôles',
+            'section_type' => QuestionnaireSection::TYPE_SUBTHEME,
+            'parent_section_id' => $thematic->id,
+            'sort_order' => 1,
+        ]);
+        $subtheme->questions()->create([
+            'code' => 'Q1',
+            'question' => 'Les rôles sont-ils définis ?',
+            'question_type' => 'boolean_na',
+            'required' => true,
+            'active' => true,
+            'sort_order' => 1,
+        ]);
+
+        return $template;
     }
 }

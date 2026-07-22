@@ -17,6 +17,12 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="dgcpt-surface border-[#FF5A5A]/35 px-4 py-3 text-sm text-[#FFB4B4]">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
         <div class="space-y-2">
             <p class="dgcpt-card-title">Fiche mission</p>
             <h1 class="dgcpt-page-title">{{ $mission->organisation }}</h1>
@@ -343,12 +349,68 @@
                     <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Groupes d’audit par questionnaire</h2>
                     <p class="mt-1 text-sm text-[#9FB3C8]">Répartissez les inspecteurs, le questionnaire et la personne à auditionner. Chaque groupe conserve ses propres résultats.</p>
                 </div>
-                @can('assignTeamMembers', $mission)
+                @can('createQuestionnaire', $mission)
                     <a href="{{ route('missions.questionnaires.wizard.create', $mission) }}" class="dgcpt-btn-outline">
                         Créer un questionnaire visuellement
                     </a>
                 @endcan
             </div>
+
+            @if ($mission->questionnaireTemplates->isNotEmpty())
+                <div class="space-y-3 rounded-xl border border-[rgba(0,209,255,.16)] bg-[#071220] p-4">
+                    <p class="dgcpt-card-title">Questionnaires collaboratifs de la mission</p>
+                    @foreach ($mission->questionnaireTemplates as $missionQuestionnaire)
+                        @php
+                            $approvedCount = $missionQuestionnaire->reviews->where('decision', \App\Models\QuestionnaireTemplateReview::DECISION_APPROVED)->count();
+                            $changesCount = $missionQuestionnaire->reviews->where('decision', \App\Models\QuestionnaireTemplateReview::DECISION_CHANGES_REQUESTED)->count();
+                            $myReview = $missionQuestionnaire->reviews->firstWhere('reviewer_id', auth()->id());
+                        @endphp
+                        <div class="rounded-lg border border-[rgba(255,255,255,.08)] p-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-[#E6EEF8]">{{ $missionQuestionnaire->name }}</p>
+                                    <p class="mt-1 text-xs text-[#9FB3C8]">
+                                        {{ $missionQuestionnaire->reviewStatusLabel() }} · créé par {{ $missionQuestionnaire->creator?->displayName() ?? '—' }}
+                                    </p>
+                                    <p class="mt-1 text-xs text-[#73D8FF]">{{ $approvedCount }} approbation(s) · {{ $changesCount }} demande(s) de modification</p>
+                                </div>
+                                @can('update', $missionQuestionnaire)
+                                    <a href="{{ route('questionnaire-builder.edit', $missionQuestionnaire) }}" class="dgcpt-btn-outline">Relire et modifier</a>
+                                @endcan
+                            </div>
+
+                            @if ($missionQuestionnaire->review_status === \App\Models\QuestionnaireTemplate::REVIEW_DRAFT)
+                                @can('update', $missionQuestionnaire)
+                                    <form method="POST" action="{{ route('missions.questionnaires.submit-review', [$mission, $missionQuestionnaire]) }}" class="mt-3">
+                                        @csrf
+                                        <button class="dgcpt-btn-primary">Soumettre à la relecture collective</button>
+                                    </form>
+                                @endcan
+                            @elseif ($missionQuestionnaire->review_status === \App\Models\QuestionnaireTemplate::REVIEW_IN_REVIEW)
+                                @can('createQuestionnaire', $mission)
+                                    <form method="POST" action="{{ route('missions.questionnaires.review', [$mission, $missionQuestionnaire]) }}" class="mt-3 grid gap-3 sm:grid-cols-[12rem_1fr_auto]">
+                                        @csrf
+                                        <select name="decision" class="dgcpt-select" required>
+                                            <option value="approved" @selected($myReview?->decision === 'approved')>J’approuve</option>
+                                            <option value="changes_requested" @selected($myReview?->decision === 'changes_requested')>Je demande une modification</option>
+                                        </select>
+                                        <input name="comment" value="{{ $myReview?->comment }}" class="dgcpt-input" placeholder="Commentaire de relecture">
+                                        <button class="dgcpt-btn-outline">Enregistrer mon avis</button>
+                                    </form>
+                                @endcan
+                                @can('governMission', $mission)
+                                    <form method="POST" action="{{ route('missions.questionnaires.adopt', [$mission, $missionQuestionnaire]) }}" class="mt-3">
+                                        @csrf
+                                        <button class="rounded-xl bg-[#00A86B] px-4 py-2 text-sm font-bold text-white">Adopter la version finale</button>
+                                    </form>
+                                @endcan
+                            @else
+                                <p class="mt-3 text-sm font-semibold text-[#7EF2BE]">Version finale adoptée{{ $missionQuestionnaire->adopter ? ' par '.$missionQuestionnaire->adopter->displayName() : '' }}.</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
 
             @forelse ($mission->auditGroups as $auditGroup)
                 <div class="rounded-xl border border-[rgba(0,209,255,.18)] bg-[#071220] p-4">

@@ -121,6 +121,9 @@ class MissionController extends Controller
             'auditGroups.service',
             'auditGroups.members.user',
             'auditGroups.imports',
+            'questionnaireTemplates.creator',
+            'questionnaireTemplates.reviews.reviewer',
+            'questionnaireTemplates.adopter',
         ]);
 
         $governance = app(MissionGovernanceService::class);

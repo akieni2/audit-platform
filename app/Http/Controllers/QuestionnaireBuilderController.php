@@ -57,6 +57,7 @@ class QuestionnaireBuilderController extends Controller
             'sections.questions' => fn ($query) => $query->orderBy('sort_order'),
             'sections.parent',
             'sourceTemplate',
+            'mission',
         ]);
 
         return view('questionnaires.builder.edit', [
@@ -306,6 +307,7 @@ class QuestionnaireBuilderController extends Controller
     public function publish(Request $request, QuestionnaireTemplate $template): RedirectResponse
     {
         $this->authorize('update', $template);
+        abort_if($template->mission_id !== null, 403, 'Utilisez le circuit de relecture et d’adoption de la mission.');
 
         try {
             $published = $this->publishing->publish($template, $request->user());
@@ -325,6 +327,10 @@ class QuestionnaireBuilderController extends Controller
     public function archive(Request $request, QuestionnaireTemplate $template): RedirectResponse
     {
         $this->authorize('update', $template);
+        if ($template->mission_id !== null) {
+            $template->loadMissing('mission');
+            abort_unless($template->mission !== null && $request->user()->can('governMission', $template->mission), 403);
+        }
 
         $archived = DB::transaction(fn () => $this->publishing->archive($template, $request->user()));
         $this->audit->questionnaireTemplateArchived($request->user(), $archived, $request);
@@ -339,6 +345,7 @@ class QuestionnaireBuilderController extends Controller
      */
     private function ensureEditableTemplate(QuestionnaireTemplate $template, ?\App\Models\User $actor): array
     {
+        $template->invalidateReviews();
         $editable = $this->publishing->ensureEditableDraft($template, $actor);
 
         return [$editable, (int) $editable->id !== (int) $template->id];
