@@ -28,7 +28,13 @@ class QuestionnaireImportController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'file' => ['required', 'file', 'mimes:docx', 'max:20480'],
+            'file' => [
+                'required',
+                'file',
+                'extensions:docx',
+                'mimetypes:application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/octet-stream',
+                'max:20480',
+            ],
             'name' => ['nullable', 'string', 'max:255'],
             'publish_now' => ['nullable', 'boolean'],
         ]);

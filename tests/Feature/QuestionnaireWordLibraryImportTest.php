@@ -16,6 +16,35 @@ class QuestionnaireWordLibraryImportTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_import_page_submits_a_real_multipart_form_and_publishes_the_questionnaire(): void
+    {
+        Storage::fake('local');
+        $path = $this->makeQuestionnaireDocx();
+        $file = new UploadedFile(
+            $path,
+            'Questionnaire_Gouvernance.docx',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            null,
+            true,
+        );
+
+        try {
+            $response = $this->actingAs(User::factory()->create())->post(route('dgcpt.questionnaire-import.store'), [
+                'file' => $file,
+                'name' => 'Gouvernance DSI',
+                'publish_now' => '1',
+            ]);
+
+            $response->assertSessionHasNoErrors();
+            $template = \App\Models\QuestionnaireTemplate::query()->where('name', 'Gouvernance DSI')->firstOrFail();
+            $response->assertRedirect(route('questionnaire-builder.edit', $template));
+            $this->assertTrue($template->active);
+            $this->assertSame('published', $template->lifecycle_status);
+        } finally {
+            @unlink($path);
+        }
+    }
+
     public function test_word_questionnaire_becomes_a_reusable_published_hierarchical_template(): void
     {
         Storage::fake('local');
