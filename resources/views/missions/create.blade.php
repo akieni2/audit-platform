@@ -8,6 +8,7 @@
 
         <form method="POST" action="{{ route('missions.store') }}" class="dgcpt-surface space-y-4 p-6 shadow-sm">
             @csrf
+            <input type="hidden" name="creation_token" value="{{ $creationToken }}" />
 
             <div>
                 <label class="dgcpt-label" for="mission-organisation">Intitulé / organisation</label>

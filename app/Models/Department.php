@@ -9,6 +9,30 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
+    /**
+     * Identifiants d'une structure et de toutes ses structures descendantes.
+     *
+     * @return list<int>
+     */
+    public static function subtreeIds(int $departmentId): array
+    {
+        $ids = [$departmentId];
+        $frontier = [$departmentId];
+
+        while ($frontier !== []) {
+            $children = self::query()
+                ->whereIn('parent_department_id', $frontier)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            $frontier = array_values(array_diff($children, $ids));
+            $ids = array_values(array_unique([...$ids, ...$frontier]));
+        }
+
+        return $ids;
+    }
+
     protected $fillable = [
         'name',
         'code',

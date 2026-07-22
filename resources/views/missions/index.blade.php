@@ -78,6 +78,13 @@
                                     <a href="{{ route('services.index', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Services</a>
                                     <a href="{{ route('cartographie.index', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Cartographie</a>
                                     <a href="{{ route('missions.rapport', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">PDF</a>
+                                    @can('delete', $mission)
+                                        <form method="POST" action="{{ route('missions.destroy', $mission) }}" onsubmit="return confirm('Supprimer cette mission en brouillon ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-left font-semibold text-[#FF5A5A] hover:underline">Supprimer</button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

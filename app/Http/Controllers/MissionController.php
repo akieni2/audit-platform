@@ -14,6 +14,9 @@ use App\Services\Workflow\WorkflowCompatibilityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MissionController extends Controller
@@ -55,25 +58,49 @@ class MissionController extends Controller
     {
         $this->authorize('create', Mission::class);
 
-        return view('missions.create');
+        return view('missions.create', ['creationToken' => (string) Str::uuid()]);
     }
 
     public function store(StoreMissionRequest $request): RedirectResponse
     {
         $user = Auth::user();
+        $creationToken = (string) ($request->validated('creation_token') ?: Str::uuid());
+        $cacheKey = 'mission-creation:'.hash('sha256', $creationToken);
 
-        $mission = Mission::create([
-            ...$request->validated(),
-            'auditeur_id' => Auth::id(),
-            'department_id' => $user?->department_id,
-            'mission_status' => Mission::STATUS_BROUILLON,
-        ]);
+        if (! Cache::add($cacheKey, true, now()->addMinutes(15))) {
+            return redirect()->route('missions.index')->with('status', 'Cette mission a déjà été enregistrée.');
+        }
 
-        app(WorkflowCompatibilityService::class)->ensureMissionWorkflow($mission, $request->user());
+        try {
+            $mission = DB::transaction(function () use ($request, $user): Mission {
+                $mission = Mission::create([
+                    ...$request->safe()->except('creation_token'),
+                    'auditeur_id' => Auth::id(),
+                    'department_id' => $user?->department_id,
+                    'mission_status' => Mission::STATUS_BROUILLON,
+                ]);
 
-        app(SecurityAuditService::class)->missionCreated($request->user(), $mission, $request);
+                app(WorkflowCompatibilityService::class)->ensureMissionWorkflow($mission, $request->user());
+                app(SecurityAuditService::class)->missionCreated($request->user(), $mission, $request);
+
+                return $mission;
+            });
+        } catch (\Throwable $exception) {
+            Cache::forget($cacheKey);
+            throw $exception;
+        }
 
         return redirect()->route('missions.show', $mission)->with('status', 'Mission créée.');
+    }
+
+    public function destroy(Request $request, Mission $mission): RedirectResponse
+    {
+        $this->authorize('delete', $mission);
+
+        app(SecurityAuditService::class)->missionDeleted($request->user(), $mission, $request);
+        $mission->delete();
+
+        return redirect()->route('missions.index')->with('status', 'Mission supprimée.');
     }
 
     public function show(Mission $mission): View

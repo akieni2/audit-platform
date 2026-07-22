@@ -124,6 +124,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/missions/{mission}', [MissionController::class, 'show'])->name('missions.show');
     Route::get('/missions/{mission}/edit', [MissionController::class, 'edit'])->name('missions.edit');
     Route::put('/missions/{mission}', [MissionController::class, 'update'])->name('missions.update');
+    Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
     Route::post('/missions/{mission}/workflow', [MissionController::class, 'workflow'])->name('missions.workflow');
 
     Route::post('/missions/{mission}/team-members', [MissionTeamMemberController::class, 'store'])

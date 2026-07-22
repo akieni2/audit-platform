@@ -15,6 +15,7 @@ class StoreMissionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'creation_token' => ['nullable', 'uuid'],
             'organisation' => ['required', 'string', 'max:255'],
             'reference' => ['nullable', 'string', 'max:128'],
             'objet' => ['nullable', 'string'],

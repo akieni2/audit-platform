@@ -38,13 +38,18 @@ class UpdateUserRequest extends FormRequest
     {
         $user = $this->route('user');
         $id = $user instanceof User ? $user->id : 0;
+        $actor = $this->user();
 
         return [
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
-            'department_id' => ['nullable', 'exists:departments,id'],
-            'role_id' => ['nullable', 'exists:roles,id'],
+            'department_id' => ['required', Rule::in($actor?->managedDepartmentIds() ?? [])],
+            'role_id' => ['required', Rule::exists('roles', 'id')->where(function ($query) use ($actor) {
+                if ($actor !== null && ! $actor->canSuperviseAllDepartments()) {
+                    $query->where('hierarchy_level', '<', (int) ($actor->institutionalRole?->hierarchy_level ?? 0));
+                }
+            })],
             'position' => ['nullable', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:64'],
             'telephone' => ['nullable', 'string', 'max:32'],

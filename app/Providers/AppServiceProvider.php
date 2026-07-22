@@ -199,38 +199,32 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define(
             'manageUsers',
-            fn (?User $user): bool =>
-                $user?->canAccessAdministrationMenu() ?? false
+            fn (?User $user): bool => ($user?->canAccessAdministrationMenu() || $user?->canManageDepartmentUsers()) ?? false
         );
 
         Gate::define(
             'viewAdminDashboard',
-            fn (?User $user): bool =>
-                $user?->canAccessAdministrationMenu() ?? false
+            fn (?User $user): bool => $user?->canAccessAdministrationMenu() ?? false
         );
 
         Gate::define(
             'viewSecurityAuditLog',
-            fn (?User $user): bool =>
-                $user?->canAccessSecurityLogs() ?? false
+            fn (?User $user): bool => $user?->canAccessSecurityLogs() ?? false
         );
 
         Gate::define(
             'viewExecutiveDashboard',
-            fn (?User $user): bool =>
-                $user?->canViewExecutiveDashboard() ?? false
+            fn (?User $user): bool => $user?->canViewExecutiveDashboard() ?? false
         );
 
         Gate::define(
             'manageDepartments',
-            fn (?User $user): bool =>
-                $user?->canManageDepartments() ?? false
+            fn (?User $user): bool => $user?->canManageDepartments() ?? false
         );
 
         Gate::define(
             'manageEnrollmentRequests',
-            fn (?User $user): bool =>
-                $user?->isInstitutionalSuperAdmin() ?? false
+            fn (?User $user): bool => $user?->isInstitutionalSuperAdmin() ?? false
         );
 
         /*
@@ -290,25 +284,25 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Event::listen(
-    RiskPromoted::class,
-    function (): void {
-        ExecutiveDashboardService::flushNationalKpisCache();
-    }
-);
+            RiskPromoted::class,
+            function (): void {
+                ExecutiveDashboardService::flushNationalKpisCache();
+            }
+        );
 
-Event::listen(
-    RiskMitigated::class,
-    function (): void {
-        ExecutiveDashboardService::flushNationalKpisCache();
-    }
-);
+        Event::listen(
+            RiskMitigated::class,
+            function (): void {
+                ExecutiveDashboardService::flushNationalKpisCache();
+            }
+        );
 
-Event::listen(
-    RiskClosed::class,
-    function (): void {
-        ExecutiveDashboardService::flushNationalKpisCache();
-    }
-);
+        Event::listen(
+            RiskClosed::class,
+            function (): void {
+                ExecutiveDashboardService::flushNationalKpisCache();
+            }
+        );
         /*
         |--------------------------------------------------------------------------
         | Horizon

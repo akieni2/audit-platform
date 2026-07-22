@@ -24,10 +24,14 @@ class UserManagementController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
+        $actor = $request->user();
+        $departmentIds = $actor->managedDepartmentIds();
+        $isGlobalManager = $actor->canSuperviseAllDepartments();
 
         $accountView = $request->string('account_view')->toString();
 
         $query = User::query()
+            ->when(! $isGlobalManager, fn ($query) => $query->whereIn('department_id', $departmentIds))
             ->with(['department', 'institutionalRole', 'deletedBy'])
             ->orderBy('name');
 
@@ -65,24 +69,26 @@ class UserManagementController extends Controller
         $users = $query->paginate(25)->withQueryString();
 
         $stats = [
-            'active' => User::query()->where('active', true)->count(),
-            'inactive' => User::query()->where('active', false)->count(),
-            'deleted' => User::onlyTrashed()->count(),
+            'active' => User::query()->when(! $isGlobalManager, fn ($query) => $query->whereIn('department_id', $departmentIds))->where('active', true)->count(),
+            'inactive' => User::query()->when(! $isGlobalManager, fn ($query) => $query->whereIn('department_id', $departmentIds))->where('active', false)->count(),
+            'deleted' => User::onlyTrashed()->when(! $isGlobalManager, fn ($query) => $query->whereIn('department_id', $departmentIds))->count(),
         ];
 
         $recentLogins = User::query()
+            ->when(! $isGlobalManager, fn ($query) => $query->whereIn('department_id', $departmentIds))
             ->whereNotNull('last_login_at')
             ->orderByDesc('last_login_at')
             ->limit(8)
             ->get(['id', 'name', 'prenom', 'email', 'last_login_at']);
 
         $byDepartment = Department::query()
+            ->whereIn('id', $departmentIds)
             ->withCount(['users' => fn ($q) => $q->where('active', true)])
             ->orderBy('code')
             ->get();
 
         $byRole = Role::query()
-            ->withCount(['users' => fn ($q) => $q->where('active', true)])
+            ->withCount(['users' => fn ($q) => $q->whereIn('department_id', $departmentIds)->where('active', true)])
             ->orderByDesc('hierarchy_level')
             ->get();
 
@@ -92,8 +98,8 @@ class UserManagementController extends Controller
             'recentLogins' => $recentLogins,
             'byDepartment' => $byDepartment,
             'byRole' => $byRole,
-            'departments' => Department::query()->where('active', true)->orderBy('code')->get(),
-            'roles' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->get(),
+            'departments' => Department::query()->whereIn('id', $departmentIds)->where('active', true)->orderBy('code')->get(),
+            'roles' => $this->manageableRoles($actor),
             'filters' => $request->only(['q', 'department_id', 'inactive_only', 'active_filter', 'account_view']),
         ]);
     }
@@ -101,10 +107,11 @@ class UserManagementController extends Controller
     public function create(): View
     {
         $this->authorize('create', User::class);
+        $actor = request()->user();
 
         return view('iam.admin.users.create', [
-            'departments' => Department::query()->where('active', true)->orderBy('code')->get(),
-            'roles' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->get(),
+            'departments' => Department::query()->whereIn('id', $actor->managedDepartmentIds())->where('active', true)->orderBy('code')->get(),
+            'roles' => $this->manageableRoles($actor),
         ]);
     }
 
@@ -146,9 +153,18 @@ class UserManagementController extends Controller
 
         return view('iam.admin.users.edit', [
             'editUser' => $user->load(['department', 'institutionalRole']),
-            'departments' => Department::query()->where('active', true)->orderBy('code')->get(),
-            'roles' => Role::query()->where('active', true)->orderByDesc('hierarchy_level')->get(),
+            'departments' => Department::query()->whereIn('id', request()->user()->managedDepartmentIds())->where('active', true)->orderBy('code')->get(),
+            'roles' => $this->manageableRoles(request()->user()),
         ]);
+    }
+
+    private function manageableRoles(User $actor)
+    {
+        return Role::query()
+            ->where('active', true)
+            ->when(! $actor->canSuperviseAllDepartments(), fn ($query) => $query->where('hierarchy_level', '<', (int) ($actor->institutionalRole?->hierarchy_level ?? 0)))
+            ->orderByDesc('hierarchy_level')
+            ->get();
     }
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse

@@ -443,9 +443,23 @@ class User extends Authenticatable
         return $this->iamBool('manage_dept_users', function () {
             $this->loadIamRelations();
 
-            return $this->hasPermission('supervise_department')
+            return ($this->department_id !== null
+                    && $this->isDepartmentSupervisorOf((int) $this->department_id))
+                || $this->hasPermission('supervise_department')
                 || ($this->hasPermission('manage_users') && ! $this->canSuperviseAllDepartments());
         });
+    }
+
+    /** @return list<int> */
+    public function managedDepartmentIds(): array
+    {
+        if ($this->canSuperviseAllDepartments() || $this->isInstitutionalSuperAdmin()) {
+            return Department::query()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        return $this->department_id !== null
+            ? Department::subtreeIds((int) $this->department_id)
+            : [];
     }
 
     /** Journal sécurité / audits IAM — Gate « viewSecurityAuditLog ». */

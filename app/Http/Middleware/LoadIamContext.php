@@ -20,7 +20,7 @@ class LoadIamContext
 
             View::share([
                 'iamContextReady' => true,
-                'canManageUsers' => $user->canAccessAdministrationMenu(),
+                'canManageUsers' => $user->canAccessAdministrationMenu() || $user->canManageDepartmentUsers(),
                 'canManageDepartmentsNav' => $user->canManageDepartments(),
                 'canViewOrganizationChartNav' => $user->canAccessOrganizationChart(),
                 'canViewExecutiveNav' => $user->canViewExecutiveDashboard(),

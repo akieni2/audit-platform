@@ -30,6 +30,19 @@
                     </div>
                 @else
                     <p class="text-sm text-[#9FB3C8]">Sélectionnez une mission pour activer le copilote contextuel.</p>
+                    @if (($missions ?? collect())->isEmpty())
+                        <p class="mt-3 text-sm text-[#FFB4B4]">Aucune mission n’est visible dans votre périmètre.</p>
+                    @else
+                        <form method="GET" class="mt-4 flex flex-col gap-3 sm:flex-row" onsubmit="if (this.mission_id.value) window.location.href = this.dataset.base + '/' + this.mission_id.value; return false;" data-base="{{ url('/ai/missions') }}">
+                            <select name="mission_id" class="dgcpt-input flex-1" required>
+                                <option value="">— Choisir une mission —</option>
+                                @foreach ($missions as $availableMission)
+                                    <option value="{{ $availableMission->id }}">{{ $availableMission->reference ? $availableMission->reference.' — ' : '' }}{{ $availableMission->organisation }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="dgcpt-btn-primary">Activer le copilote</button>
+                        </form>
+                    @endif
                 @endisset
             </x-dgcpt.card>
             <x-dgcpt.ai-assistant-panel :mission="$mission ?? null" />

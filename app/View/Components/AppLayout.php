@@ -38,7 +38,7 @@ class AppLayout extends Component
         return view('layouts.app', [
             'institutionalNavMode' => $navMode,
             'sidebarDepartments' => $sidebarDepartments,
-            'canManageUsers' => $user !== null && $user->canAccessAdministrationMenu(),
+            'canManageUsers' => $user !== null && ($user->canAccessAdministrationMenu() || $user->canManageDepartmentUsers()),
             'canManageDepartmentsNav' => $user !== null && $user->canManageDepartments(),
             'canViewOrganizationChartNav' => $user !== null && $user->canAccessOrganizationChart(),
             'canViewExecutiveNav' => $user !== null && $user->canViewExecutiveDashboard(),

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Ai\Enums\AiContextType;
-use App\Domain\Ai\Enums\AiRecommendationType;
 use App\Models\AiRecommendation;
 use App\Models\Mission;
 use App\Services\Ai\AiCopilotService;
 use App\Services\Ai\Audit\AuditAiAssistantService;
 use App\Services\Ai\Audit\AuditQuestionGeneratorService;
 use App\Services\Ai\Control\InternalControlAiService;
-use App\Services\Ai\Executive\ExecutiveAiAnalyticsService;
 use App\Services\Ai\Knowledge\HistoricalLearningService;
 use App\Services\Ai\Observability\AiMonitoringService;
 use App\Services\Ai\Observability\AiPerformanceService;
@@ -28,6 +26,11 @@ class AiCopilotController extends Controller
         abort_unless($user, 403);
 
         return view('ai.copilot', [
+            'missions' => Mission::query()
+                ->visibleToUser($user)
+                ->orderByDesc('id')
+                ->limit(100)
+                ->get(['id', 'organisation', 'reference']),
             'driver' => config('ai_copilot.default_driver'),
             'assistiveOnly' => true,
         ]);

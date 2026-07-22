@@ -11,7 +11,7 @@ class UserPolicy
 {
     private function canManageAccounts(User $actor): bool
     {
-        return $actor->canAccessAdministrationMenu();
+        return $actor->canAccessAdministrationMenu() || $actor->canManageDepartmentUsers();
     }
 
     public function viewAny(User $actor): bool
@@ -21,7 +21,12 @@ class UserPolicy
 
     public function view(User $actor, User $model): bool
     {
-        return $this->canManageAccounts($actor);
+        if ($actor->canSuperviseAllDepartments()) {
+            return true;
+        }
+
+        return $this->canManageAccounts($actor)
+            && in_array((int) $model->department_id, $actor->managedDepartmentIds(), true);
     }
 
     public function create(User $actor): bool
@@ -31,12 +36,12 @@ class UserPolicy
 
     public function update(User $actor, User $model): bool
     {
-        return $this->canManageAccounts($actor);
+        return $this->view($actor, $model);
     }
 
     public function resetPassword(User $actor, User $model): bool
     {
-        return $this->canManageAccounts($actor);
+        return $this->view($actor, $model);
     }
 
     /** Suppression du compte courant (profil) — interdit pour le Super Administrateur système. */

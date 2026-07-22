@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
@@ -51,13 +52,19 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $actor = $this->user();
+
         return [
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', Password::defaults(), 'confirmed'],
-            'department_id' => ['required', 'exists:departments,id'],
-            'role_id' => ['required', 'exists:roles,id'],
+            'department_id' => ['required', Rule::in($actor?->managedDepartmentIds() ?? [])],
+            'role_id' => ['required', Rule::exists('roles', 'id')->where(function ($query) use ($actor) {
+                if ($actor !== null && ! $actor->canSuperviseAllDepartments()) {
+                    $query->where('hierarchy_level', '<', (int) ($actor->institutionalRole?->hierarchy_level ?? 0));
+                }
+            })],
             'position' => ['nullable', 'string', 'max:255'],
             'matricule' => ['nullable', 'string', 'max:64'],
             'telephone' => ['nullable', 'string', 'max:32'],

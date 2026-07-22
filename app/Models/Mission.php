@@ -5,9 +5,12 @@ namespace App\Models;
 use App\Domain\Risk\Enums\CriticalityLevel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Mission extends Model
 {
+    use SoftDeletes;
+
     /** Workflow métier ascendant — étapes institutionnelles */
     public const STATUS_BROUILLON = 'brouillon';
 
@@ -217,10 +220,12 @@ class Mission extends Model
             return User::query()->whereRaw('1 = 0')->get();
         }
 
+        $departmentIds = Department::subtreeIds($deptId);
+
         return User::query()
             ->where('approval_status', User::APPROVAL_STATUS_APPROVED)
             ->where('active', true)
-            ->where('department_id', $deptId)
+            ->whereIn('department_id', $departmentIds)
             ->orderBy('name')
             ->orderBy('email')
             ->get();
@@ -268,18 +273,18 @@ class Mission extends Model
     public function genererPlanAuditAutomatique()
     {
         // Éviter duplication de plan
-        if($this->auditPlans()->where('niveau','critique')->exists()){
+        if ($this->auditPlans()->where('niveau', 'critique')->exists()) {
             return;
         }
 
         // Récupérer risques critiques de la mission
         $risquesCritiques = Risque::where('criticite_residuel', CriticalityLevel::Critical->value)
-            ->whereHas('actif.processus', function($q){
-                $q->where('mission_id',$this->id);
+            ->whereHas('actif.processus', function ($q) {
+                $q->where('mission_id', $this->id);
             })
             ->get();
 
-        if($risquesCritiques->count() == 0){
+        if ($risquesCritiques->count() == 0) {
             return;
         }
 
@@ -288,22 +293,22 @@ class Mission extends Model
             'mission_id' => $this->id,
             'titre' => 'Plan d’audit automatique',
             'description' => 'Généré automatiquement suite aux risques critiques détectés.',
-            'niveau' => 'critique'
+            'niveau' => 'critique',
         ]);
 
         // Création programme d’audit
-        foreach($risquesCritiques as $risque){
+        foreach ($risquesCritiques as $risque) {
 
             AuditProgramme::create([
                 'audit_plan_id' => $plan->id,
                 'procedure' => 'Tester le contrôle lié au risque : '.$risque->description,
-                'type' => 'test'
+                'type' => 'test',
             ]);
 
             AuditProgramme::create([
                 'audit_plan_id' => $plan->id,
                 'procedure' => 'Réaliser entretien avec le responsable du risque.',
-                'type' => 'entretien'
+                'type' => 'entretien',
             ]);
         }
     }

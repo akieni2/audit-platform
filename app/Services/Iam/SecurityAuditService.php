@@ -272,6 +272,18 @@ class SecurityAuditService
         );
     }
 
+    public function missionDeleted(User $actor, Mission $mission, Request $request): AuditLog
+    {
+        return $this->log(
+            'mission_deleted',
+            'missions',
+            'Suppression mission — #'.$mission->id,
+            $actor,
+            $request,
+            ['mission_id' => $mission->id, 'department_id' => $mission->department_id],
+        );
+    }
+
     public function missionDeadlinesUpdated(User $actor, Mission $mission, Request $request, array $fields): AuditLog
     {
         return $this->log(

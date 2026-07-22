@@ -77,6 +77,13 @@ class MissionPolicy
         return $this->governMission($user, $mission);
     }
 
+    /** Une mission non démarrée peut être archivée par son responsable d'unité. */
+    public function delete(User $user, Mission $mission): bool
+    {
+        return $mission->mission_status === Mission::STATUS_BROUILLON
+            && $this->governMission($user, $mission);
+    }
+
     public function updateDeadlines(User $user, Mission $mission): bool
     {
         return $this->governMission($user, $mission);

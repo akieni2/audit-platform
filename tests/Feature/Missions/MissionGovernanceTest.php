@@ -148,6 +148,162 @@ class MissionGovernanceTest extends TestCase
         ])->assertSessionHasErrors('user_id');
     }
 
+    public function test_unit_supervisor_can_assign_users_from_descendant_structures(): void
+    {
+        $pole = $this->createDepartment('PI');
+        $division = Department::query()->create([
+            'name' => 'Division DASI',
+            'code' => 'DASI',
+            'type' => 'service',
+            'active' => true,
+            'parent_department_id' => $pole->id,
+        ]);
+        $supervisor = User::factory()->create([
+            'department_id' => $pole->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $pole->update(['supervisor_user_id' => $supervisor->id]);
+        $agent = User::factory()->create([
+            'department_id' => $division->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $mission = Mission::query()->create([
+            'organisation' => 'Audit du pôle',
+            'date_debut' => Carbon::today(),
+            'auditeur_id' => $supervisor->id,
+            'department_id' => $pole->id,
+            'mission_status' => Mission::STATUS_BROUILLON,
+        ]);
+
+        $this->actingAs($supervisor)->post(route('missions.team-members.store', $mission), [
+            'user_id' => $agent->id,
+            'mission_role' => MissionTeamMember::ROLE_AGENT,
+        ])->assertRedirect(route('missions.show', $mission));
+
+        $this->assertDatabaseHas('mission_team_members', [
+            'mission_id' => $mission->id,
+            'user_id' => $agent->id,
+        ]);
+    }
+
+    public function test_supervisor_can_soft_delete_only_a_draft_mission(): void
+    {
+        $dept = $this->createDepartment();
+        $supervisor = User::factory()->create([
+            'department_id' => $dept->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $dept->update(['supervisor_user_id' => $supervisor->id]);
+        $draft = Mission::query()->create([
+            'organisation' => 'Mission annulée',
+            'date_debut' => Carbon::today(),
+            'auditeur_id' => $supervisor->id,
+            'department_id' => $dept->id,
+            'mission_status' => Mission::STATUS_BROUILLON,
+        ]);
+
+        $this->actingAs($supervisor)
+            ->delete(route('missions.destroy', $draft))
+            ->assertRedirect(route('missions.index'));
+
+        $this->assertSoftDeleted('missions', ['id' => $draft->id]);
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $supervisor->id,
+            'action' => 'mission_deleted',
+        ]);
+    }
+
+    public function test_ai_home_lists_visible_missions_for_selection(): void
+    {
+        $dept = $this->createDepartment();
+        $supervisor = User::factory()->create([
+            'department_id' => $dept->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $dept->update(['supervisor_user_id' => $supervisor->id]);
+        Mission::query()->create([
+            'organisation' => 'Mission visible du copilote',
+            'date_debut' => Carbon::today(),
+            'auditeur_id' => $supervisor->id,
+            'department_id' => $dept->id,
+            'mission_status' => Mission::STATUS_BROUILLON,
+        ]);
+
+        $this->actingAs($supervisor)
+            ->get(route('ai.index'))
+            ->assertOk()
+            ->assertSee('Mission visible du copilote');
+    }
+
+    public function test_same_creation_token_cannot_create_a_duplicate_mission(): void
+    {
+        $dept = $this->createDepartment();
+        $supervisor = User::factory()->create([
+            'department_id' => $dept->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $dept->update(['supervisor_user_id' => $supervisor->id]);
+        $payload = [
+            'creation_token' => '8b416acc-9765-4f8d-a8ae-5e98365e0240',
+            'organisation' => 'Mission idempotente',
+            'date_debut' => Carbon::today()->format('Y-m-d'),
+        ];
+
+        $this->actingAs($supervisor)->post(route('missions.store'), $payload)->assertRedirect();
+        $this->actingAs($supervisor)->post(route('missions.store'), $payload)
+            ->assertRedirect(route('missions.index'));
+
+        $this->assertSame(1, Mission::query()->where('organisation', 'Mission idempotente')->count());
+    }
+
+    public function test_unit_supervisor_can_manage_only_users_in_its_structure_tree(): void
+    {
+        $pole = $this->createDepartment('PI');
+        $division = Department::query()->create([
+            'name' => 'Division informatique',
+            'code' => 'DIV-PI',
+            'type' => 'service',
+            'active' => true,
+            'parent_department_id' => $pole->id,
+        ]);
+        $externalDepartment = $this->createDepartment('EXT');
+        $role = $this->role('inspecteur_adjoint');
+        $supervisor = User::factory()->create([
+            'department_id' => $pole->id,
+            'role_id' => $role->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $pole->update(['supervisor_user_id' => $supervisor->id]);
+        $internal = User::factory()->create([
+            'name' => 'Agent Interne Visible',
+            'department_id' => $division->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $external = User::factory()->create([
+            'name' => 'Agent Externe Masqué',
+            'department_id' => $externalDepartment->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+
+        $this->assertTrue($supervisor->can('viewAny', User::class));
+        $this->assertTrue($supervisor->can('update', $internal));
+        $this->assertFalse($supervisor->can('update', $external));
+
+        $this->actingAs($supervisor)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Agent Interne Visible')
+            ->assertDontSee('Agent Externe Masqué');
+    }
+
     public function test_chef_de_mission_cannot_update_deadlines_gate(): void
     {
         $dept = $this->createDepartment();
