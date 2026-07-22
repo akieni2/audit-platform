@@ -106,6 +106,31 @@
         </form>
     </dialog>
 
+    <dialog id="org-supervisor-dialog" class="w-full max-w-lg rounded-xl border border-[rgba(0,209,255,.3)] bg-[#071220] p-0 text-[#E6EEF8] shadow-2xl backdrop:bg-black/70">
+        <form id="org-supervisor-form" class="space-y-5 p-6">
+            <div>
+                <p class="dgcpt-card-title">Responsable hiérarchique</p>
+                <h2 id="org-supervisor-title" class="mt-1 text-xl font-bold"></h2>
+                <p class="mt-1 text-xs text-[#9FB3C8]">Choisissez un utilisateur actif déjà enregistré dans votre périmètre.</p>
+            </div>
+            <input type="hidden" name="department_id">
+            <div>
+                <label class="dgcpt-label">Titulaire</label>
+                <select name="supervisor_user_id" class="dgcpt-select">
+                    <option value="">Aucun responsable</option>
+                    @foreach ($supervisorCandidates as $candidate)
+                        <option value="{{ $candidate->id }}">{{ $candidate->displayName() }} — {{ $candidate->department?->code ?? 'Sans structure' }} — {{ $candidate->position ?: $candidate->email }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <p id="org-supervisor-error" class="hidden rounded-lg bg-red-950/40 p-3 text-sm text-red-300"></p>
+            <div class="flex justify-end gap-3">
+                <button type="button" class="dgcpt-btn-outline" data-close-supervisor-dialog>Annuler</button>
+                <button type="submit" class="dgcpt-btn-primary">Enregistrer le responsable</button>
+            </div>
+        </form>
+    </dialog>
+
     <script>
     (() => {
         const canBuild = @json($canBuildOrganigramme);
@@ -113,6 +138,8 @@
         const state = document.getElementById('org-save-state');
         const dialog = document.getElementById('org-create-dialog');
         const form = document.getElementById('org-create-form');
+        const supervisorDialog = document.getElementById('org-supervisor-dialog');
+        const supervisorForm = document.getElementById('org-supervisor-form');
         let dragged = null;
 
         document.querySelectorAll('[data-org-payload]').forEach(el => {
@@ -137,6 +164,18 @@
                 const confirmation = window.prompt(`Suppression définitive de cette structure et de ses sous-structures. Saisissez ${code} pour confirmer.`);
                 if (confirmation === null) return;
                 await send(`{{ url('/admin/departments') }}/${button.dataset.orgDelete}`, 'DELETE', {confirmation_code:confirmation});
+            });
+            button.addEventListener('dragstart', event => event.preventDefault());
+        });
+        document.querySelectorAll('[data-org-edit-supervisor]').forEach(button => {
+            button.addEventListener('click', event => {
+                event.preventDefault(); event.stopPropagation();
+                supervisorForm.reset();
+                supervisorForm.elements.department_id.value = button.dataset.orgEditSupervisor;
+                supervisorForm.elements.supervisor_user_id.value = button.dataset.orgCurrentSupervisor || '';
+                document.getElementById('org-supervisor-title').textContent = button.dataset.orgEditName;
+                document.getElementById('org-supervisor-error').classList.add('hidden');
+                supervisorDialog.showModal();
             });
             button.addEventListener('dragstart', event => event.preventDefault());
         });
@@ -165,6 +204,7 @@
             dialog.showModal();
         }
         document.querySelector('[data-close-dialog]').addEventListener('click', () => dialog.close());
+        document.querySelector('[data-close-supervisor-dialog]').addEventListener('click', () => supervisorDialog.close());
         form.addEventListener('submit', async event => {
             event.preventDefault();
             const data = Object.fromEntries(new FormData(form).entries());
@@ -172,20 +212,33 @@
             data.default_methodology_template_id = data.default_methodology_template_id ? Number(data.default_methodology_template_id) : null;
             await send(`{{ route('admin.departments.visual-store') }}`, 'POST', data, true);
         });
+        supervisorForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const departmentId = supervisorForm.elements.department_id.value;
+            const supervisorId = supervisorForm.elements.supervisor_user_id.value;
+            await send(`{{ url('/admin/departments') }}/${departmentId}/organigramme/supervisor`, 'PATCH', {
+                supervisor_user_id: supervisorId ? Number(supervisorId) : null,
+            }, false, supervisorDialog);
+        });
 
-        async function send(url, method, data, closeDialog = false) {
+        async function send(url, method, data, closeDialog = false, dialogToClose = dialog) {
             state.textContent = 'Enregistrement…';
             try {
                 const response = await fetch(url, {method, headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':token}, body:JSON.stringify(data)});
                 const body = await response.json();
                 if (!response.ok) throw new Error(body.message || Object.values(body.errors || {})[0]?.[0] || 'Opération refusée.');
                 state.textContent = body.message || 'Enregistré';
-                if (closeDialog) dialog.close();
+                if (closeDialog) dialogToClose.close();
+                if (dialogToClose === supervisorDialog) supervisorDialog.close();
                 window.setTimeout(() => window.location.reload(), 350);
             } catch (error) {
                 state.textContent = 'Erreur';
                 const target = document.getElementById('org-form-error');
-                if (dialog.open) { target.textContent = error.message; target.classList.remove('hidden'); }
+                if (supervisorDialog.open) {
+                    const supervisorError = document.getElementById('org-supervisor-error');
+                    supervisorError.textContent = error.message;
+                    supervisorError.classList.remove('hidden');
+                } else if (dialog.open) { target.textContent = error.message; target.classList.remove('hidden'); }
                 else alert(error.message);
             }
         }

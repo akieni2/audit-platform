@@ -12,6 +12,13 @@
                 </div>
             </div>
             <span class="rounded-full bg-[rgba(0,209,255,.12)] px-2 py-1 text-[11px] font-semibold text-[#73D8FF]">{{ $department->children->count() }} liens</span>
+            @if ($builder ?? false)
+                <button type="button" draggable="false"
+                        data-org-edit-supervisor="{{ $department->id }}"
+                        data-org-edit-name="{{ $department->code }} — {{ $department->name }}"
+                        data-org-current-supervisor="{{ $department->supervisor_user_id }}"
+                        class="rounded-lg border border-[rgba(0,209,255,.3)] px-2 py-1 text-[11px] font-semibold text-[#73D8FF] hover:bg-[rgba(0,209,255,.1)]">Modifier le responsable</button>
+            @endif
             @can('delete', $department)
                 <button type="button" draggable="false" data-org-delete="{{ $department->id }}" data-org-delete-code="{{ $department->code }}"
                         class="rounded-lg border border-red-500/30 px-2 py-1 text-[11px] font-semibold text-red-300 hover:bg-red-950/40">Supprimer</button>

@@ -38,6 +38,20 @@ class VisualOrganigramBuilderTest extends TestCase
         $this->actingAs($user)->patchJson(route('admin.departments.visual-position', $direction), ['position_title' => 'Directeur'])->assertOk();
         $this->assertSame('Directeur', $direction->fresh()->headTitle());
 
+        $newSupervisor = User::factory()->create([
+            'department_id' => $direction->id,
+            'approval_status' => User::APPROVAL_STATUS_APPROVED,
+            'active' => true,
+        ]);
+        $this->actingAs($user)->patchJson(route('admin.departments.visual-supervisor', $direction), [
+            'supervisor_user_id' => $newSupervisor->id,
+        ])->assertOk()->assertJsonPath('supervisor_name', $newSupervisor->displayName());
+        $this->assertSame($newSupervisor->id, $direction->fresh()->supervisor_user_id);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'department_supervisor_changed',
+            'user_id' => $user->id,
+        ]);
+
         $this->actingAs($user)->patchJson(route('admin.departments.visual-move', $direction), ['parent_department_id' => null])->assertOk();
         $this->assertNull($direction->fresh()->parent_department_id);
     }
@@ -71,6 +85,15 @@ class VisualOrganigramBuilderTest extends TestCase
 
         $this->actingAs($supervisor)->patchJson(route('admin.departments.visual-move', $service), [
             'parent_department_id' => $other->id,
+        ])->assertForbidden();
+
+        $externalSupervisor = User::factory()->create([
+            'department_id' => $other->id,
+            'approval_status' => User::APPROVAL_STATUS_APPROVED,
+            'active' => true,
+        ]);
+        $this->actingAs($supervisor)->patchJson(route('admin.departments.visual-supervisor', $service), [
+            'supervisor_user_id' => $externalSupervisor->id,
         ])->assertForbidden();
     }
 

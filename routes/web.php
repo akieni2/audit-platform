@@ -530,6 +530,8 @@ Route::middleware(['auth', 'active'])->group(function () {
             ->name('departments.visual-move');
         Route::patch('/departments/{department}/organigramme/position', [DepartmentManagementController::class, 'visualPosition'])
             ->name('departments.visual-position');
+        Route::patch('/departments/{department}/organigramme/supervisor', [DepartmentManagementController::class, 'visualSupervisor'])
+            ->name('departments.visual-supervisor');
 
         Route::middleware(['can:manageDepartments'])->group(function (): void {
             Route::resource('departments', DepartmentManagementController::class)->except(['show']);

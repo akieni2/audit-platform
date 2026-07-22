@@ -13,11 +13,11 @@ use App\Models\User;
 use App\Services\Governance\DepartmentAuditEnvironmentService;
 use App\Services\Governance\OrganizationDeletionService;
 use App\Support\OrganizationStructure;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -61,6 +61,14 @@ class DepartmentManagementController extends Controller
             'methodologies' => MethodologyTemplate::query()->where('active', true)->orderBy('name')->get(),
             'canBuildOrganigramme' => $actor->canBuildFunctionalOrganization(),
             'isGlobalOrganigramme' => $actor->canViewGlobalOrganization(),
+            'supervisorCandidates' => User::query()
+                ->with('department')
+                ->where('active', true)
+                ->where('approval_status', User::APPROVAL_STATUS_APPROVED)
+                ->when(! $actor->canAdministerOrganization(), fn ($query) => $query->whereIn('department_id', $actor->managedDepartmentIds()))
+                ->orderBy('name')
+                ->orderBy('prenom')
+                ->get(),
         ]);
     }
 
@@ -149,6 +157,42 @@ class DepartmentManagementController extends Controller
         ]);
 
         return response()->json(['message' => 'Fonction dirigeante affectée.']);
+    }
+
+    public function visualSupervisor(Request $request, Department $department): JsonResponse
+    {
+        $actor = $request->user();
+        abort_unless($actor->canBuildFunctionalOrganization(), 403);
+        $this->authorizeVisualDepartment($actor, $department, true);
+
+        $validated = $request->validate([
+            'supervisor_user_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+        $supervisorId = $validated['supervisor_user_id'] ?? null;
+        $supervisor = $supervisorId !== null
+            ? User::query()->whereKey($supervisorId)->where('active', true)->where('approval_status', User::APPROVAL_STATUS_APPROVED)->firstOrFail()
+            : null;
+
+        if ($supervisor !== null && ! $actor->canAdministerOrganization()) {
+            abort_unless(in_array((int) $supervisor->department_id, $actor->managedDepartmentIds(), true), 403);
+        }
+
+        $previousId = $department->supervisor_user_id;
+        $department->update(['supervisor_user_id' => $supervisor?->id]);
+
+        app(\App\Services\Iam\SecurityAuditService::class)->log(
+            'department_supervisor_changed',
+            'organization',
+            'Changement du responsable — '.$department->code,
+            $actor,
+            $request,
+            ['department_id' => $department->id, 'from_user_id' => $previousId, 'to_user_id' => $supervisor?->id],
+        );
+
+        return response()->json([
+            'message' => 'Responsable de la structure actualisé.',
+            'supervisor_name' => $supervisor?->displayName(),
+        ]);
     }
 
     public function create(): View
