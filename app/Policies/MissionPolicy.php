@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Department;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\Missions\MissionWorkflowService;
@@ -33,7 +34,22 @@ class MissionPolicy
             return false;
         }
 
-        return $user->isDepartmentSupervisorOf((int) $user->department_id);
+        $department = Department::query()->find($user->department_id);
+
+        if ($department === null || ! in_array($department->type, [
+            'direction_generale',
+            'administration',
+            'direction',
+            'department',
+            'departement',
+            'inspection_services',
+            'sous_direction',
+            'pole',
+        ], true)) {
+            return false;
+        }
+
+        return $user->isDepartmentSupervisorOf((int) $department->id);
     }
 
     /**

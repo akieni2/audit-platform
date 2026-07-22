@@ -38,7 +38,10 @@
             @empty
                 <tr>
                     <td colspan="2" style="padding:16px;text-align:center;color:#64748b;">
-                        Aucune mission. <a href="{{ route('missions.create') }}">Créer une mission</a>
+                        Aucune mission.
+                        @can('create', \App\Models\Mission::class)
+                            <a href="{{ route('missions.create') }}">Créer une mission</a>
+                        @endcan
                     </td>
                 </tr>
             @endforelse

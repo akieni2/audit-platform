@@ -171,11 +171,13 @@
             <span class="ni" aria-hidden="true">≡</span>
             Missions
         </a>
-        <a class="nav-link {{ request()->routeIs('missions.create') ? 'active' : '' }}"
-           href="{{ route('missions.create') }}">
-            <span class="ni" aria-hidden="true">＋</span>
-            Nouvelle mission
-        </a>
+        @can('create', \App\Models\Mission::class)
+            <a class="nav-link {{ request()->routeIs('missions.create') ? 'active' : '' }}"
+               href="{{ route('missions.create') }}">
+                <span class="ni" aria-hidden="true">＋</span>
+                Nouvelle mission
+            </a>
+        @endcan
 
         <p class="nav-section-title">Terrain</p>
         <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
@@ -210,6 +212,13 @@
             <span class="ni" aria-hidden="true">▤</span>
             Exécution des workflows
         </a>
+        @unless ($canManageDepartmentsNav ?? false)
+            <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
+               href="{{ route('enterprise.methodologies') }}">
+                <span class="ni" aria-hidden="true">⌘</span>
+                Référentiel de l’unité
+            </a>
+        @endunless
         <a class="nav-link {{ request()->routeIs('enterprise.taxonomies') ? 'active' : '' }}"
            href="{{ route('enterprise.taxonomies') }}">
             <span class="ni" aria-hidden="true">⋔</span>

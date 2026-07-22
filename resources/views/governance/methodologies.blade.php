@@ -71,6 +71,13 @@
                     @endif
                 </div>
             @endforeach
+
+            @if ($methodologies->isEmpty())
+                <div class="dgcpt-surface p-6 xl:col-span-2">
+                    <p class="font-semibold text-[#E6EEF8]">Aucun référentiel n’a encore été choisi pour votre unité.</p>
+                    <p class="mt-2 text-sm text-[#9FB3C8]">Votre responsable hiérarchique doit sélectionner le référentiel applicable à la structure.</p>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

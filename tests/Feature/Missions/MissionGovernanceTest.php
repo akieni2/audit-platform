@@ -3,6 +3,7 @@
 namespace Tests\Feature\Missions;
 
 use App\Models\Department;
+use App\Models\MethodologyTemplate;
 use App\Models\Mission;
 use App\Models\MissionTeamMember;
 use App\Models\Role;
@@ -186,6 +187,114 @@ class MissionGovernanceTest extends TestCase
             'mission_id' => $mission->id,
             'user_id' => $agent->id,
         ]);
+    }
+
+    public function test_descendant_agent_sees_parent_mission_and_chef_role_without_creation_right(): void
+    {
+        $pole = $this->createDepartment('PI');
+        $division = Department::query()->create([
+            'name' => 'Division Contrôle Interne',
+            'code' => 'DCI',
+            'type' => 'service',
+            'active' => true,
+            'parent_department_id' => $pole->id,
+        ]);
+        $supervisor = User::factory()->create([
+            'department_id' => $pole->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $pole->update(['supervisor_user_id' => $supervisor->id]);
+        $olivier = User::factory()->create([
+            'name' => 'Olivier Damas',
+            'department_id' => $division->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $mission = Mission::query()->create([
+            'organisation' => 'Audit DSI confié à Olivier',
+            'date_debut' => Carbon::today(),
+            'auditeur_id' => $supervisor->id,
+            'department_id' => $pole->id,
+            'mission_status' => Mission::STATUS_BROUILLON,
+        ]);
+        MissionTeamMember::query()->create([
+            'mission_id' => $mission->id,
+            'user_id' => $olivier->id,
+            'mission_role' => MissionTeamMember::ROLE_CHEF_MISSION,
+            'is_lead' => true,
+            'assigned_at' => now(),
+        ]);
+
+        $this->assertFalse($olivier->can('create', Mission::class));
+
+        $this->actingAs($olivier)
+            ->get(route('missions.index'))
+            ->assertOk()
+            ->assertSee('Audit DSI confié à Olivier')
+            ->assertSee('Chef de mission')
+            ->assertDontSee('Nouvelle mission');
+
+        $this->actingAs($olivier)->get(route('missions.create'))->assertForbidden();
+    }
+
+    public function test_service_supervisor_cannot_create_a_mission(): void
+    {
+        $service = Department::query()->create([
+            'name' => 'Division Contrôle Interne',
+            'code' => 'DCI',
+            'type' => 'service',
+            'active' => true,
+        ]);
+        $supervisor = User::factory()->create([
+            'department_id' => $service->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+        $service->update(['supervisor_user_id' => $supervisor->id]);
+
+        $this->assertFalse($supervisor->can('create', Mission::class));
+        $this->actingAs($supervisor)->get(route('missions.create'))->assertForbidden();
+    }
+
+    public function test_agent_sees_only_the_referential_selected_by_hierarchy(): void
+    {
+        $selected = MethodologyTemplate::query()->create([
+            'name' => 'COBIT sélectionné',
+            'slug' => 'cobit-selected',
+            'framework_key' => 'COBIT',
+            'active' => true,
+            'version' => 1,
+            'lifecycle_status' => MethodologyTemplate::STATUS_PUBLISHED,
+        ]);
+        MethodologyTemplate::query()->create([
+            'name' => 'Référentiel non sélectionné',
+            'slug' => 'other-methodology',
+            'framework_key' => 'OTHER',
+            'active' => true,
+            'version' => 1,
+            'lifecycle_status' => MethodologyTemplate::STATUS_PUBLISHED,
+        ]);
+        $pole = $this->createDepartment('PI');
+        $pole->update(['default_methodology_template_id' => $selected->id]);
+        $division = Department::query()->create([
+            'name' => 'Division Audit SI',
+            'code' => 'DASI',
+            'type' => 'service',
+            'active' => true,
+            'parent_department_id' => $pole->id,
+        ]);
+        $agent = User::factory()->create([
+            'department_id' => $division->id,
+            'approval_status' => 'approved',
+            'active' => true,
+        ]);
+
+        $this->actingAs($agent)
+            ->get(route('enterprise.methodologies'))
+            ->assertOk()
+            ->assertSee('COBIT sélectionné')
+            ->assertDontSee('Référentiel non sélectionné');
     }
 
     public function test_supervisor_can_soft_delete_only_a_draft_mission(): void

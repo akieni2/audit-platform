@@ -9,7 +9,9 @@
 <li>Missions
 <ul>
 <li><a href="{{ route('missions.index') }}">Liste missions</a></li>
+@can('create', \App\Models\Mission::class)
 <li><a href="{{ route('missions.create') }}">Nouvelle mission</a></li>
+@endcan
 </ul>
 </li>
 

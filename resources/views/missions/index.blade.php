@@ -51,6 +51,7 @@
                     <tr>
                         <th>Organisation</th>
                         <th>Statut</th>
+                        <th>Votre rôle</th>
                         <th>Début</th>
                         <th>Fin</th>
                         <th>Actions</th>
@@ -69,6 +70,18 @@
                             </td>
                             <td>
                                 <x-mission-status-badge :status="$mission->mission_status" />
+                            </td>
+                            <td>
+                                @php($myMembership = $mission->missionTeamMembers->first())
+                                @if ($myMembership)
+                                    <span class="font-semibold {{ $myMembership->mission_role === \App\Models\MissionTeamMember::ROLE_CHEF_MISSION ? 'text-[#7EF2BE]' : 'text-[#BFD2E6]' }}">
+                                        {{ \App\Models\MissionTeamMember::missionRoleLabels()[$myMembership->mission_role] ?? $myMembership->mission_role }}
+                                    </span>
+                                @elseif (auth()->user()?->can('governMission', $mission))
+                                    <span class="text-[#BFD2E6]">Responsable de l’unité</span>
+                                @else
+                                    <span class="text-[#9FB3C8]">Agent de l’unité</span>
+                                @endif
                             </td>
                             <td class="text-[#9FB3C8]">{{ $mission->date_debut }}</td>
                             <td class="text-[#9FB3C8]">{{ $mission->date_fin ?? '—' }}</td>
@@ -90,7 +103,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-10 text-center text-[#9FB3C8]">Aucune mission visible pour votre périmètre.</td>
+                            <td colspan="6" class="py-10 text-center text-[#9FB3C8]">Aucune mission visible pour votre périmètre.</td>
                         </tr>
                     @endforelse
                 </tbody>

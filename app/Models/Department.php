@@ -33,6 +33,37 @@ class Department extends Model
         return $ids;
     }
 
+    /** Identifiants de la structure courante et de toutes ses structures parentes. @return list<int> */
+    public static function ancestryIds(int $departmentId): array
+    {
+        $ids = [];
+        $currentId = $departmentId;
+
+        while ($currentId > 0 && ! in_array($currentId, $ids, true)) {
+            $ids[] = $currentId;
+            $parentId = self::query()->whereKey($currentId)->value('parent_department_id');
+            $currentId = $parentId !== null ? (int) $parentId : 0;
+        }
+
+        return $ids;
+    }
+
+    public static function inheritedMethodologyId(?int $departmentId): ?int
+    {
+        if ($departmentId === null) {
+            return null;
+        }
+
+        foreach (self::ancestryIds($departmentId) as $id) {
+            $methodologyId = self::query()->whereKey($id)->value('default_methodology_template_id');
+            if ($methodologyId !== null) {
+                return (int) $methodologyId;
+            }
+        }
+
+        return null;
+    }
+
     protected $fillable = [
         'name',
         'code',

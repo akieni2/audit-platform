@@ -259,13 +259,12 @@ class Mission extends Model
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->canSuperviseEntirePole()) {
-            return $query->where('department_id', $deptId);
-        }
+        $ancestryIds = Department::ancestryIds((int) $deptId);
 
-        return $query->where(function (Builder $q) use ($deptId) {
-            $q->where('department_id', $deptId)
-                ->orWhere('supervising_department_id', $deptId);
+        return $query->where(function (Builder $q) use ($deptId, $ancestryIds, $user) {
+            $q->whereIn('department_id', $ancestryIds)
+                ->orWhere('supervising_department_id', $deptId)
+                ->orWhereHas('missionTeamMembers', fn (Builder $members) => $members->where('user_id', $user->id));
         });
     }
 

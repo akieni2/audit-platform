@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ControlLibrary;
+use App\Models\Department;
 use App\Models\MethodologyTemplate;
+use App\Models\Mission;
 use App\Models\Taxonomy;
 use App\Services\Methodologies\DgcptAuditProcedureGenerator;
 use App\Services\Governance\DepartmentConsolidationService;
@@ -24,7 +26,14 @@ class EnterpriseCatalogController extends Controller
         $actor = $request->user();
         abort_unless($actor, 403);
 
+        $canChooseMethodology = $actor->can('create', Mission::class);
+        $selectedMethodologyId = $canChooseMethodology
+            ? null
+            : Department::inheritedMethodologyId($actor->department_id !== null ? (int) $actor->department_id : null);
+
         $methodologies = MethodologyTemplate::query()
+            ->when(! $canChooseMethodology, fn ($query) => $query->whereKey($selectedMethodologyId ?? 0))
+            ->where('active', true)
             ->withCount(['categories', 'controls', 'requirements', 'mappings'])
             ->with(['department', 'defaultWorkflowTemplate'])
             ->latest('updated_at')

@@ -29,7 +29,10 @@ class MissionController extends Controller
         $user = Auth::user();
         $query = Mission::query()
             ->when($user, fn ($q) => $q->visibleToUser($user))
-            ->with('department');
+            ->with([
+                'department',
+                'missionTeamMembers' => fn ($members) => $members->when($user, fn ($query) => $query->where('user_id', $user->id)),
+            ]);
 
         if ($request->filled('department')) {
             $query->where('department_id', (int) $request->query('department'));
