@@ -357,7 +357,7 @@
             </div>
 
             @if ($mission->questionnaireTemplates->isNotEmpty())
-                <div class="space-y-3 rounded-xl border border-[rgba(0,209,255,.16)] bg-[#071220] p-4">
+                <div id="questionnaires-collaboratifs" class="space-y-3 rounded-xl border border-[rgba(0,209,255,.16)] bg-[#071220] p-4">
                     <p class="dgcpt-card-title">Questionnaires collaboratifs de la mission</p>
                     @foreach ($mission->questionnaireTemplates as $missionQuestionnaire)
                         @php

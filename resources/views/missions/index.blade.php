@@ -89,6 +89,7 @@
                                 <div class="flex flex-col gap-1 text-xs">
                                     <a href="{{ route('missions.show', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Fiche</a>
                                     <a href="{{ route('services.index', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Services</a>
+                                    <a href="{{ route('missions.questionnaires.index', $mission) }}" class="font-semibold text-[#73D8FF] hover:underline">Questionnaires</a>
                                     <a href="{{ route('cartographie.index', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Cartographie</a>
                                     <a href="{{ route('missions.rapport', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">PDF</a>
                                     @can('delete', $mission)

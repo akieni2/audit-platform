@@ -19,6 +19,21 @@ use InvalidArgumentException;
 
 class MissionQuestionnaireWizardController extends Controller
 {
+    public function index(Mission $mission): View
+    {
+        $this->authorize('view', $mission);
+        $mission->load([
+            'questionnaireTemplates.creator',
+            'questionnaireTemplates.sections',
+            'questionnaireTemplates.reviews.reviewer',
+            'questionnaireTemplates.adopter',
+            'auditGroups.questionnaireTemplate',
+            'auditGroups.members.user',
+        ]);
+
+        return view('missions.questionnaires-index', compact('mission'));
+    }
+
     public function create(Mission $mission): View
     {
         $this->authorize('createQuestionnaire', $mission);

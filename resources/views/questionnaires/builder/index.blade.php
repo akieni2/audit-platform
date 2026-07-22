@@ -15,6 +15,7 @@
                 </p>
             </div>
             <div class="flex gap-3">
+                <a href="{{ route('missions.index') }}" class="dgcpt-btn-outline">Assistant par mission</a>
                 <a href="{{ route('dgcpt.questionnaire-import.index') }}" class="dgcpt-btn-primary">Importer un questionnaire Word</a>
                 <a href="{{ route('module.questionnaires') }}" class="dgcpt-btn-outline">Vue module</a>
             </div>

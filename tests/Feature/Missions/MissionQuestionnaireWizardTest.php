@@ -85,6 +85,11 @@ class MissionQuestionnaireWizardTest extends TestCase
 
         $this->assertTrue($reviewer->can('createQuestionnaire', $mission));
         $this->assertTrue($reviewer->can('update', $template));
+        $this->actingAs($reviewer)
+            ->get(route('missions.questionnaires.index', $mission))
+            ->assertOk()
+            ->assertSee('Assistant de création visuelle')
+            ->assertSee('Questionnaire collaboratif');
 
         $this->actingAs($supervisor)
             ->post(route('missions.questionnaires.submit-review', [$mission, $template]))
