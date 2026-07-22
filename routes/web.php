@@ -10,6 +10,7 @@ use App\Http\Controllers\EntretienController;
 use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\IdentifiedRiskController;
 use App\Http\Controllers\MissionController;
+use App\Http\Controllers\MissionAuditGroupController;
 use App\Http\Controllers\MissionDocumentController;
 use App\Http\Controllers\MissionTeamMemberController;
 use App\Http\Controllers\Questionnaires\QuestionnaireTemplateController;
@@ -131,6 +132,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('missions.team-members.store');
     Route::delete('/missions/{mission}/team-members/{team_member}', [MissionTeamMemberController::class, 'destroy'])
         ->name('missions.team-members.destroy');
+    Route::post('/missions/{mission}/audit-groups', [MissionAuditGroupController::class, 'store'])->name('missions.audit-groups.store');
+    Route::patch('/missions/{mission}/audit-groups/{audit_group}', [MissionAuditGroupController::class, 'update'])->name('missions.audit-groups.update');
+    Route::delete('/missions/{mission}/audit-groups/{audit_group}', [MissionAuditGroupController::class, 'destroy'])->name('missions.audit-groups.destroy');
+    Route::post('/missions/{mission}/audit-groups/{audit_group}/questionnaire-import', [MissionAuditGroupController::class, 'importQuestionnaire'])->name('missions.audit-groups.import');
 
 
     /*

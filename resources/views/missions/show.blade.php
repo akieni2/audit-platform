@@ -337,6 +337,82 @@
             @endcan
         </div>
 
+        <div class="dgcpt-surface space-y-5 p-6 shadow-sm">
+            <div>
+                <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Groupes d’audit par questionnaire</h2>
+                <p class="mt-1 text-sm text-[#9FB3C8]">Répartissez les inspecteurs, le questionnaire et la personne à auditionner. Chaque groupe conserve ses propres résultats.</p>
+            </div>
+
+            @forelse ($mission->auditGroups as $auditGroup)
+                <div class="rounded-xl border border-[rgba(0,209,255,.18)] bg-[#071220] p-4">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="font-bold text-[#E6EEF8]">{{ $auditGroup->name }}</p>
+                            <p class="text-xs text-[#73D8FF]">{{ $auditGroup->questionnaireTemplate?->name }}</p>
+                            <p class="mt-1 text-xs text-[#9FB3C8]">
+                                {{ $auditGroup->service?->nom ?: 'Service à préciser' }} ·
+                                {{ $auditGroup->interviewed_person ?: $auditGroup->service?->responsableDisplay() ?: 'Personne à auditionner à préciser' }}
+                            </p>
+                        </div>
+                        @can('assignTeamMembers', $mission)
+                            <form method="POST" action="{{ route('missions.audit-groups.destroy', [$mission, $auditGroup]) }}" onsubmit="return confirm('Supprimer ce groupe d’audit ?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs font-semibold text-[#FF5A5A] hover:underline">Supprimer</button>
+                            </form>
+                        @endcan
+                    </div>
+                    <p class="mt-3 text-xs text-[#BFD2E6]">
+                        <span class="text-[#7F94AA]">Inspecteurs :</span>
+                        {{ $auditGroup->members->map(fn ($member) => $member->user?->displayName())->filter()->join(', ') ?: 'Aucun' }}
+                    </p>
+                    @if ($auditGroup->objective)<p class="mt-2 text-xs text-[#9FB3C8]">{{ $auditGroup->objective }}</p>@endif
+
+                    @can('assignTeamMembers', $mission)
+                        <form method="POST" enctype="multipart/form-data" action="{{ route('missions.audit-groups.import', [$mission, $auditGroup]) }}" class="mt-4 flex flex-wrap items-end gap-3 border-t border-[rgba(0,209,255,.12)] pt-3">
+                            @csrf
+                            <div class="min-w-[16rem] flex-1">
+                                <label class="dgcpt-label">Questionnaire rempli (.docx)</label>
+                                <input type="file" name="questionnaire_document" accept=".docx" required class="dgcpt-input" />
+                            </div>
+                            <button type="submit" class="dgcpt-btn-outline">Importer et pré-analyser</button>
+                        </form>
+                    @endcan
+
+                    @foreach ($auditGroup->imports as $documentImport)
+                        @php $suggestions = $documentImport->analysis_suggestions ?? []; @endphp
+                        <div class="mt-3 rounded-lg border border-[rgba(0,168,107,.25)] bg-[rgba(0,168,107,.06)] p-3 text-xs text-[#BFD2E6]">
+                            <p class="font-semibold text-[#E6EEF8]">{{ $documentImport->original_name }}</p>
+                            <p class="mt-1">
+                                {{ data_get($documentImport->extracted_data, 'question_count', 0) }} questions ·
+                                {{ count($suggestions['risk_candidates'] ?? []) }} risques potentiels ·
+                                {{ count(data_get($suggestions, 'swot.weaknesses', [])) }} faiblesses SWOT ·
+                                {{ count($suggestions['raci_candidates'] ?? []) }} propositions RACI
+                            </p>
+                            <p class="mt-1 text-[#F4D000]">Pré-analyse assistive : validation humaine obligatoire avant création dans les registres.</p>
+                        </div>
+                    @endforeach
+                </div>
+            @empty
+                <p class="text-sm text-[#9FB3C8]">Aucun groupe d’audit n’est encore constitué.</p>
+            @endforelse
+
+            @can('assignTeamMembers', $mission)
+                <form method="POST" action="{{ route('missions.audit-groups.store', $mission) }}" class="space-y-4 border-t border-[rgba(0,209,255,.14)] pt-5">
+                    @csrf
+                    <p class="dgcpt-card-title">Créer un groupe</p>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="dgcpt-label">Nom du groupe</label><input name="name" required class="dgcpt-input" placeholder="Équipe A — Alignement stratégique"></div>
+                        <div><label class="dgcpt-label">Questionnaire</label><select name="questionnaire_template_id" required class="dgcpt-select"><option value="">— Choisir —</option>@foreach($questionnaireChoices as $template)<option value="{{ $template->id }}">{{ $template->name }}{{ $template->methodologyTemplate ? ' — '.$template->methodologyTemplate->name : '' }}</option>@endforeach</select></div>
+                        <div><label class="dgcpt-label">Service audité</label><select name="service_id" class="dgcpt-select"><option value="">— À préciser —</option>@foreach($mission->services as $service)<option value="{{ $service->id }}">{{ $service->nom }}</option>@endforeach</select></div>
+                        <div><label class="dgcpt-label">Personne à auditionner</label><input name="interviewed_person" class="dgcpt-input" placeholder="Chef du service Réseau"></div>
+                        <div class="sm:col-span-2"><label class="dgcpt-label">Inspecteurs du groupe</label><select name="member_ids[]" multiple required size="5" class="dgcpt-select">@foreach($mission->missionTeamMembers as $member)<option value="{{ $member->id }}">{{ $member->user?->displayName() }} — {{ $missionRoleLabels[$member->mission_role] ?? $member->mission_role }}</option>@endforeach</select><p class="mt-1 text-xs text-[#9FB3C8]">Maintenez Ctrl pour sélectionner 2 ou 3 inspecteurs.</p></div>
+                        <div class="sm:col-span-2"><label class="dgcpt-label">Objectif / thèmes</label><textarea name="objective" rows="2" class="dgcpt-textarea"></textarea></div>
+                    </div>
+                    <button type="submit" class="dgcpt-btn-primary">Créer le groupe et attribuer le questionnaire</button>
+                </form>
+            @endcan
+        </div>
+
         <div class="dgcpt-surface p-6 shadow-sm">
             <h2 class="text-lg font-bold uppercase tracking-wide text-[#E6EEF8]">Description</h2>
             <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#9FB3C8]">{{ $mission->description ?: '—' }}</p>

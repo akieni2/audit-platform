@@ -7,6 +7,7 @@ use App\Http\Requests\Missions\StoreMissionRequest;
 use App\Http\Requests\Missions\UpdateMissionRequest;
 use App\Http\Requests\MissionWorkflowRequest;
 use App\Models\Mission;
+use App\Models\QuestionnaireTemplate;
 use App\Services\Iam\SecurityAuditService;
 use App\Services\Missions\MissionGovernanceService;
 use App\Services\Missions\MissionWorkflowService;
@@ -112,6 +113,11 @@ class MissionController extends Controller
             'department.supervisor',
             'missionTeamMembers.user',
             'missionTeamMembers.assignedBy',
+            'services.chefServiceUser',
+            'auditGroups.questionnaireTemplate',
+            'auditGroups.service',
+            'auditGroups.members.user',
+            'auditGroups.imports',
         ]);
 
         $governance = app(MissionGovernanceService::class);
@@ -123,6 +129,16 @@ class MissionController extends Controller
         $missionStats = $governance->missionStats($mission);
         $missionProgressPercent = $governance->missionProgressPercent($missionStats);
         $workflowRuntime = $workflow->workflowViewData($mission, $actor);
+        $questionnaireChoices = QuestionnaireTemplate::query()
+            ->where('active', true)
+            ->where(function ($query): void {
+                $query->whereIn('lifecycle_status', [QuestionnaireTemplate::STATUS_PUBLISHED, QuestionnaireTemplate::STATUS_DRAFT])
+                    ->orWhereNull('lifecycle_status');
+            })
+            ->with('methodologyTemplate')
+            ->orderBy('name')
+            ->get()
+            ->filter(fn (QuestionnaireTemplate $template) => $template->isVisibleToDepartment($mission->department_id));
 
         return view('missions.show', [
             'mission' => $mission,
@@ -132,6 +148,7 @@ class MissionController extends Controller
             'missionStats' => $missionStats,
             'missionProgressPercent' => $missionProgressPercent,
             'workflowRuntime' => $workflowRuntime,
+            'questionnaireChoices' => $questionnaireChoices,
         ]);
     }
 

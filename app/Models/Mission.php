@@ -208,6 +208,11 @@ class Mission extends Model
         return $this->hasMany(MissionTeamMember::class)->orderByDesc('is_lead')->orderBy('mission_role');
     }
 
+    public function auditGroups()
+    {
+        return $this->hasMany(MissionAuditGroup::class)->orderBy('name');
+    }
+
     /**
      * Utilisateurs pouvant être affectés à l’équipe de mission (IAM ≠ rôle missionnel).
      *
