@@ -204,6 +204,14 @@ class UserManagementController extends Controller
             'intercom' => $data['intercom'] ?? null,
         ]);
 
+        if ($request->user()->isInstitutionalSuperAdmin() && array_key_exists('copri_menu_enabled', $data)) {
+            $user->copri_menu_enabled = match ($data['copri_menu_enabled']) {
+                'allow' => true,
+                'deny' => false,
+                default => null,
+            };
+        }
+
         $user->active = $request->boolean('active');
 
         $user->save();

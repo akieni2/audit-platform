@@ -81,6 +81,20 @@
                 <label class="dgcpt-label">Téléphone</label>
                 <input type="text" name="telephone" value="{{ old('telephone', $editUser->telephone) }}" class="dgcpt-input" />
             </div>
+            @if (auth()->user()?->isInstitutionalSuperAdmin())
+                <div>
+                    <label class="dgcpt-label">Accès individuel au menu COPRI</label>
+                    @php
+                        $copriOverride = old('copri_menu_enabled', $editUser->copri_menu_enabled === null ? 'inherit' : ($editUser->copri_menu_enabled ? 'allow' : 'deny'));
+                    @endphp
+                    <select name="copri_menu_enabled" class="dgcpt-select">
+                        <option value="inherit" @selected($copriOverride === 'inherit')>Hériter du rôle ou de la responsabilité de structure</option>
+                        <option value="allow" @selected($copriOverride === 'allow')>Autoriser personnellement</option>
+                        <option value="deny" @selected($copriOverride === 'deny')>Refuser personnellement</option>
+                    </select>
+                    <p class="mt-1 text-xs text-[#9FB3C8]">La décision individuelle est prioritaire sur les permissions du rôle.</p>
+                </div>
+            @endif
             <input type="hidden" name="active" value="0" />
             <label class="inline-flex items-center gap-2 text-sm font-medium text-[#9FB3C8]">
                 <input type="checkbox" name="active" value="1" class="h-4 w-4 rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" @checked(old('active', $editUser->active)) />

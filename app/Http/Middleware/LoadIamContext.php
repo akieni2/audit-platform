@@ -24,6 +24,7 @@ class LoadIamContext
                 'canManageDepartmentsNav' => $user->canManageDepartments(),
                 'canViewOrganizationChartNav' => $user->canAccessOrganizationChart(),
                 'canViewExecutiveNav' => $user->canViewExecutiveDashboard(),
+                'canAccessCopriNav' => $user->canAccessCopriMenu(),
             ]);
         }
 

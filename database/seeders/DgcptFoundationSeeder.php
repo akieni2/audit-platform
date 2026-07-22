@@ -85,6 +85,7 @@ class DgcptFoundationSeeder extends Seeder
             ['slug' => 'manage_roles', 'name' => 'Gérer rôles', 'group' => 'iam'],
             ['slug' => 'supervise_department', 'name' => 'Superviser un département', 'group' => 'iam'],
             ['slug' => 'supervise_global', 'name' => 'Supervision nationale', 'group' => 'iam'],
+            ['slug' => 'access_copri_menu', 'name' => 'Accéder au menu COPRI', 'group' => 'executive'],
         ];
 
         foreach ($permissionSlugs as $p) {
@@ -133,16 +134,26 @@ class DgcptFoundationSeeder extends Seeder
         $copriRole = Role::query()->where('slug', 'copri')->first();
         if ($copriRole) {
             $copriRole->permissions()->sync(
-                Permission::query()->whereIn('slug', ['view', 'export', 'view_global_dashboard'])->pluck('id')
+                Permission::query()->whereIn('slug', ['view', 'export', 'view_global_dashboard', 'access_copri_menu'])->pluck('id')
             );
         }
 
-        $subset = Permission::query()->whereIn('slug', ['view', 'create', 'update', 'export'])->pluck('id');
-        foreach (['inspecteur_adjoint', 'inspecteur_verificateur', 'risk_manager'] as $slug) {
+        $subset = Permission::query()->whereIn('slug', ['view', 'create', 'update', 'export', 'access_copri_menu'])->pluck('id');
+        foreach (['inspecteur_adjoint', 'inspecteur_verificateur'] as $slug) {
             $role = Role::query()->where('slug', $slug)->first();
             if ($role) {
                 $role->permissions()->sync($subset);
             }
+        }
+
+        $riskManager = Role::query()->where('slug', 'risk_manager')->first();
+        if ($riskManager) {
+            $riskManager->permissions()->sync(Permission::query()->whereIn('slug', ['view', 'create', 'update', 'export'])->pluck('id'));
+        }
+
+        $inspecteurAdjoint = Role::query()->where('slug', 'inspecteur_verificateur_adjoint')->first();
+        if ($inspecteurAdjoint) {
+            $inspecteurAdjoint->permissions()->sync(Permission::query()->whereIn('slug', ['view', 'create', 'update', 'access_copri_menu'])->pluck('id'));
         }
 
         $charge = Role::query()->where('slug', 'charge_verification')->first();

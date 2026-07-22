@@ -54,6 +54,7 @@ class UpdateUserRequest extends FormRequest
             'matricule' => ['nullable', 'string', 'max:64'],
             'telephone' => ['nullable', 'string', 'max:32'],
             'intercom' => ['nullable', 'string', 'max:64'],
+            'copri_menu_enabled' => ['nullable', Rule::in(['inherit', 'allow', 'deny'])],
         ];
     }
 }

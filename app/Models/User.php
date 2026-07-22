@@ -45,6 +45,7 @@ class User extends Authenticatable
         'mfa_enabled',
         'mfa_recovery_codes',
         'must_change_password',
+        'copri_menu_enabled',
         'password_expires_at',
         'approval_status',
         'approved_at',
@@ -69,6 +70,7 @@ class User extends Authenticatable
             'locked_until' => 'datetime',
             'mfa_enabled' => 'boolean',
             'must_change_password' => 'boolean',
+            'copri_menu_enabled' => 'boolean',
             'password_expires_at' => 'datetime',
             'approved_at' => 'datetime',
             'deleted_at' => 'datetime',
@@ -398,12 +400,37 @@ class User extends Authenticatable
         return $this->iamBool('exec_dashboard', function () {
             $this->loadIamRelations();
 
-            return $this->isAdminInstitutional()
+            if ($this->copri_menu_enabled !== null) {
+                return (bool) $this->copri_menu_enabled;
+            }
+
+            return $this->canAccessCopriMenu()
+                || $this->isAdminInstitutional()
                 || $this->institutionalRole?->slug === 'inspecteur_services'
                 || $this->institutionalRole?->slug === 'copri'
                 || $this->hasPermission('supervise')
                 || $this->hasPermission('supervise_global');
         });
+    }
+
+    /** Accès COPRI avec dérogation individuelle prioritaire. */
+    public function canAccessCopriMenu(): bool
+    {
+        if ($this->copri_menu_enabled !== null) {
+            return (bool) $this->copri_menu_enabled;
+        }
+
+        $this->loadIamRelations();
+
+        if ($this->institutionalRole?->slug === 'copri') {
+            return true;
+        }
+
+        if ($this->department_id !== null && $this->isDepartmentSupervisorOf((int) $this->department_id)) {
+            return true;
+        }
+
+        return $this->hasPermission('access_copri_menu');
     }
 
     /**

@@ -3,6 +3,14 @@
 @endphp
 
 @auth
+    @if (($canAccessCopriNav ?? false) && $nav !== 'copri')
+        <p class="nav-section-title">Pilotage COPRI</p>
+        <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
+           href="{{ route('dashboard.executive') }}">
+            <span class="ni" aria-hidden="true">◇</span>
+            Espace COPRI
+        </a>
+    @endif
     @if ($nav === 'technical_admin')
         @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false))
             <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration technique">
