@@ -5,6 +5,7 @@
         .org-tool { cursor:grab; user-select:none; transition:.15s ease; }
         .org-tool:hover { transform:translateY(-1px); border-color:rgba(0,209,255,.55); }
         .org-tool:active { cursor:grabbing; }
+        .org-tool.org-tool--selected { border-color:#00D1FF; background:rgba(0,209,255,.16); box-shadow:0 0 0 2px rgba(0,209,255,.16); }
         .org-canvas { min-height:560px; overflow:auto; }
         .org-root-zone { min-width:760px; }
         .org-drop-active { outline:2px dashed #00D1FF !important; outline-offset:3px; background:rgba(0,209,255,.09) !important; }
@@ -12,6 +13,12 @@
         .org-children > .org-node-wrap::before { content:""; position:absolute; left:-1.5rem; top:2rem; width:1.5rem; border-top:2px solid rgba(0,209,255,.22); }
         .org-node-wrap { position:relative; }
         @media (max-width:900px) { .org-builder { grid-template-columns:1fr; } .org-palette { position:static; max-height:none; } }
+        @media (max-width:640px) {
+            .org-canvas { min-height:420px; padding:1rem; }
+            .org-root-zone { min-width:0; padding:.65rem; }
+            .org-children { margin-left:.5rem; padding-left:.7rem; }
+            .org-children > .org-node-wrap::before { left:-.7rem; width:.7rem; }
+        }
     </style>
 
     <div class="mx-auto max-w-[1600px] space-y-6 px-0 py-2">
@@ -37,6 +44,7 @@
                 <div class="grid gap-2">
                     @foreach ($structureTypes as $value => $label)
                         <div class="org-tool rounded-lg border border-[rgba(0,209,255,.18)] bg-[rgba(0,209,255,.05)] px-3 py-2 text-sm font-semibold text-[#73D8FF]"
+                             role="button" tabindex="0"
                              draggable="{{ $canBuildOrganigramme ? 'true' : 'false' }}"
                              data-org-payload='@json(["kind" => "new-structure", "type" => $value, "label" => $label])'>
                             <span class="mr-2 text-[#00D1FF]">◇</span>{{ $label }}
@@ -51,6 +59,7 @@
                 <div class="grid gap-2">
                     @foreach ($positionTypes as $value => $label)
                         <div class="org-tool rounded-lg border border-[rgba(124,92,255,.24)] bg-[rgba(124,92,255,.08)] px-3 py-2 text-sm text-[#C8BCFF]"
+                             role="button" tabindex="0"
                              draggable="{{ $canBuildOrganigramme ? 'true' : 'false' }}"
                              data-org-payload='@json(["kind" => "position", "position" => $value])'>
                             <span class="mr-2">●</span>{{ $label }}
@@ -143,6 +152,20 @@
         let dragged = null;
 
         document.querySelectorAll('[data-org-payload]').forEach(el => {
+            const selectTool = () => {
+                if (!canBuild) return;
+                document.querySelectorAll('[data-org-payload]').forEach(tool => tool.classList.remove('org-tool--selected'));
+                dragged = JSON.parse(el.dataset.orgPayload);
+                el.classList.add('org-tool--selected');
+                state.textContent = 'Objet sélectionné : touchez maintenant la structure cible.';
+            };
+            el.addEventListener('click', selectTool);
+            el.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectTool();
+                }
+            });
             el.addEventListener('dragstart', event => {
                 dragged = JSON.parse(el.dataset.orgPayload);
                 event.dataTransfer.effectAllowed = 'copy';
@@ -181,6 +204,19 @@
         });
 
         document.querySelectorAll('[data-org-drop-target], [data-org-drop-root]').forEach(zone => {
+            zone.addEventListener('click', async event => {
+                if (!dragged || !canBuild || event.target.closest('button, a, form')) return;
+                event.preventDefault();
+                event.stopPropagation();
+                const payload = dragged;
+                const parentId = zone.dataset.orgDropTarget ? Number(zone.dataset.orgDropTarget) : null;
+                const parentName = zone.dataset.orgDropName || 'Racine de l’organigramme';
+                dragged = null;
+                document.querySelectorAll('[data-org-payload]').forEach(tool => tool.classList.remove('org-tool--selected'));
+                if (payload.kind === 'new-structure') return openCreate(payload, parentId, parentName);
+                if (payload.kind === 'position' && parentId) return send(`{{ url('/admin/departments') }}/${parentId}/organigramme/position`, 'PATCH', {position_title:payload.position});
+                state.textContent = 'Sélectionnez une structure cible.';
+            });
             zone.addEventListener('dragover', event => { event.preventDefault(); event.stopPropagation(); zone.classList.add('org-drop-active'); });
             zone.addEventListener('dragleave', event => { event.stopPropagation(); zone.classList.remove('org-drop-active'); });
             zone.addEventListener('drop', async event => {

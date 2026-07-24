@@ -46,7 +46,7 @@
         </form>
 
         <div class="dgcpt-table-wrap shadow-sm">
-            <table class="dgcpt-table">
+            <table class="dgcpt-table mission-responsive-table">
                 <thead>
                     <tr>
                         <th>Organisation</th>
@@ -60,7 +60,7 @@
                 <tbody>
                     @forelse ($missions as $mission)
                         <tr>
-                            <td class="font-semibold">
+                            <td class="font-semibold" data-label="Organisation">
                                 <a href="{{ route('missions.show', $mission) }}" class="text-[#00D1FF] hover:underline">
                                     {{ $mission->organisation }}
                                 </a>
@@ -68,10 +68,10 @@
                                     <span class="mt-0.5 block font-mono text-xs font-normal text-[#9FB3C8]">{{ $mission->reference }}</span>
                                 @endif
                             </td>
-                            <td>
+                            <td data-label="Statut">
                                 <x-mission-status-badge :status="$mission->mission_status" />
                             </td>
-                            <td>
+                            <td data-label="Votre rôle">
                                 @php($myMembership = $mission->missionTeamMembers->first())
                                 @if ($myMembership)
                                     <span class="font-semibold {{ $myMembership->mission_role === \App\Models\MissionTeamMember::ROLE_CHEF_MISSION ? 'text-[#7EF2BE]' : 'text-[#BFD2E6]' }}">
@@ -83,9 +83,9 @@
                                     <span class="text-[#9FB3C8]">Agent de l’unité</span>
                                 @endif
                             </td>
-                            <td class="text-[#9FB3C8]">{{ $mission->date_debut }}</td>
-                            <td class="text-[#9FB3C8]">{{ $mission->date_fin ?? '—' }}</td>
-                            <td>
+                            <td class="text-[#9FB3C8]" data-label="Début">{{ $mission->date_debut }}</td>
+                            <td class="text-[#9FB3C8]" data-label="Fin">{{ $mission->date_fin ?? '—' }}</td>
+                            <td data-label="Actions">
                                 <div class="flex flex-col gap-1 text-xs">
                                     <a href="{{ route('missions.show', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Fiche</a>
                                     <a href="{{ route('services.index', $mission) }}" class="text-[#9FB3C8] hover:text-[#E6EEF8] hover:underline">Services</a>
