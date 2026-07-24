@@ -1,11 +1,11 @@
 <x-app-layout>
-    <motion.div class="mx-auto max-w-7xl space-y-8 px-0 py-2" data-motion="fade">
+    <div class="mx-auto max-w-7xl space-y-8 px-0 py-2" data-motion="fade">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="dgcpt-card-title">Phase métier DGCPT</p>
                 <h1 class="dgcpt-page-title">Hiérarchie Trésor public</h1>
                 <p class="mt-1 text-sm text-[#9FB3C8]">National → provincial → départemental → international</p>
-            </motion.div>
+            </div>
             <a href="{{ route('dgcpt.consolidation.national') }}" class="dgcpt-btn-primary">Consolidation nationale</a>
         </div>
 
@@ -22,16 +22,16 @@
             </div>
 
             <div class="space-y-6">
-                <motion.div class="dgcpt-surface p-6" data-motion="fade">
+                <div class="dgcpt-surface p-6" data-motion="fade">
                     <h2 class="text-lg font-bold text-[#E6EEF8]">Domaines d'audit</h2>
                     <ul class="mt-3 space-y-2 text-sm text-[#BFD2E6]">
                         @foreach ($domains as $domain)
                             <li><span class="font-mono text-[#73D8FF]">{{ $domain->code }}</span> — {{ $domain->name }}</li>
                         @endforeach
                     </ul>
-                </motion.div>
+                </div>
 
-                <motion.div class="dgcpt-surface p-6" data-motion="fade">
+                <div class="dgcpt-surface p-6" data-motion="fade">
                     <h2 class="text-lg font-bold text-[#E6EEF8]">Templates nationaux</h2>
                     <ul class="mt-3 space-y-3 text-sm">
                         @foreach ($templates as $template)
@@ -42,8 +42,8 @@
                         @endforeach
                     </ul>
                     <a href="{{ route('dgcpt.questionnaire-import.index') }}" class="dgcpt-btn-outline mt-4 inline-block">Importer questionnaire (DOCX/XLSX)</a>
-                </motion.div>
+                </div>
             </div>
         </div>
-    </motion.div>
+    </div>
 </x-app-layout>
