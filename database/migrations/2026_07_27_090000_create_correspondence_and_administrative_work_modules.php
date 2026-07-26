@@ -49,7 +49,7 @@ return new class extends Migration
             $table->timestamp('occurred_at');
             $table->foreignId('actor_id')->constrained('users')->restrictOnDelete();
             $table->timestamps();
-            $table->index(['correspondence_record_id', 'occurred_at']);
+            $table->index(['correspondence_record_id', 'occurred_at'], 'corr_mov_record_date_idx');
         });
 
         Schema::create('administrative_tasks', function (Blueprint $table): void {
