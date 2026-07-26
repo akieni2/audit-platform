@@ -227,6 +227,16 @@ class AppServiceProvider extends ServiceProvider
             fn (?User $user): bool => $user?->isInstitutionalSuperAdmin() ?? false
         );
 
+        Gate::define(
+            'accessCorrespondence',
+            fn (?User $user): bool => $user?->canAccessCorrespondenceModule() ?? false
+        );
+
+        Gate::define(
+            'accessAdministrativeWork',
+            fn (?User $user): bool => $user?->canAccessAdministrativeWorkModule() ?? false
+        );
+
         /*
         |--------------------------------------------------------------------------
         | Observers

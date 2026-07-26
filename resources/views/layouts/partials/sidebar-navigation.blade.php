@@ -337,6 +337,22 @@
         @endif
     @endif
 
+    @if (auth()->user()?->canAccessCorrespondenceModule() || auth()->user()?->canAccessAdministrativeWorkModule())
+        <p class="nav-section-title">Administration numérique</p>
+        @can('accessCorrespondence')
+            <a class="nav-link {{ request()->routeIs('correspondence.*') ? 'active' : '' }}" href="{{ route('correspondence.index') }}">
+                <span class="ni" aria-hidden="true">✉</span>
+                Gestion du courrier
+            </a>
+        @endcan
+        @can('accessAdministrativeWork')
+            <a class="nav-link {{ request()->routeIs('administrative-work.*') ? 'active' : '' }}" href="{{ route('administrative-work.index') }}">
+                <span class="ni" aria-hidden="true">✓</span>
+                Traitement administratif
+            </a>
+        @endcan
+    @endif
+
     <p class="nav-section-title">Compte</p>
     <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
        href="{{ route('notifications.index') }}">

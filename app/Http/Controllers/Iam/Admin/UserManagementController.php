@@ -212,6 +212,15 @@ class UserManagementController extends Controller
             };
         }
 
+        if ($request->user()->isInstitutionalSuperAdmin()) {
+            if (array_key_exists('gec_menu_enabled', $data)) {
+                $user->gec_menu_enabled = $data['gec_menu_enabled'] === 'allow';
+            }
+            if (array_key_exists('administrative_work_menu_enabled', $data)) {
+                $user->administrative_work_menu_enabled = $data['administrative_work_menu_enabled'] === 'allow';
+            }
+        }
+
         $user->active = $request->boolean('active');
 
         $user->save();

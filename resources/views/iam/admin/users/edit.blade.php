@@ -95,6 +95,25 @@
                     <p class="mt-1 text-xs text-[#9FB3C8]">La décision individuelle est prioritaire sur les permissions du rôle.</p>
                 </div>
             @endif
+            @if (auth()->user()?->isInstitutionalSuperAdmin())
+                <div class="grid gap-4 border-t border-[rgba(0,209,255,0.15)] pt-4 sm:grid-cols-2">
+                    <div>
+                        <label class="dgcpt-label">Module Gestion électronique du courrier</label>
+                        <select name="gec_menu_enabled" class="dgcpt-select">
+                            <option value="deny" @selected(! old('gec_menu_enabled', $editUser->gec_menu_enabled ?? false))>Masquer le menu</option>
+                            <option value="allow" @selected(old('gec_menu_enabled', $editUser->gec_menu_enabled ?? false) === true || old('gec_menu_enabled') === 'allow')>Autoriser personnellement</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="dgcpt-label">Module Traitement administratif</label>
+                        <select name="administrative_work_menu_enabled" class="dgcpt-select">
+                            <option value="deny" @selected(! old('administrative_work_menu_enabled', $editUser->administrative_work_menu_enabled ?? false))>Masquer le menu</option>
+                            <option value="allow" @selected(old('administrative_work_menu_enabled', $editUser->administrative_work_menu_enabled ?? false) === true || old('administrative_work_menu_enabled') === 'allow')>Autoriser personnellement</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="text-xs text-[#9FB3C8]">Ces autorisations individuelles sont réservées au super administrateur et indépendantes des modules d’audit.</p>
+            @endif
             <input type="hidden" name="active" value="0" />
             <label class="inline-flex items-center gap-2 text-sm font-medium text-[#9FB3C8]">
                 <input type="checkbox" name="active" value="1" class="h-4 w-4 rounded border-[rgba(0,209,255,0.35)] bg-[#050816] text-[#00D1FF] focus:ring-[#00D1FF]" @checked(old('active', $editUser->active)) />

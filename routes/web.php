@@ -50,6 +50,8 @@ use App\Http\Controllers\WorkflowStageRuntimeController;
 use App\Http\Controllers\WorkflowBuilderController;
 use App\Http\Controllers\AiCopilotController;
 use App\Http\Controllers\EnterpriseObservabilityController;
+use App\Http\Controllers\Correspondence\CorrespondenceController;
+use App\Http\Controllers\AdministrativeWork\AdministrativeTaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -107,6 +109,24 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications/unread-count', NotificationUnreadController::class)
         ->middleware('throttle:120,1')
         ->name('notifications.unread-count');
+
+    Route::prefix('courrier')->name('correspondence.')->middleware('can:accessCorrespondence')->group(function (): void {
+        Route::get('/', [CorrespondenceController::class, 'index'])->name('index');
+        Route::get('/nouveau', [CorrespondenceController::class, 'create'])->name('create');
+        Route::post('/', [CorrespondenceController::class, 'store'])->name('store');
+        Route::get('/{correspondence}', [CorrespondenceController::class, 'show'])->name('show');
+        Route::patch('/{correspondence}/affectation', [CorrespondenceController::class, 'assign'])->name('assign');
+        Route::patch('/{correspondence}/statut', [CorrespondenceController::class, 'updateStatus'])->name('status');
+        Route::get('/{correspondence}/document', [CorrespondenceController::class, 'download'])->name('download');
+    });
+
+    Route::prefix('travail-administratif')->name('administrative-work.')->middleware('can:accessAdministrativeWork')->group(function (): void {
+        Route::get('/', [AdministrativeTaskController::class, 'index'])->name('index');
+        Route::get('/nouvelle-tache', [AdministrativeTaskController::class, 'create'])->name('create');
+        Route::post('/', [AdministrativeTaskController::class, 'store'])->name('store');
+        Route::get('/{administrativeTask}', [AdministrativeTaskController::class, 'show'])->name('show');
+        Route::patch('/{administrativeTask}/statut', [AdministrativeTaskController::class, 'updateStatus'])->name('status');
+    });
 
     Route::get('/search', GlobalSearchController::class)->name('search');
 

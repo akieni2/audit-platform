@@ -55,6 +55,8 @@ class UpdateUserRequest extends FormRequest
             'telephone' => ['nullable', 'string', 'max:32'],
             'intercom' => ['nullable', 'string', 'max:64'],
             'copri_menu_enabled' => ['nullable', Rule::in(['inherit', 'allow', 'deny'])],
+            'gec_menu_enabled' => ['nullable', Rule::in(['allow', 'deny'])],
+            'administrative_work_menu_enabled' => ['nullable', Rule::in(['allow', 'deny'])],
         ];
     }
 }

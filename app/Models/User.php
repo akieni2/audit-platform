@@ -46,6 +46,8 @@ class User extends Authenticatable
         'mfa_recovery_codes',
         'must_change_password',
         'copri_menu_enabled',
+        'gec_menu_enabled',
+        'administrative_work_menu_enabled',
         'password_expires_at',
         'approval_status',
         'approved_at',
@@ -71,6 +73,8 @@ class User extends Authenticatable
             'mfa_enabled' => 'boolean',
             'must_change_password' => 'boolean',
             'copri_menu_enabled' => 'boolean',
+            'gec_menu_enabled' => 'boolean',
+            'administrative_work_menu_enabled' => 'boolean',
             'password_expires_at' => 'datetime',
             'approved_at' => 'datetime',
             'deleted_at' => 'datetime',
@@ -446,6 +450,18 @@ class User extends Authenticatable
         }
 
         return $this->hasPermission('access_copri_menu');
+    }
+
+    /** Accès individuel au registre de gestion électronique du courrier. */
+    public function canAccessCorrespondenceModule(): bool
+    {
+        return $this->isInstitutionalSuperAdmin() || $this->gec_menu_enabled === true;
+    }
+
+    /** Accès individuel au pilotage des instructions et tâches administratives. */
+    public function canAccessAdministrativeWorkModule(): bool
+    {
+        return $this->isInstitutionalSuperAdmin() || $this->administrative_work_menu_enabled === true;
     }
 
     /**
