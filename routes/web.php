@@ -53,6 +53,7 @@ use App\Http\Controllers\EnterpriseObservabilityController;
 use App\Http\Controllers\Correspondence\CorrespondenceController;
 use App\Http\Controllers\AdministrativeWork\AdministrativeTaskController;
 use App\Http\Controllers\InstitutionalProcessController;
+use App\Http\Controllers\InstitutionalAssetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +146,11 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/admin/cartographie-processus/habilitations', [InstitutionalProcessController::class, 'accessAdmin'])->name('institutional-processes.access');
     Route::put('/admin/cartographie-processus/habilitations/{department}', [InstitutionalProcessController::class, 'updateAccess'])->name('institutional-processes.access.update');
+    Route::prefix('actifs-informatiques')->name('institutional-assets.')->middleware('can:accessInstitutionalAssets')->group(function (): void {
+        Route::get('/', [InstitutionalAssetController::class, 'index'])->name('index'); Route::get('/nouveau', [InstitutionalAssetController::class, 'create'])->name('create'); Route::post('/', [InstitutionalAssetController::class, 'store'])->name('store'); Route::post('/categories', [InstitutionalAssetController::class, 'storeCategory'])->name('categories.store'); Route::get('/{institutionalAsset}', [InstitutionalAssetController::class, 'show'])->name('show'); Route::post('/{institutionalAsset}/dependances', [InstitutionalAssetController::class, 'addDependency'])->name('dependencies.store'); Route::post('/{institutionalAsset}/controles', [InstitutionalAssetController::class, 'addControl'])->name('controls.store'); Route::post('/{institutionalAsset}/processus', [InstitutionalAssetController::class, 'linkProcess'])->name('processes.store'); Route::post('/{institutionalAsset}/documents', [InstitutionalAssetController::class, 'uploadDocument'])->name('documents.store'); Route::get('/{institutionalAsset}/documents/{document}', [InstitutionalAssetController::class, 'download'])->name('documents.download'); Route::patch('/{institutionalAsset}/statut', [InstitutionalAssetController::class, 'updateStatus'])->name('status');
+    });
+    Route::get('/admin/actifs-informatiques/habilitations', [InstitutionalAssetController::class, 'accessAdmin'])->name('institutional-assets.access');
+    Route::put('/admin/actifs-informatiques/habilitations/{department}', [InstitutionalAssetController::class, 'updateAccess'])->name('institutional-assets.access.update');
     Route::get('/search', GlobalSearchController::class)->name('search');
 
 

@@ -350,6 +350,13 @@
             </a>
         @endif
     @endcan
+    @can('accessInstitutionalAssets')
+        <p class="nav-section-title">Patrimoine informatique</p>
+        <a class="nav-link {{ request()->routeIs('institutional-assets.*') && !request()->routeIs('institutional-assets.access*') ? 'active' : '' }}" href="{{ route('institutional-assets.index') }}"><span class="ni" aria-hidden="true">▣</span>Actifs informatiques</a>
+        @if (auth()->user()?->isInstitutionalSuperAdmin())
+            <a class="nav-link {{ request()->routeIs('institutional-assets.access*') ? 'active' : '' }}" href="{{ route('institutional-assets.access') }}"><span class="ni" aria-hidden="true">⌘</span>Habilitations actifs</a>
+        @endif
+    @endcan
     @if (auth()->user()?->canAccessCorrespondenceModule() || auth()->user()?->canAccessAdministrativeWorkModule())
         <p class="nav-section-title">Administration numérique</p>
         @can('accessCorrespondence')

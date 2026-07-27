@@ -242,6 +242,11 @@ class AppServiceProvider extends ServiceProvider
             fn (?User $user): bool => $user?->canAccessInstitutionalProcesses() ?? false
         );
 
+        Gate::define(
+            'accessInstitutionalAssets',
+            fn (?User $user): bool => $user?->canAccessInstitutionalAssets() ?? false
+        );
+
         /*
         |--------------------------------------------------------------------------
         | Observers

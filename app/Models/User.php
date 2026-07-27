@@ -452,6 +452,12 @@ class User extends Authenticatable
         return $this->hasPermission('access_copri_menu');
     }
 
+    /** Accès au module transversal de gestion institutionnelle des actifs informatiques. */
+    public function canAccessInstitutionalAssets(): bool
+    {
+        return app(\App\Services\Assets\AssetAccessService::class)->allows($this);
+    }
+
     /** Accès au module transversal de cartographie institutionnelle des processus. */
     public function canAccessInstitutionalProcesses(): bool
     {
