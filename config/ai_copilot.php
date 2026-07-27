@@ -17,8 +17,12 @@ return [
         'openai' => [
             'class' => \App\Services\Ai\Drivers\OpenAiLlmDriver::class,
             'api_key' => env('OPENAI_API_KEY'),
-            'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
-            'endpoint' => env('OPENAI_ENDPOINT', 'https://api.openai.com/v1/chat/completions'),
+            'model' => env('OPENAI_MODEL', 'gpt-5.6-sol'),
+            'endpoint' => env('OPENAI_ENDPOINT', 'https://api.openai.com/v1/responses'),
+            'timeout' => (int) env('OPENAI_TIMEOUT', 90),
+            'connect_timeout' => (int) env('OPENAI_CONNECT_TIMEOUT', 10),
+            'retry_times' => (int) env('OPENAI_RETRY_TIMES', 2),
+            'store' => (bool) env('OPENAI_STORE_RESPONSES', false),
         ],
         'ollama' => [
             'class' => \App\Services\Ai\Drivers\OllamaLlmDriver::class,
