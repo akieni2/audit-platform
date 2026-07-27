@@ -337,6 +337,19 @@
         @endif
     @endif
 
+    @can('accessInstitutionalProcesses')
+        <p class="nav-section-title">Pilotage des processus</p>
+        <a class="nav-link {{ request()->routeIs('institutional-processes.*') && !request()->routeIs('institutional-processes.access*') ? 'active' : '' }}" href="{{ route('institutional-processes.index') }}">
+            <span class="ni" aria-hidden="true">◇</span>
+            Cartographie des processus
+        </a>
+        @if (auth()->user()?->isInstitutionalSuperAdmin())
+            <a class="nav-link {{ request()->routeIs('institutional-processes.access*') ? 'active' : '' }}" href="{{ route('institutional-processes.access') }}">
+                <span class="ni" aria-hidden="true">⌘</span>
+                Habilitations processus
+            </a>
+        @endif
+    @endcan
     @if (auth()->user()?->canAccessCorrespondenceModule() || auth()->user()?->canAccessAdministrativeWorkModule())
         <p class="nav-section-title">Administration numérique</p>
         @can('accessCorrespondence')

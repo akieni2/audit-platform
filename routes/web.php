@@ -52,6 +52,7 @@ use App\Http\Controllers\AiCopilotController;
 use App\Http\Controllers\EnterpriseObservabilityController;
 use App\Http\Controllers\Correspondence\CorrespondenceController;
 use App\Http\Controllers\AdministrativeWork\AdministrativeTaskController;
+use App\Http\Controllers\InstitutionalProcessController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +129,22 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::patch('/{administrativeTask}/statut', [AdministrativeTaskController::class, 'updateStatus'])->name('status');
     });
 
+    Route::prefix('cartographie-processus')->name('institutional-processes.')->middleware('can:accessInstitutionalProcesses')->group(function (): void {
+        Route::get('/', [InstitutionalProcessController::class, 'index'])->name('index');
+        Route::get('/nouveau', [InstitutionalProcessController::class, 'create'])->name('create');
+        Route::post('/', [InstitutionalProcessController::class, 'store'])->name('store');
+        Route::post('/domaines', [InstitutionalProcessController::class, 'storeDomain'])->name('domains.store');
+        Route::get('/{institutionalProcess}', [InstitutionalProcessController::class, 'show'])->name('show');
+        Route::post('/{institutionalProcess}/activites', [InstitutionalProcessController::class, 'addActivity'])->name('activities.store');
+        Route::post('/{institutionalProcess}/elements', [InstitutionalProcessController::class, 'addElement'])->name('elements.store');
+        Route::post('/{institutionalProcess}/indicateurs', [InstitutionalProcessController::class, 'addKpi'])->name('kpis.store');
+        Route::post('/{institutionalProcess}/documents', [InstitutionalProcessController::class, 'uploadDocument'])->name('documents.store');
+        Route::get('/{institutionalProcess}/documents/{document}', [InstitutionalProcessController::class, 'download'])->name('documents.download');
+        Route::patch('/{institutionalProcess}/workflow', [InstitutionalProcessController::class, 'transition'])->name('transition');
+    });
+
+    Route::get('/admin/cartographie-processus/habilitations', [InstitutionalProcessController::class, 'accessAdmin'])->name('institutional-processes.access');
+    Route::put('/admin/cartographie-processus/habilitations/{department}', [InstitutionalProcessController::class, 'updateAccess'])->name('institutional-processes.access.update');
     Route::get('/search', GlobalSearchController::class)->name('search');
 
 

@@ -452,6 +452,12 @@ class User extends Authenticatable
         return $this->hasPermission('access_copri_menu');
     }
 
+    /** Accès au module transversal de cartographie institutionnelle des processus. */
+    public function canAccessInstitutionalProcesses(): bool
+    {
+        return app(\App\Services\Processes\ProcessAccessService::class)->allows($this);
+    }
+
     /** Accès individuel au registre de gestion électronique du courrier. */
     public function canAccessCorrespondenceModule(): bool
     {
