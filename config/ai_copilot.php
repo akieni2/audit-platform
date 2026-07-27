@@ -7,6 +7,7 @@ return [
     'auto_execute_recommendations' => false,
     'auto_validate_workflow' => false,
     'max_tokens' => (int) env('AI_COPILOT_MAX_TOKENS', 2048),
+    'context_max_chars' => (int) env('AI_COPILOT_CONTEXT_MAX_CHARS', 20000),
     'confidence_threshold' => (float) env('AI_COPILOT_CONFIDENCE_THRESHOLD', 0.65),
     'tenant_isolation' => (bool) env('AI_COPILOT_TENANT_ISOLATION', true),
     'immutable_audit' => (bool) env('AI_COPILOT_IMMUTABLE_AUDIT', true),

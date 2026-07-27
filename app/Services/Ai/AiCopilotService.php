@@ -21,6 +21,7 @@ class AiCopilotService
     public function __construct(
         private LlmDriverFactory $drivers,
         private AiContextBuilderService $contextBuilder,
+        private AiExternalContextService $externalContext,
         private AiPromptEngineService $promptEngine,
         private AiResponseSanitizerService $sanitizer,
         private AiAuditLoggingService $auditLogging,
@@ -47,7 +48,13 @@ class AiCopilotService
 
         $systemPrompt = $this->promptEngine->resolveSystemPrompt($contextType, $mission->department_id);
         $request = new LlmCompletionRequest(
-            messages: [['role' => 'user', 'content' => $userPrompt]],
+            messages: [
+                [
+                    'role' => 'user',
+                    'content' => "Contexte métier autorisé de la mission :\n".$this->externalContext->serialize($context),
+                ],
+                ['role' => 'user', 'content' => $userPrompt],
+            ],
             systemPrompt: $systemPrompt,
             maxTokens: (int) config('ai_copilot.max_tokens', 2048),
             metadata: $context,
