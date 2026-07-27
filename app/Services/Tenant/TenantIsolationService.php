@@ -36,7 +36,7 @@ class TenantIsolationService
 
         $context = $this->current($user);
 
-        if ($this->scope->canAccessMission($context, $mission)) {
+        if ($this->scope->canAccessMission($context, $mission, $user ?? auth()->user())) {
             return;
         }
 

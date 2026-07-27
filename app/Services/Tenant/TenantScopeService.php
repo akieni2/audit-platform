@@ -3,6 +3,7 @@
 namespace App\Services\Tenant;
 
 use App\Models\Mission;
+use App\Models\User;
 use App\Support\Tenant\ResolvedTenantContext;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,18 +21,20 @@ class TenantScopeService
         });
     }
 
-    public function canAccessMission(ResolvedTenantContext $context, Mission $mission): bool
+    public function canAccessMission(ResolvedTenantContext $context, Mission $mission, ?User $user = null): bool
     {
         if ($context->nationalScope) {
             return true;
         }
 
-        if ($context->departmentId === null) {
+        if ($context->departmentId === null || $user === null) {
             return false;
         }
 
-        return (int) $mission->department_id === $context->departmentId
-            || (int) $mission->supervising_department_id === $context->departmentId;
+        return Mission::query()
+            ->whereKey($mission->id)
+            ->visibleToUser($user)
+            ->exists();
     }
 
     public function cacheKey(ResolvedTenantContext $context, string $suffix): string
