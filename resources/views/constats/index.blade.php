@@ -1,15 +1,11 @@
 <x-app-layout>
-    <div class="max-w-3xl mx-auto px-4 py-10 space-y-4">
-        <p class="dgcpt-card-title">Mission</p>
-        <h1 class="dgcpt-page-title">Constats d'audit</h1>
-        <p class="text-sm dgcpt-text-muted">
-            Organisation : <strong class="dgcpt-text">{{ $mission->organisation }}</strong>
-        </p>
-        <p class="text-sm dgcpt-text-muted">
-            Les constats détaillés sont saisis au niveau des risques et contrôles. Utilisez la cartographie et les fiches risque pour compléter cette mission.
-        </p>
-        <p>
-            <a href="{{ route('missions.show', $mission) }}" class="dgcpt-link text-sm">← Retour fiche mission</a>
-        </p>
+    <div class="mx-auto max-w-7xl space-y-6 px-0 py-2">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div><p class="dgcpt-card-title">Mission {{ $mission->reference ?: '#'.$mission->id }}</p><h1 class="dgcpt-page-title">Constats d’audit</h1><p class="mt-2 text-sm dgcpt-text-muted">{{ $mission->organisation }} — cycle probant, contradictoire et traçable.</p></div>
+            @can('updateMissionContent', $mission)<a href="{{ route('constats.create', $mission) }}" class="dgcpt-btn-primary">Nouveau constat</a>@endcan
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">@foreach (\App\Models\Constat::statusLabels() as $value => $label)<div class="dgcpt-surface p-4"><p class="text-xs uppercase dgcpt-text-muted">{{ $label }}</p><p class="mt-2 text-2xl font-bold text-[#00D1FF]">{{ $mission->constats->where('status', $value)->count() }}</p></div>@endforeach</div>
+        <div class="dgcpt-surface overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full text-left text-sm"><thead class="border-b border-[rgba(0,209,255,.18)] text-xs uppercase text-[#9FB3C8]"><tr><th class="p-4">Référence</th><th class="p-4">Constat</th><th class="p-4">Criticité</th><th class="p-4">État</th><th class="p-4">Preuves</th><th class="p-4">Action</th></tr></thead><tbody class="divide-y divide-[rgba(148,163,184,.12)]">@forelse ($mission->constats as $constat)<tr><td class="p-4 font-mono text-[#00D1FF]">{{ $constat->reference }}</td><td class="max-w-xl p-4 text-[#E6EEF8]">{{ \Illuminate\Support\Str::limit($constat->condition_observed ?: $constat->description, 180) }}</td><td class="p-4">{{ \App\Support\UiLabel::translate($constat->gravite) }}</td><td class="p-4">{{ \App\Models\Constat::statusLabels()[$constat->status] ?? $constat->status }}</td><td class="p-4">{{ $constat->evidences->count() }}</td><td class="p-4"><a class="dgcpt-link" href="{{ route('constats.show', $constat) }}">Ouvrir</a></td></tr>@empty<tr><td colspan="6" class="p-8 text-center dgcpt-text-muted">Aucun constat. Les auditeurs peuvent créer le premier constat à partir d’une réponse ou d’une preuve.</td></tr>@endforelse</tbody></table></div></div>
+        <a href="{{ route('missions.show', $mission) }}" class="dgcpt-link">← Retour à la mission</a>
     </div>
 </x-app-layout>

@@ -26,6 +26,10 @@ class ReportController extends Controller
             'services',
             'department',
             'auditeur',
+            'constats.evidences',
+            'constats.auditeeResponses.respondent',
+            'constats.recommendations.actions',
+            'auditRecommendations.actions.owner',
         ]);
 
         $pdf = Pdf::loadView('reports.mission', compact('mission'));
@@ -33,4 +37,3 @@ class ReportController extends Controller
         return $pdf->download('rapport_audit_'.$mission->organisation.'.pdf');
     }
 }
-

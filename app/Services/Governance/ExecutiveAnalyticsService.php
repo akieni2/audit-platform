@@ -2,6 +2,9 @@
 
 namespace App\Services\Governance;
 
+use App\Models\ActionCorrective;
+use App\Models\AuditRecommendation;
+use App\Models\Constat;
 use App\Models\ControlLibrary;
 use App\Models\Department;
 use App\Models\FormTemplate;
@@ -9,10 +12,11 @@ use App\Models\MethodologyTemplate;
 use App\Models\Mission;
 use App\Models\QuestionnaireTemplate;
 use App\Models\Taxonomy;
+use App\Models\User;
 use App\Models\WorkflowInstance;
 use App\Models\WorkflowTemplate;
-use App\Models\User;
 use App\Services\Intelligence\EnterpriseRiskIntelligenceService;
+use Illuminate\Support\Facades\Schema;
 
 class ExecutiveAnalyticsService
 {
@@ -94,6 +98,8 @@ class ExecutiveAnalyticsService
     {
         $filters = $this->filtersForActor($actor);
 
+        $missionScope = fn ($query) => $query->when(isset($filters['department_id']), fn ($q) => $q->where('department_id', $filters['department_id']));
+
         return [
             'national_missions' => Mission::query()
                 ->when(isset($filters['department_id']), fn ($query) => $query->where('department_id', $filters['department_id']))
@@ -103,6 +109,13 @@ class ExecutiveAnalyticsService
             'private_workflows' => WorkflowTemplate::query()->where('is_private_template', true)->count(),
             'global_forms' => FormTemplate::query()->where('is_global_template', true)->count(),
             'global_questionnaires' => QuestionnaireTemplate::query()->where('is_global_template', true)->count(),
+            'audit_follow_up' => Schema::hasTable('audit_recommendations') ? [
+                'draft_findings' => Constat::query()->whereHas('mission', $missionScope)->where('status', Constat::STATUS_DRAFT)->count(),
+                'contradictory_findings' => Constat::query()->whereHas('mission', $missionScope)->where('status', Constat::STATUS_CONTRADICTORY)->count(),
+                'validated_recommendations' => AuditRecommendation::query()->whereHas('mission', $missionScope)->where('status', 'validated')->count(),
+                'overdue_actions' => ActionCorrective::query()->whereHas('auditRecommendation.mission', $missionScope)->whereNotIn('statut', ['ferme'])->whereDate('date_echeance', '<', today())->count(),
+                'closure_requests' => ActionCorrective::query()->whereHas('auditRecommendation.mission', $missionScope)->where('statut', 'closure_requested')->count(),
+            ] : [],
             'intelligence' => $this->intelligence->snapshot($filters),
         ];
     }

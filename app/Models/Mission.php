@@ -103,6 +103,16 @@ class Mission extends Model
         return $this->hasMany(MissionDocument::class);
     }
 
+    public function constats()
+    {
+        return $this->hasMany(Constat::class)->orderBy('reference');
+    }
+
+    public function auditRecommendations()
+    {
+        return $this->hasMany(AuditRecommendation::class)->orderBy('reference');
+    }
+
     public function swotPreviews()
     {
         return $this->hasMany(MissionSwotPreview::class);

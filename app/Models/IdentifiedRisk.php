@@ -12,6 +12,7 @@ class IdentifiedRisk extends Model
 {
     protected $fillable = [
         'mission_id',
+        'constat_id',
         'service_id',
         'entretien_id',
         'questionnaire_question_id',
@@ -84,6 +85,11 @@ class IdentifiedRisk extends Model
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
+    }
+
+    public function constat(): BelongsTo
+    {
+        return $this->belongsTo(Constat::class);
     }
 
     public function service(): BelongsTo

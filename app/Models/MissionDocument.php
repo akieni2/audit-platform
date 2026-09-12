@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MissionDocument extends Model
@@ -71,6 +72,11 @@ class MissionDocument extends Model
     public function auditGroup(): BelongsTo
     {
         return $this->belongsTo(MissionAuditGroup::class, 'mission_audit_group_id');
+    }
+
+    public function constats(): BelongsToMany
+    {
+        return $this->belongsToMany(Constat::class, 'constat_evidences')->withTimestamps();
     }
 
     /** @return array<string, string> */

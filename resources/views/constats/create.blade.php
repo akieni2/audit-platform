@@ -1,0 +1,16 @@
+<x-app-layout>
+    <div class="mx-auto max-w-5xl space-y-6 px-0 py-2">
+        <div><p class="dgcpt-card-title">Mission {{ $mission->reference ?: '#'.$mission->id }}</p><h1 class="dgcpt-page-title">Nouvelle fiche de constat</h1><p class="mt-2 dgcpt-text-muted">Le constat démarre en brouillon et doit être revu avant la phase contradictoire.</p></div>
+        @if ($errors->any())<div class="dgcpt-surface border-[#FF5A5A]/40 p-4 text-[#FFB4B4]">{{ $errors->first() }}</div>@endif
+        <form method="post" action="{{ route('constats.store', $mission) }}" class="dgcpt-surface space-y-5 p-6">@csrf
+            <div class="grid gap-5 md:grid-cols-2"><div><label class="dgcpt-label">Service audité</label><select name="service_id" class="dgcpt-select"><option value="">Mission entière</option>@foreach($mission->services as $service)<option value="{{ $service->id }}">{{ $service->nom }}</option>@endforeach</select></div><div><label class="dgcpt-label">Criticité</label><select name="gravite" class="dgcpt-select" required><option value="medium">Moyen</option><option value="low">Faible</option><option value="high">Élevé</option><option value="critical">Critique</option></select></div></div>
+            <div><label class="dgcpt-label">Réponse source (facultatif)</label><select name="entretien_response_id" class="dgcpt-select"><option value="">Constat manuel</option>@foreach($responses as $response)<option value="{{ $response->id }}">#{{ $response->id }} — {{ \Illuminate\Support\Str::limit($response->question?->question_text ?? $response->question?->label ?? 'Question', 120) }}</option>@endforeach</select></div>
+            <div><label class="dgcpt-label">Critère / référentiel applicable</label><textarea name="criterion" class="dgcpt-textarea" rows="3" required>{{ old('criterion') }}</textarea></div>
+            <div><label class="dgcpt-label">Condition observée</label><textarea name="condition_observed" class="dgcpt-textarea" rows="5" required>{{ old('condition_observed') }}</textarea></div>
+            <div class="grid gap-5 md:grid-cols-2"><div><label class="dgcpt-label">Cause</label><textarea name="cause" class="dgcpt-textarea" rows="4">{{ old('cause') }}</textarea></div><div><label class="dgcpt-label">Conséquence / risque</label><textarea name="consequence" class="dgcpt-textarea" rows="4">{{ old('consequence') }}</textarea></div></div>
+            <div><label class="dgcpt-label">Recommandation proposée</label><textarea name="recommandation" class="dgcpt-textarea" rows="4" required>{{ old('recommandation') }}</textarea></div>
+            <fieldset><legend class="dgcpt-label">Éléments probants</legend><div class="mt-2 grid gap-2 sm:grid-cols-2">@forelse($mission->missionDocuments as $document)<label class="flex gap-3 rounded-xl border border-[rgba(148,163,184,.2)] p-3 text-sm text-[#E6EEF8]"><input type="checkbox" name="evidence_ids[]" value="{{ $document->id }}"><span>{{ $document->original_name }}</span></label>@empty<p class="dgcpt-text-muted">Aucun document n’a encore été déposé.</p>@endforelse</div></fieldset>
+            <div class="flex gap-3"><button class="dgcpt-btn-primary">Enregistrer le brouillon</button><a href="{{ route('constats.index', $mission) }}" class="dgcpt-btn-outline">Annuler</a></div>
+        </form>
+    </div>
+</x-app-layout>

@@ -66,6 +66,23 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
 
 <h2>Risques identifiés</h2>
 
+@if ($mission->constats->isNotEmpty())
+<h2>Constats d'audit et phase contradictoire</h2>
+@foreach ($mission->constats as $constat)
+<h3>{{ $constat->reference }} — {{ \App\Support\UiLabel::translate($constat->gravite) }}</h3>
+<table>
+<tr><th style="width:24%">Critère</th><td>{{ $constat->criterion }}</td></tr>
+<tr><th>Condition observée</th><td>{{ $constat->condition_observed ?: $constat->description }}</td></tr>
+<tr><th>Cause</th><td>{{ $constat->cause ?: '—' }}</td></tr>
+<tr><th>Conséquence</th><td>{{ $constat->consequence ?: '—' }}</td></tr>
+<tr><th>Recommandation</th><td>{{ $constat->recommandation }}</td></tr>
+<tr><th>État</th><td>{{ \App\Models\Constat::statusLabels()[$constat->status] ?? $constat->status }}</td></tr>
+<tr><th>Éléments probants</th><td>{{ $constat->evidences->pluck('original_name')->join(', ') ?: '—' }}</td></tr>
+<tr><th>Observations de l'audité</th><td>{{ $constat->auditeeResponses->first()?->observation ?? 'Non reçues à la date de génération' }}</td></tr>
+</table>
+@endforeach
+@endif
+
 <table>
 <tr>
 <th>Description</th>
@@ -90,6 +107,19 @@ th { background: #e8e8e8; font-weight: 700; text-align: left; }
 </table>
 
 <h2>Actions correctives</h2>
+
+@if ($mission->auditRecommendations->isNotEmpty())
+<table>
+<tr><th>Recommandation</th><th>Action</th><th>Responsable</th><th>Échéance</th><th>Avancement</th><th>Statut</th></tr>
+@foreach($mission->auditRecommendations as $recommendation)
+    @forelse($recommendation->actions as $action)
+    <tr><td>{{ $recommendation->reference }} — {{ $recommendation->description }}</td><td>{{ $action->description }}</td><td>{{ $action->owner?->displayName() ?? $action->responsable ?? '—' }}</td><td>{{ $action->date_echeance?->format('d/m/Y') ?? '—' }}</td><td>{{ $action->progress_percent }} %</td><td>{{ $action->statut }}</td></tr>
+    @empty
+    <tr><td>{{ $recommendation->reference }} — {{ $recommendation->description }}</td><td colspan="5">Action à définir</td></tr>
+    @endforelse
+@endforeach
+</table>
+@endif
 
 <table>
 <tr>

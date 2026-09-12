@@ -426,8 +426,16 @@ Route::middleware(['auth', 'active'])->group(function () {
     */
 
     Route::get('/missions/{mission}/constats', [ConstatController::class, 'index'])->name('constats.index');
-
-    Route::post('/constats', [ConstatController::class,'store'])->name('constats.store');
+    Route::get('/missions/{mission}/constats/create', [ConstatController::class, 'create'])->name('constats.create');
+    Route::post('/missions/{mission}/constats', [ConstatController::class, 'store'])->name('constats.store');
+    Route::get('/constats/{constat}', [ConstatController::class, 'show'])->name('constats.show');
+    Route::patch('/constats/{constat}', [ConstatController::class, 'update'])->name('constats.update');
+    Route::post('/constats/{constat}/transition/{action}', [ConstatController::class, 'transition'])->name('constats.transition');
+    Route::post('/constats/{constat}/review', [ConstatController::class, 'review'])->name('constats.review');
+    Route::post('/constats/{constat}/auditee-response', [ConstatController::class, 'auditeeResponse'])->name('constats.auditee-response');
+    Route::post('/constats/{constat}/convert-risk', [ConstatController::class, 'convertToRisk'])->name('constats.convert-risk');
+    Route::post('/audit-recommendations/{recommendation}/validate', [ConstatController::class, 'validateRecommendation'])->name('audit-recommendations.validate');
+    Route::post('/audit-recommendations/{recommendation}/actions', [ConstatController::class, 'storeAction'])->name('audit-recommendations.actions.store');
 
 
     /*
@@ -485,6 +493,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/risques/{id}/actions',[ActionCorrectiveController::class,'index'])->name('actions.index');
 
     Route::post('/risques/{id}/actions',[ActionCorrectiveController::class,'store'])->name('actions.store');
+    Route::patch('/actions/{action}/follow-up', [ActionCorrectiveController::class, 'updateFollowUp'])->name('actions.follow-up');
+    Route::post('/actions/{action}/request-closure', [ActionCorrectiveController::class, 'requestClosure'])->name('actions.request-closure');
+    Route::post('/actions/{action}/validate-closure', [ActionCorrectiveController::class, 'validateClosure'])->name('actions.validate-closure');
 
 
     /*
