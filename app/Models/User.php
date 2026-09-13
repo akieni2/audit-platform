@@ -487,6 +487,11 @@ class User extends Authenticatable
         return $this->isInstitutionalSuperAdmin() || in_array($this->cfdt_role, ['trainer', 'validator', 'administrator'], true);
     }
 
+    public function canAdministerCfdt(): bool
+    {
+        return $this->isInstitutionalSuperAdmin() || $this->cfdt_role === 'administrator';
+    }
+
     /**
      * Mode de navigation latéral : gouvernance DGCPT / COPRI (parallèle hiérarchie / workflow).
      *

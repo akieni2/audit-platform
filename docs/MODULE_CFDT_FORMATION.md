@@ -9,8 +9,8 @@ Le module CFDT fournit à la DGCPT un espace interne de formation continue. Il p
 - **Apprenant** : consulte les formations auxquelles il est affecté, passe les évaluations et télécharge ses certificats.
 - **Formateur** : crée les formations et les questions, puis affecte les agents.
 - **Validateur** : contrôle et publie les formations, en plus des fonctions du formateur.
-- **Administrateur CFDT** : administre le contenu et les affectations.
-- **Super administrateur** : dispose de tous les droits et attribue ou retire individuellement les rôles CFDT.
+- **Administrateur CFDT** : crée les comptes apprenants, formateurs et validateurs, administre le contenu et les affectations. Il ne peut ni créer ni modifier un administrateur CFDT.
+- **Super administrateur** : dispose de tous les droits et demeure le seul à pouvoir nommer ou retirer un administrateur CFDT.
 
 L'habilitation est indépendante du rôle métier de l'agent et peut être révoquée à tout moment depuis **Formation professionnelle → Espace CFDT → Gérer les habilitations**.
 
@@ -19,15 +19,19 @@ L'habilitation est indépendante du rôle métier de l'agent et peut être révo
 1. Le formateur crée une formation avec son code, ses objectifs, son support, sa durée, son seuil de réussite et son nombre maximal de tentatives.
 2. Il compose un QCM à choix unique ou multiple et indique les réponses correctes, les explications et les points.
 3. Le validateur ou l'administrateur publie la formation.
-4. Le formateur affecte un ou plusieurs agents habilités.
-5. L'apprenant passe le QCM. Le système calcule automatiquement son score.
-6. En cas de réussite, un certificat PDF nominatif est créé avec un numéro unique et une adresse publique de vérification d'intégrité.
+4. Le formateur affecte le test à des agents nommément désignés, à une ou plusieurs structures de l'organigramme (avec leurs sous-structures), ou à des catégories professionnelles telles que directeur, chef de service ou inspecteur vérificateur.
+5. Une date limite obligatoire est enregistrée. Chaque agent reçoit une notification interne et une invitation par courriel contenant un lien personnel ; le test et le lien sont bloqués après l'échéance.
+6. L'apprenant retrouve sur son tableau de bord ses tests, échéances, tentatives, meilleur score, moyenne et certificats.
+7. L'apprenant passe le QCM. Le système calcule automatiquement son score.
+8. En cas de réussite, un certificat PDF nominatif est créé avec un numéro unique et une adresse publique de vérification d'intégrité.
 
 Les valeurs initiales recommandées sont un seuil de réussite de **70 %** et un maximum de **3 tentatives**. Elles restent configurables pour chaque formation.
 
 ## Données et sécurité
 
-Les formations, affectations, tentatives et certificats disposent de tables dédiées. La suppression d'une formation entraîne la suppression de ses affectations, tentatives et certificats. Un apprenant ne peut télécharger que son propre certificat ; les formateurs, validateurs, administrateurs CFDT et super administrateurs peuvent assurer le contrôle pédagogique.
+Les formations, affectations, tentatives et certificats disposent de tables dédiées. Chaque affectation conserve sa source, ses critères, son échéance et un jeton personnel unique. La suppression d'une formation entraîne la suppression de ses affectations, tentatives et certificats. Un apprenant ne peut télécharger que son propre certificat ; les formateurs, validateurs, administrateurs CFDT et super administrateurs peuvent assurer le contrôle pédagogique.
+
+L'envoi réel des courriels exige un transport SMTP valide dans le fichier `.env`. Une panne du fournisseur de messagerie n'annule jamais l'affectation : la notification interne demeure disponible et l'échec SMTP est journalisé.
 
 ## Déploiement et retour arrière
 
@@ -37,6 +41,5 @@ Le déploiement requiert une sauvegarde MySQL préalable, puis `php artisan migr
 
 - banque de questions réutilisable et import de supports ;
 - chronométrage serveur et randomisation avancée ;
-- tableau de bord de progression par direction et structure ;
-- convocations et notifications ;
+- tableau de bord consolidé de progression par direction et structure ;
 - assistance IA locale pour suggérer des QCM, soumise à validation humaine.

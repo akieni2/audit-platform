@@ -84,7 +84,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/', [CfdtController::class, 'index'])->name('index');
         Route::post('/', [CfdtController::class, 'store'])->name('store');
         Route::get('/habilitations', [CfdtAccessController::class, 'index'])->name('access');
+        Route::post('/habilitations', [CfdtAccessController::class, 'store'])->name('access.store');
         Route::patch('/habilitations/{user}', [CfdtAccessController::class, 'update'])->name('access.update');
+        Route::get('/invitation/{token}', [CfdtController::class, 'invitation'])->name('invitation');
         Route::get('/cours/{course}', [CfdtController::class, 'show'])->name('show');
         Route::post('/cours/{course}/questions', [CfdtController::class, 'question'])->name('questions.store');
         Route::patch('/cours/{course}/publier', [CfdtController::class, 'publish'])->name('publish');
