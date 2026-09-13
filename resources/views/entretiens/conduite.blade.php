@@ -103,7 +103,7 @@
                                 $ex = $existingResponses->get($question->id);
 
                                 $meta = $question->metadata ?? [];
-                                $opts = $meta['options'] ?? [];
+                                $opts = data_get($meta, 'options', []);
 
                                 if (! is_array($opts)) {
                                     $opts = [];

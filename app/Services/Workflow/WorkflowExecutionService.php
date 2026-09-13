@@ -413,7 +413,9 @@ class WorkflowExecutionService
     public function executeRules(WorkflowInstance $instance, WorkflowStage $stage): array
     {
         $configuration = $stage->resolvedConfiguration();
-        $component = $this->components->resolve($stage);
+        // The registry is resolved lazily to avoid the circular dependency
+        // execution -> registry -> stage component -> execution.
+        $component = app(WorkflowStageComponentRegistry::class)->resolve($stage);
 
         $this->logExecution(
             instance: $instance,

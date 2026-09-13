@@ -318,7 +318,7 @@
                 @include('workflows.designer.properties-panel', ['selectedStage' => $selectedStage, 'canvas' => $canvas])
 
                 <div class="dgcpt-surface p-6 shadow-sm">
-                    <h2 class="text-lg font-bold text-[#E6EEF8]">Sidebar configuration</h2>
+                    <h2 class="text-lg font-bold text-[#E6EEF8]">Configuration latérale</h2>
                     @if ($selectedStage)
                         <p class="mt-1 text-sm text-[#9FB3C8]">Étape sélectionnée: <span class="font-semibold text-[#73D8FF]">{{ $selectedStage->name }}</span></p>
 

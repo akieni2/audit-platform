@@ -37,7 +37,7 @@
                                             <td>
                                                 @if ($cell['assignment'])
                                                     <span class="rounded-full bg-[rgba(0,209,255,0.08)] px-2.5 py-1 text-xs font-semibold text-[#73D8FF]">
-                                                        {{ strtoupper(substr((string) $cell['assignment']->role_type, 0, 1)) }}
+                                                        {{ strtoupper(substr($cell['assignment']->role_type instanceof \BackedEnum ? $cell['assignment']->role_type->value : (string) $cell['assignment']->role_type, 0, 1)) }}
                                                     </span>
                                                 @else
                                                     <span class="text-[#6D7B90]">-</span>

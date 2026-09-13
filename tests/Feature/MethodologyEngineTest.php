@@ -43,7 +43,7 @@ class MethodologyEngineTest extends TestCase
         $this->actingAs($user)
             ->get(route('enterprise.methodologies'))
             ->assertOk()
-            ->assertSee('Méthodologies enterprise')
+            ->assertSee('Référentiels d’audit homologués')
             ->assertSee($methodology->name);
     }
 }

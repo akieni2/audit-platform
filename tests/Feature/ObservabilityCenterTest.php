@@ -19,7 +19,7 @@ class ObservabilityCenterTest extends TestCase
         $this->actingAs($user)
             ->get(route('workflow-runtime.observability'))
             ->assertOk()
-            ->assertSee('Workflow observability center')
+            ->assertSee('Centre d’observabilité des workflows')
             ->assertSee('Queues')
             ->assertSee('Projections')
             ->assertSee('Metrics & événements');

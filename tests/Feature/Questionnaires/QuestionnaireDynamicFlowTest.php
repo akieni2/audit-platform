@@ -231,7 +231,7 @@ class QuestionnaireDynamicFlowTest extends TestCase
             'mission_id' => $mission->id,
             'entretien_id' => $entretien->id,
             'title' => 'Absence de contrôle',
-            'criticality' => 'moyen',
+            'criticality' => 'medium',
         ]);
 
         $this->assertDatabaseCount('identified_risks', 1);

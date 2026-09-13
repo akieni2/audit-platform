@@ -29,7 +29,7 @@ class RaciBuilderTest extends TestCase
         $this->actingAs($user)
             ->get(route('raci-builder.index'))
             ->assertOk()
-            ->assertSee('RACI Builder')
+            ->assertSee('Concepteur RACI')
             ->assertSee($template->name);
 
         $this->actingAs($user)

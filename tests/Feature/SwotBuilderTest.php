@@ -22,7 +22,7 @@ class SwotBuilderTest extends TestCase
         $this->actingAs($user)
             ->get(route('swot-builder.index'))
             ->assertOk()
-            ->assertSee('SWOT Builder')
+            ->assertSee('Concepteur SWOT')
             ->assertSee($template->name);
 
         $this->actingAs($user)

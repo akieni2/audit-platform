@@ -22,6 +22,12 @@ class ExecutiveDashboardTest extends TestCase
         $this->seed(DgcptFoundationSeeder::class);
 
         $user = User::query()->where('email', 'inspecteur.dgcpt@example.gov')->firstOrFail();
+        $user->update([
+            'must_change_password' => false,
+            'active' => true,
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+        ]);
 
         $this->actingAs($user)
             ->get(route('dashboard.executive'))

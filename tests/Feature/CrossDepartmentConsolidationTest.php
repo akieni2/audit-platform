@@ -78,6 +78,6 @@ class CrossDepartmentConsolidationTest extends TestCase
         $this->actingAs($user)
             ->get(route('enterprise.consolidation'))
             ->assertOk()
-            ->assertSee('Consolidation enterprise');
+            ->assertSee('Consolidation harmonisée DGCPT');
     }
 }

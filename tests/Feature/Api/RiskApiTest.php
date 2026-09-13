@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Actif;
+use App\Models\Department;
 use App\Models\Mission;
 use App\Models\Processus;
 use App\Models\Risque;
@@ -17,12 +18,21 @@ class RiskApiTest extends TestCase
 
     private function missionWithRisk(User $owner): array
     {
+        $department = Department::query()->create([
+            'name' => 'Pôle API',
+            'code' => 'API',
+            'type' => 'pole',
+            'active' => true,
+        ]);
+        $owner->update(['department_id' => $department->id]);
+
         $mission = Mission::create([
             'organisation' => 'API Org',
             'description' => null,
             'date_debut' => now()->toDateString(),
             'date_fin' => null,
             'auditeur_id' => $owner->id,
+            'department_id' => $department->id,
         ]);
 
         $processus = Processus::create([

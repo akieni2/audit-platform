@@ -645,7 +645,7 @@ class User extends Authenticatable
         return $this->iamBool('manage_risks', function () {
             $this->loadIamRelations();
 
-            if ($this->isLegacyAdminRole()) {
+            if ($this->isLegacyAdminRole() || $this->isRiskManager()) {
                 return true;
             }
 

@@ -12,10 +12,10 @@ enum RaciRoleType: string
     public function label(): string
     {
         return match ($this) {
-            self::Responsible => 'Responsible',
-            self::Accountable => 'Accountable',
-            self::Consulted => 'Consulted',
-            self::Informed => 'Informed',
+            self::Responsible => 'Responsable de l’exécution',
+            self::Accountable => 'Autorité responsable',
+            self::Consulted => 'Consulté',
+            self::Informed => 'Informé',
         };
     }
 

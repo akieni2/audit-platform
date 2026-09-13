@@ -25,7 +25,7 @@ class ExecutiveDashboardUiTest extends TestCase
         $this->actingAs($user)
             ->get(route('executive.national-dashboard'))
             ->assertOk()
-            ->assertSee('National Dashboard')
+            ->assertSee('Tableau de bord national')
             ->assertSee('Live feed')
             ->assertSee('Alertes')
             ->assertSee('Tendances nationales');

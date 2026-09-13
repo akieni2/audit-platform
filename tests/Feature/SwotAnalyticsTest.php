@@ -26,7 +26,7 @@ class SwotAnalyticsTest extends TestCase
         $this->actingAs($user)
             ->get(route('executive.swot-dashboard'))
             ->assertOk()
-            ->assertSee('SWOT Dashboard')
+            ->assertSee('Tableau de bord SWOT')
             ->assertSee('Consolidation');
     }
 }

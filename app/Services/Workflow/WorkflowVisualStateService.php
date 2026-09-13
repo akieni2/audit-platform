@@ -16,7 +16,7 @@ class WorkflowVisualStateService
      */
     public function resolve(WorkflowInstance $instance, WorkflowStage $stage): array
     {
-        $state = $this->resolver->forStage($instance, $stage);
+        $state = $this->resolver->resolve($instance, $stage);
 
         return [
             'value' => $state->value,

@@ -49,7 +49,7 @@ class DynamicFormWizardTest extends TestCase
         $this->actingAs($user)
             ->get(route('workflow-runtime.stage', ['mission' => $mission, 'stage' => $stage]))
             ->assertOk()
-            ->assertSee('Runtime dynamique')
+            ->assertSee('Exécution du workflow')
             ->assertSee('Autosave')
             ->assertSee('Validation temps réel')
             ->assertSee('Pièces jointes visuelles')

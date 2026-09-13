@@ -35,7 +35,7 @@ class RaciAnalyticsTest extends TestCase
         $this->actingAs($user)
             ->get(route('executive.raci-dashboard'))
             ->assertOk()
-            ->assertSee('RACI Dashboard')
+            ->assertSee('Tableau de bord RACI')
             ->assertSee('Gaps');
     }
 }

@@ -39,10 +39,10 @@ class WorkflowDesignerUiTest extends TestCase
         $this->actingAs($user)
             ->get(route('workflow-builder.edit', $workflow))
             ->assertOk()
-            ->assertSee('Workflow Builder Enterprise')
-            ->assertSee('Canvas workflow')
-            ->assertSee('Minimap')
-            ->assertSee('Properties panel')
+            ->assertSee('Concepteur institutionnel de workflows')
+            ->assertSee('Canevas du workflow')
+            ->assertSee('Mini-carte')
+            ->assertSee('Panneau de propriétés')
             ->assertSee('Validation visuelle');
     }
 }

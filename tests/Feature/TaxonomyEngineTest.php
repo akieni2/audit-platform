@@ -39,7 +39,7 @@ class TaxonomyEngineTest extends TestCase
         $this->actingAs($user)
             ->get(route('enterprise.taxonomies'))
             ->assertOk()
-            ->assertSee('Taxonomies enterprise')
+            ->assertSee('Langage harmonisé des risques DGCPT')
             ->assertSee($taxonomy->name);
     }
 }

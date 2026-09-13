@@ -1,8 +1,8 @@
 <div class="dgcpt-surface space-y-4 p-5 shadow-sm">
     <div class="flex items-start justify-between gap-3">
         <div>
-            <p class="dgcpt-card-title">Properties panel</p>
-            <h2 class="text-lg font-bold text-[#E6EEF8]">Stage & transitions</h2>
+            <p class="dgcpt-card-title">Panneau de propriétés</p>
+            <h2 class="text-lg font-bold text-[#E6EEF8]">Étape et transitions</h2>
             <p class="mt-1 text-sm text-[#9FB3C8]">Configuration rapide, validation visuelle et badges d’exécution.</p>
         </div>
         @if ($selectedStage)
@@ -15,12 +15,12 @@
     @if ($selectedStage)
         <div class="grid gap-3 sm:grid-cols-2">
             <div class="rounded-2xl border border-[rgba(0,209,255,0.08)] bg-[rgba(5,8,22,0.72)] p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Inline edition</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Modification intégrée</p>
                 <p class="mt-2 text-sm text-[#E6EEF8]">{{ $selectedStage->resolvedComponentKey() }}</p>
                 <p class="mt-1 text-xs text-[#9FB3C8]">Couloir : {{ collect($canvas['nodes'])->firstWhere('id', $selectedStage->id)['lane'] ?? 'Flux principal' }}</p>
             </div>
             <div class="rounded-2xl border border-[rgba(0,209,255,0.08)] bg-[rgba(5,8,22,0.72)] p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Visual validation</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-[#73D8FF]">Validation visuelle</p>
                 <p class="mt-2 text-sm text-[#E6EEF8]">
                     {{ collect($canvas['transitions'])->where('from_stage_id', $selectedStage->id)->count() }} transitions sortantes
                 </p>

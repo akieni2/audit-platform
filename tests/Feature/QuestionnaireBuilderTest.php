@@ -158,7 +158,7 @@ class QuestionnaireBuilderTest extends TestCase
         $this->assertDatabaseHas('questionnaire_questions', [
             'id' => $firstQuestion->id,
             'sort_order' => 1,
-            'risk_level' => 'eleve',
+            'risk_level' => 'high',
         ]);
     }
 

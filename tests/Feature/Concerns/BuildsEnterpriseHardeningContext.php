@@ -21,7 +21,7 @@ trait BuildsEnterpriseHardeningContext
     {
         $department ??= $this->hardeningDepartment('ADM');
 
-        return $this->createUser('administrateur_institutionnel', $department, 900);
+        return $this->createUser('super_admin', $department, 1000);
     }
 
     private function hardeningInspectorUser(Department $department): User

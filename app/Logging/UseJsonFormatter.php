@@ -3,13 +3,13 @@
 namespace App\Logging;
 
 use Monolog\Formatter\JsonFormatter;
-use Monolog\Logger;
+use Illuminate\Log\Logger;
 
 class UseJsonFormatter
 {
     public function __invoke(Logger $logger): void
     {
-        foreach ($logger->getHandlers() as $handler) {
+        foreach ($logger->getLogger()->getHandlers() as $handler) {
             $handler->setFormatter(new JsonFormatter());
         }
     }

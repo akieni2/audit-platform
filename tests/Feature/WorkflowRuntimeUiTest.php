@@ -49,9 +49,9 @@ class WorkflowRuntimeUiTest extends TestCase
         $this->actingAs($user)
             ->get(route('workflow-runtime.show', $mission))
             ->assertOk()
-            ->assertSee('Visual Workflow Runtime')
+            ->assertSee('Exécution visuelle du workflow')
             ->assertSee('Parcours des étapes')
-            ->assertSee('Workflow Graph')
+            ->assertSee('Graphe du workflow')
             ->assertSee('Journal chronologique')
             ->assertSee('Collecte')
             ->assertSee('Validation');

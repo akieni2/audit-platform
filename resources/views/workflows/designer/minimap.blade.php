@@ -6,11 +6,11 @@
 <div class="rounded-3xl border border-[rgba(0,209,255,0.12)] bg-[rgba(5,8,22,0.72)] p-4">
     <div class="flex items-center justify-between gap-2">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#73D8FF]">Minimap</p>
-            <p class="mt-1 text-xs text-[#9FB3C8]">Vue compacte des lanes et positions.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#73D8FF]">Mini-carte</p>
+            <p class="mt-1 text-xs text-[#9FB3C8]">Vue compacte des couloirs et positions.</p>
         </div>
         <span class="rounded-full bg-[rgba(0,209,255,0.08)] px-2.5 py-1 text-[11px] font-semibold text-[#BFD2E6]">
-            {{ count($canvas['layout']['lanes'] ?? []) }} lanes
+            {{ count($canvas['layout']['lanes'] ?? []) }} couloirs
         </span>
     </div>
 

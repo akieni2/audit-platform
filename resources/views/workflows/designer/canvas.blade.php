@@ -13,7 +13,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-bold text-[#E6EEF8]">Canevas du workflow</h2>
-                        <p class="mt-1 text-sm text-[#9FB3C8]">Drag/drop, zoom, minimap, transitions dynamiques et autosave layout.</p>
+                        <p class="mt-1 text-sm text-[#9FB3C8]">Glisser-déposer, zoom, mini-carte, transitions dynamiques et sauvegarde automatique de la disposition.</p>
                     </div>
                     <a href="{{ route('workflow-builder.edit', $template) }}" class="text-sm font-semibold text-[#73D8FF] hover:underline">Réinitialiser sélection</a>
                 </div>

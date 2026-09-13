@@ -25,13 +25,13 @@ class ExecutiveAnalyticsTest extends TestCase
         $this->actingAs($user)
             ->get(route('executive.national-dashboard'))
             ->assertOk()
-            ->assertSee('National Dashboard')
-            ->assertSee('Executive Analytics Platform');
+            ->assertSee('Tableau de bord national')
+            ->assertSee('Plateforme d’analyse exécutive');
 
         $this->actingAs($user)
             ->get(route('executive.governance-overview'))
             ->assertOk()
-            ->assertSee('Governance Overview')
-            ->assertSee('Global workflows');
+            ->assertSee('Vue d’ensemble de la gouvernance')
+            ->assertSee('Workflows globaux');
     }
 }

@@ -50,7 +50,7 @@ class WorkflowRuntimeVisualTest extends TestCase
         $this->actingAs($user)
             ->get(route('workflow-runtime.show', $mission))
             ->assertOk()
-            ->assertSee('Visual Workflow Runtime')
+            ->assertSee('Exécution visuelle du workflow')
             ->assertSee('Progression live')
             ->assertSee('Approuver visuellement')
             ->assertSee('Rollback visuel')
