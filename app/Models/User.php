@@ -48,6 +48,7 @@ class User extends Authenticatable
         'copri_menu_enabled',
         'gec_menu_enabled',
         'administrative_work_menu_enabled',
+        'cfdt_role',
         'password_expires_at',
         'approval_status',
         'approved_at',
@@ -474,6 +475,16 @@ class User extends Authenticatable
     public function canAccessAdministrativeWorkModule(): bool
     {
         return $this->isInstitutionalSuperAdmin() || $this->administrative_work_menu_enabled === true;
+    }
+
+    public function canAccessCfdt(): bool
+    {
+        return $this->isInstitutionalSuperAdmin() || in_array($this->cfdt_role, ['learner', 'trainer', 'validator', 'administrator'], true);
+    }
+
+    public function canManageCfdt(): bool
+    {
+        return $this->isInstitutionalSuperAdmin() || in_array($this->cfdt_role, ['trainer', 'validator', 'administrator'], true);
     }
 
     /**

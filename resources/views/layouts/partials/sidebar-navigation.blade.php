@@ -372,6 +372,10 @@
             </a>
         @endcan
     @endif
+    @can('accessCfdt')
+        <p class="nav-section-title">Formation professionnelle</p>
+        <a class="nav-link {{ request()->routeIs('cfdt.*') ? 'active' : '' }}" href="{{ route('cfdt.index') }}"><span class="ni">▤</span>Espace CFDT</a>
+    @endcan
 
     <p class="nav-section-title">Compte</p>
     <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"

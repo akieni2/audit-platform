@@ -246,6 +246,8 @@ class AppServiceProvider extends ServiceProvider
             'accessInstitutionalAssets',
             fn (?User $user): bool => $user?->canAccessInstitutionalAssets() ?? false
         );
+        Gate::define('accessCfdt', fn (?User $user): bool => $user?->canAccessCfdt() ?? false);
+        Gate::define('manageCfdt', fn (?User $user): bool => $user?->canManageCfdt() ?? false);
 
         /*
         |--------------------------------------------------------------------------

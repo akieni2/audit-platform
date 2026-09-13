@@ -1,0 +1,3 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model;
+class CfdtEnrollment extends Model {protected $guarded=[];protected function casts():array{return ['assigned_at'=>'datetime','completed_at'=>'datetime'];}public function course(){return $this->belongsTo(CfdtCourse::class);}public function user(){return $this->belongsTo(User::class);}public function attempts(){return $this->hasMany(CfdtAttempt::class,'enrollment_id');}public function certificate(){return $this->hasOne(CfdtCertificate::class,'enrollment_id');}}

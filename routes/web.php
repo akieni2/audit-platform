@@ -54,6 +54,8 @@ use App\Http\Controllers\Correspondence\CorrespondenceController;
 use App\Http\Controllers\AdministrativeWork\AdministrativeTaskController;
 use App\Http\Controllers\InstitutionalProcessController;
 use App\Http\Controllers\InstitutionalAssetController;
+use App\Http\Controllers\CfdtController;
+use App\Http\Controllers\CfdtAccessController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +70,7 @@ Route::get('/', function () {
 Route::get('/health/ready', [HealthController::class, 'ready'])
     ->middleware('throttle:120,1')
     ->name('health.ready');
+Route::get('/certificats/cfdt/{token}', [CfdtController::class, 'verify'])->name('cfdt.verify');
 
 
 /*
@@ -77,6 +80,19 @@ Route::get('/health/ready', [HealthController::class, 'ready'])
 */
 
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::prefix('formation')->name('cfdt.')->middleware('can:accessCfdt')->group(function () {
+        Route::get('/', [CfdtController::class, 'index'])->name('index');
+        Route::post('/', [CfdtController::class, 'store'])->name('store');
+        Route::get('/habilitations', [CfdtAccessController::class, 'index'])->name('access');
+        Route::patch('/habilitations/{user}', [CfdtAccessController::class, 'update'])->name('access.update');
+        Route::get('/cours/{course}', [CfdtController::class, 'show'])->name('show');
+        Route::post('/cours/{course}/questions', [CfdtController::class, 'question'])->name('questions.store');
+        Route::patch('/cours/{course}/publier', [CfdtController::class, 'publish'])->name('publish');
+        Route::post('/cours/{course}/affecter', [CfdtController::class, 'enroll'])->name('enroll');
+        Route::get('/cours/{course}/test', [CfdtController::class, 'attempt'])->name('attempt');
+        Route::post('/cours/{course}/test', [CfdtController::class, 'submit'])->name('submit');
+        Route::get('/certificat/{certificate}', [CfdtController::class, 'certificate'])->name('certificate');
+    });
 
     Route::get('/password/changement-obligatoire', [ForcedPasswordChangeController::class, 'edit'])
         ->name('password.force.edit');
