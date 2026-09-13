@@ -28,7 +28,13 @@ return [
         'ollama' => [
             'class' => \App\Services\Ai\Drivers\OllamaLlmDriver::class,
             'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
-            'model' => env('OLLAMA_MODEL', 'llama3'),
+            'model' => env('OLLAMA_MODEL', 'qwen2.5:1.5b'),
+            'timeout' => (int) env('OLLAMA_TIMEOUT', 120),
+            'connect_timeout' => (int) env('OLLAMA_CONNECT_TIMEOUT', 3),
+            'context_length' => (int) env('OLLAMA_CONTEXT_LENGTH', 2048),
+            'max_output_tokens' => (int) env('OLLAMA_MAX_OUTPUT_TOKENS', 384),
+            'temperature' => (float) env('OLLAMA_TEMPERATURE', 0.2),
+            'keep_alive' => env('OLLAMA_KEEP_ALIVE', '2m'),
         ],
         'azure_openai' => [
             'class' => \App\Services\Ai\Drivers\AzureOpenAiLlmDriver::class,
