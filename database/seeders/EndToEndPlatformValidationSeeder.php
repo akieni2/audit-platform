@@ -172,10 +172,9 @@ class EndToEndPlatformValidationSeeder extends Seeder
                 'questions' => count($questions),
                 'SWOT' => $mission->swotAnalyses()->count(),
                 'RACI' => $mission->raciMatrices()->count(),
-                'risques' => \App\Models\Risque::query()->where(function ($query) use ($mission): void {
-                    $query->where('mission_id', $mission->id)
-                        ->orWhereIn('source_identified_risk_id', \App\Models\IdentifiedRisk::query()->where('mission_id', $mission->id)->select('id'));
-                })->count(),
+                'risques' => \App\Models\Risque::query()
+                    ->whereIn('source_identified_risk_id', \App\Models\IdentifiedRisk::query()->where('mission_id', $mission->id)->select('id'))
+                    ->count(),
             ];
             if ($checks['équipe'] !== 4 || $checks['groupes'] !== 2 || $checks['réponses'] !== $checks['questions']
                 || $checks['SWOT'] !== 1 || $checks['RACI'] !== 1 || $checks['risques'] < 1) {
