@@ -129,4 +129,9 @@ class QuestionnaireQuestion extends Model
     {
         return $this->hasMany(MissionDocument::class, 'questionnaire_question_id');
     }
+
+    public function documentRequests(): HasMany
+    {
+        return $this->hasMany(MissionDocumentRequest::class, 'questionnaire_question_id');
+    }
 }

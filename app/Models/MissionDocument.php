@@ -17,6 +17,7 @@ class MissionDocument extends Model
         'entretien_id',
         'questionnaire_question_id',
         'mission_audit_group_id',
+        'mission_document_request_id',
         'uploaded_by',
         'filename',
         'original_name',
@@ -72,6 +73,11 @@ class MissionDocument extends Model
     public function auditGroup(): BelongsTo
     {
         return $this->belongsTo(MissionAuditGroup::class, 'mission_audit_group_id');
+    }
+
+    public function documentRequest(): BelongsTo
+    {
+        return $this->belongsTo(MissionDocumentRequest::class, 'mission_document_request_id');
     }
 
     public function constats(): BelongsToMany

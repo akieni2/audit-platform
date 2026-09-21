@@ -105,6 +105,11 @@ class Service extends Model
         return $this->hasMany(MissionDocument::class, 'service_id');
     }
 
+    public function documentRequests(): HasMany
+    {
+        return $this->hasMany(MissionDocumentRequest::class, 'service_id');
+    }
+
     /** Libellé responsable : utilisateur IAM ou champs libres. */
     public function responsableDisplay(): string
     {

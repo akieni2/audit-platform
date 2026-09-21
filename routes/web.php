@@ -229,6 +229,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::delete('/missions/{mission}/services/{service}', [ServiceController::class, 'destroy'])->name('missions.services.destroy');
 
     Route::get('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'index'])->name('missions.services.documents.index');
+    Route::post('/missions/{mission}/services/{service}/document-requests/generate', [MissionDocumentController::class, 'generate'])->name('missions.services.document-requests.generate');
+    Route::post('/missions/{mission}/services/{service}/document-requests', [MissionDocumentController::class, 'storeRequest'])->name('missions.services.document-requests.store');
+    Route::patch('/mission-document-requests/{document_request}', [MissionDocumentController::class, 'updateRequest'])->name('mission-document-requests.update');
     Route::post('/missions/{mission}/services/{service}/documents', [MissionDocumentController::class, 'store'])->name('missions.services.documents.store');
     Route::delete('/mission-documents/{mission_document}', [MissionDocumentController::class, 'destroy'])->name('mission-documents.destroy');
     Route::get('/mission-documents/{mission_document}/download', [MissionDocumentController::class, 'download'])->name('mission-documents.download');

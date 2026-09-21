@@ -15,6 +15,7 @@ use App\Models\FormTemplate;
 use App\Models\IdentifiedRisk;
 use App\Models\Mission;
 use App\Models\MissionDocument;
+use App\Models\MissionDocumentRequest;
 use App\Models\MissionService;
 use App\Models\QuestionnaireTemplate;
 use App\Models\Risque;
@@ -27,6 +28,7 @@ use App\Policies\EntretienPolicy;
 use App\Policies\FormTemplatePolicy;
 use App\Policies\IdentifiedRiskPolicy;
 use App\Policies\MissionDocumentPolicy;
+use App\Policies\MissionDocumentRequestPolicy;
 use App\Policies\QuestionnaireTemplatePolicy;
 use App\Policies\RisquePolicy;
 use App\Policies\ServicePolicy;
@@ -120,6 +122,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(MissionService::class, ServicePolicy::class);
 
         Gate::policy(MissionDocument::class, MissionDocumentPolicy::class);
+        Gate::policy(MissionDocumentRequest::class, MissionDocumentRequestPolicy::class);
 
         Gate::policy(
             DepartmentAuditConsolidation::class,
@@ -166,6 +169,21 @@ class AppServiceProvider extends ServiceProvider
                     'mission',
                     fn ($q) => $q->visibleToUser($user)
                 )
+                ->firstOrFail();
+        });
+
+        Route::bind('document_request', function (string $value) {
+            $user = auth()->user();
+
+            abort_unless($user, 403);
+
+            if (! Schema::hasTable('mission_document_requests')) {
+                abort(404);
+            }
+
+            return MissionDocumentRequest::query()
+                ->whereKey($value)
+                ->whereHas('mission', fn ($q) => $q->visibleToUser($user))
                 ->firstOrFail();
         });
 

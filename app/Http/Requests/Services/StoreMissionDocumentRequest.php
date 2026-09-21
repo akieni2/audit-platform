@@ -24,6 +24,7 @@ class StoreMissionDocumentRequest extends FormRequest
             'category' => ['nullable', 'string', 'max:64'],
             'questionnaire_question_id' => ['nullable', 'integer', 'exists:questionnaire_questions,id'],
             'mission_audit_group_id' => ['nullable', 'integer', 'exists:mission_audit_groups,id'],
+            'mission_document_request_id' => ['nullable', 'integer', 'exists:mission_document_requests,id'],
             'expected_document_label' => ['nullable', 'string', 'max:255'],
             'receipt_status' => ['sometimes', 'required', 'string', 'in:received,partial,to_review'],
             'description' => ['nullable', 'string', 'max:2000'],

@@ -103,6 +103,11 @@ class Mission extends Model
         return $this->hasMany(MissionDocument::class);
     }
 
+    public function documentRequests()
+    {
+        return $this->hasMany(MissionDocumentRequest::class);
+    }
+
     public function constats()
     {
         return $this->hasMany(Constat::class)->orderBy('reference');
