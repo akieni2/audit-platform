@@ -79,6 +79,6 @@ class CfdtCourseReviewWorkflowTest extends TestCase
 
     private function questionPayload(): array
     {
-        return ['text' => 'Quelle est la capitale du Gabon ?', 'type' => 'single', 'options' => ['Libreville', 'Port-Gentil'], 'correct' => [0], 'points' => 1, 'explanation' => 'Libreville est la capitale.'];
+        return ['text' => 'Quelle est la capitale du Gabon ?', 'type' => 'single', 'options' => ['Libreville', 'Port-Gentil'], 'correct' => [0], 'points' => 100, 'explanation' => 'Libreville est la capitale.'];
     }
 }

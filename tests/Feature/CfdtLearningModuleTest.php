@@ -6,7 +6,7 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
  public function test_trainer_creates_questions_validator_publishes_and_learner_earns_certificate():void{
   $trainer=$this->user('auditeur','trainer');$validator=$this->user('auditeur','validator');$learner=$this->user('auditeur','learner');
   $this->actingAs($trainer)->post(route('cfdt.store'),['code'=>'CFDT-01','title'=>'Comptabilité publique','pass_mark'=>70,'max_attempts'=>3])->assertRedirect();$course=CfdtCourse::firstOrFail();
-  $this->actingAs($trainer)->post(route('cfdt.questions.store',$course),['text'=>'Quel principe garantit la traçabilité ?','type'=>'single','options'=>['Journalisation','Suppression','Anonymat'],'correct'=>[0],'points'=>2])->assertRedirect();
+  $this->actingAs($trainer)->post(route('cfdt.questions.store',$course),['text'=>'Quel principe garantit la traçabilité ?','type'=>'single','options'=>['Journalisation','Suppression','Anonymat'],'correct'=>[0],'points'=>100])->assertRedirect();
   $this->actingAs($trainer)->patch(route('cfdt.submit-review',$course))->assertRedirect();
   $this->actingAs($validator)->patch(route('cfdt.review',$course),['decision'=>'approve'])->assertRedirect();
   $this->actingAs($trainer)->post(route('cfdt.enroll',$course),['user_ids'=>[$learner->id],'expires_at'=>now()->addWeek()->format('Y-m-d H:i:s')])->assertRedirect();$e=CfdtEnrollment::firstOrFail();$qid=CfdtCourse::first()->questions[0]['id'];
@@ -70,5 +70,15 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'LIMIT-03','title'=>'Trois tentatives','status'=>'published','max_attempts'=>10,'questions'=>[['id'=>'q1','text'=>'Question ?','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>1]],'content'=>[],'created_by'=>$learner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$learner->id,'assigned_at'=>now()]);
   foreach(range(1,3) as $number)CfdtAttempt::create(['enrollment_id'=>$enrollment->id,'question_snapshot'=>$course->questions,'answers'=>['q1'=>['1']],'score'=>0,'total'=>1,'percentage'=>0,'passed'=>false,'started_at'=>now(),'submitted_at'=>now()]);
   $this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertForbidden();$this->actingAs($learner)->post(route('cfdt.submit',$course),['answers'=>['q1'=>['0']]])->assertForbidden();
+ }
+ public function test_trainer_distributes_question_percentages_to_exactly_one_hundred():void{
+  $trainer=$this->user('auditeur','trainer');$course=CfdtCourse::create(['code'=>'WEIGHT-100','title'=>'QCM pondéré','questions'=>[],'content'=>[],'created_by'=>$trainer->id]);$payload=['type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'explanation'=>'Explication'];
+  $this->actingAs($trainer)->post(route('cfdt.questions.store',$course),[...$payload,'text'=>'Question 1','points'=>40])->assertRedirect();$this->actingAs($trainer)->post(route('cfdt.questions.store',$course),[...$payload,'text'=>'Question 2','points'=>50])->assertRedirect();
+  $this->actingAs($trainer)->from(route('cfdt.show',$course))->patch(route('cfdt.submit-review',$course))->assertSessionHasErrors('questions');
+  $questionId=$course->fresh()->questions[1]['id'];$this->actingAs($trainer)->patch(route('cfdt.questions.weight',[$course,$questionId]),['points'=>60])->assertRedirect();$this->actingAs($trainer)->patch(route('cfdt.submit-review',$course))->assertRedirect();$this->assertSame('pending_review',$course->fresh()->status);
+ }
+ public function test_question_percentage_cannot_make_total_exceed_one_hundred():void{
+  $trainer=$this->user('auditeur','trainer');$course=CfdtCourse::create(['code'=>'WEIGHT-LIMIT','title'=>'Limite pondération','questions'=>[],'content'=>[],'created_by'=>$trainer->id]);$payload=['type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>70];$this->actingAs($trainer)->post(route('cfdt.questions.store',$course),[...$payload,'text'=>'Question 1'])->assertRedirect();
+  $this->actingAs($trainer)->from(route('cfdt.show',$course))->post(route('cfdt.questions.store',$course),[...$payload,'text'=>'Question 2'])->assertSessionHasErrors('points');
  }
 }

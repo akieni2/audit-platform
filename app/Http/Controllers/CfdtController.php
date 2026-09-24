@@ -66,18 +66,39 @@ class CfdtController extends Controller
     public function question(Request $request, CfdtCourse $course)
     {
         abort_unless($course->created_by === $request->user()->id && in_array($course->status, ['draft', 'changes_requested'], true), 403);
-        $data = $request->validate(['text' => 'required', 'type' => ['required', Rule::in(['single', 'multiple'])], 'options' => 'required|array|min:2', 'correct' => 'required|array|min:1', 'explanation' => 'nullable', 'points' => 'required|integer|min:1']);
+        $data = $request->validate(['text' => 'required', 'type' => ['required', Rule::in(['single', 'multiple'])], 'options' => 'required|array|min:2', 'correct' => 'required|array|min:1', 'explanation' => 'nullable', 'points' => 'required|integer|between:1,100']);
         $questions = $course->questions ?? [];
+        if ($this->questionWeightTotal($questions) + (int) $data['points'] > 100) throw ValidationException::withMessages(['points' => 'La pondération totale des questions ne peut pas dépasser 100 %.']);
         $questions[] = [...$data, 'id' => (string) Str::uuid()];
         $course->update(['questions' => $questions]);
 
         return back()->with('status', 'Question ajoutée.');
     }
 
+    public function updateQuestionWeight(Request $request, CfdtCourse $course, string $questionId)
+    {
+        abort_unless($course->created_by === $request->user()->id && in_array($course->status, ['draft', 'changes_requested'], true), 403);
+        $data = $request->validate(['points' => 'required|integer|between:1,100']);
+        $questions = $course->questions ?? [];
+        $found = false;
+        foreach ($questions as &$question) {
+            if (($question['id'] ?? null) !== $questionId) continue;
+            $question['points'] = (int) $data['points'];
+            $found = true;
+            break;
+        }
+        abort_unless($found, 404);
+        if ($this->questionWeightTotal($questions) > 100) throw ValidationException::withMessages(['points' => 'La pondération totale des questions ne peut pas dépasser 100 %.']);
+        $course->update(['questions' => $questions]);
+
+        return back()->with('status', 'Pondération de la question mise à jour.');
+    }
+
     public function submitForReview(Request $request, CfdtCourse $course)
     {
         abort_unless($course->created_by === $request->user()->id && in_array($course->status, ['draft', 'changes_requested'], true), 403);
         if (empty($course->questions)) throw ValidationException::withMessages(['questions' => 'Ajoutez au moins une question avant de soumettre le QCM.']);
+        if ($this->questionWeightTotal($course->questions) !== 100) throw ValidationException::withMessages(['questions' => 'La pondération totale du QCM doit être exactement égale à 100 %.']);
         $course->update(['status' => 'pending_review', 'review_observation' => null, 'submitted_at' => now(), 'reviewed_at' => null, 'validated_by' => null]);
 
         return back()->with('status', 'Le QCM a été transmis au superviseur pour validation.');
@@ -177,5 +198,6 @@ class CfdtController extends Controller
     private function canCreate(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['trainer', 'administrator'], true); }
     private function canReview(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['validator', 'administrator'], true); }
     private function courseAnalytics(CfdtCourse $course): array { $enrollments = $course->relationLoaded('enrollments') ? $course->enrollments : $course->enrollments()->with('attempts')->get(); $attempts = $enrollments->flatMap->attempts; $done = $enrollments->filter(fn ($enrollment) => $enrollment->attempts->isNotEmpty())->count(); return ['invited' => $enrollments->count(), 'done' => $done, 'pending' => $enrollments->count() - $done, 'highest' => $attempts->max('percentage'), 'average' => $attempts->avg('percentage')]; }
+    private function questionWeightTotal(array $questions): int { return collect($questions)->sum(fn ($question) => (int) ($question['points'] ?? 0)); }
     private function assignmentSource(array $data): string { return ! empty($data['department_ids']) ? 'structure' : (! empty($data['role_categories']) ? 'fonction' : 'individuel'); }
 }
