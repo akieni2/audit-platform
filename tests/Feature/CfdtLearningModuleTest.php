@@ -44,4 +44,8 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'EXP-01','title'=>'Test expiré','questions'=>[],'content'=>[],'created_by'=>$learner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$learner->id,'assigned_at'=>now()->subDays(2),'expires_at'=>now()->subDay(),'invitation_token'=>(string)\Illuminate\Support\Str::uuid()]);
   $this->actingAs($learner)->get(route('cfdt.invitation',$enrollment->invitation_token))->assertForbidden();$this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertForbidden();
  }
+ public function test_qcm_attempt_keeps_question_titles_inside_responsive_cards():void{
+  $learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'LAYOUT-01','title'=>'Audit des systèmes','status'=>'published','published_at'=>now(),'questions'=>[['id'=>'question-1','text'=>'Qui est le premier président gabonais ?','type'=>'single','options'=>['Léon Mba','Thomas Sankara'],'correct'=>[0],'points'=>1]],'content'=>[],'created_by'=>$learner->id]);CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$learner->id,'assigned_at'=>now(),'expires_at'=>now()->addDay()]);
+  $this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertOk()->assertSee('Qui est le premier président gabonais ?')->assertSee('aria-labelledby="question-question-1"',false)->assertDontSee('<legend',false);
+ }
 }
