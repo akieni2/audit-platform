@@ -23,11 +23,13 @@ class CfdtController extends Controller
             ->when(! $this->canReview($user) && $this->canCreate($user), fn ($query) => $query->where('created_by', $user->id))
             ->when(! $this->canReview($user) && ! $this->canCreate($user), fn ($query) => $query->where('status', 'published'))
             ->withCount('enrollments')->latest()->get();
-        $enrollments = CfdtEnrollment::with(['course', 'certificate', 'attempts'])->where('user_id', $user->id)->latest('assigned_at')->get();
+        if ($this->canCreate($user) || $this->canReview($user)) $courses->load('enrollments.attempts');
+        $courseAnalytics = $courses->mapWithKeys(fn ($course) => [$course->id => $this->courseAnalytics($course)]);
+        $enrollments = $user->cfdt_role === 'learner' ? CfdtEnrollment::with(['course', 'certificate', 'attempts'])->where('user_id', $user->id)->latest('assigned_at')->get() : collect();
         $completed = $enrollments->where('status', 'completed')->count();
         $average = $enrollments->flatMap->attempts->avg('percentage');
 
-        return view('cfdt.index', compact('courses', 'enrollments', 'completed', 'average'));
+        return view('cfdt.index', compact('courses', 'enrollments', 'completed', 'average', 'courseAnalytics'));
     }
 
     public function store(Request $request)
@@ -36,9 +38,9 @@ class CfdtController extends Controller
         $data = $request->validate([
             'code' => 'required|max:50|unique:cfdt_courses', 'title' => 'required|max:255', 'description' => 'nullable',
             'duration_minutes' => 'nullable|integer|min:1', 'pass_mark' => 'required|integer|between:1,100',
-            'max_attempts' => 'required|integer|between:1,10', 'content' => 'nullable',
+            'content' => 'nullable',
         ]);
-        $course = CfdtCourse::create([...$data, 'content' => [['title' => 'Support principal', 'body' => $request->input('content')]], 'questions' => [], 'created_by' => $request->user()->id]);
+        $course = CfdtCourse::create([...$data, 'max_attempts' => 3, 'content' => [['title' => 'Support principal', 'body' => $request->input('content')]], 'questions' => [], 'created_by' => $request->user()->id]);
 
         return redirect()->route('cfdt.show', $course);
     }
@@ -52,11 +54,13 @@ class CfdtController extends Controller
         $canEdit = $course->created_by === $user->id && in_array($course->status, ['draft', 'changes_requested'], true);
         $canReview = $this->canReview($user);
         $canAssign = $course->status === 'published' && ($course->created_by === $user->id || $canReview);
-        $users = $canAssign ? User::with('department')->where('active', true)->orderBy('name')->orderBy('prenom')->get() : collect();
+        $users = $canAssign ? User::with('department')->where('active', true)->where(fn ($query) => $query->whereNull('cfdt_role')->orWhere('cfdt_role', 'learner'))->orderBy('name')->orderBy('prenom')->get() : collect();
         $departments = $canAssign ? Department::where('active', true)->orderBy('name')->get() : collect();
         $roleCategories = collect(UserRoles::all())->mapWithKeys(fn ($role) => [$role => UserRoles::label($role)]);
 
-        return view('cfdt.show', compact('course', 'enrollment', 'users', 'departments', 'roleCategories', 'canEdit', 'canReview', 'canAssign'));
+        $analytics = ($course->created_by === $user->id || $canReview) ? $this->courseAnalytics($course->load('enrollments.attempts')) : null;
+
+        return view('cfdt.show', compact('course', 'enrollment', 'users', 'departments', 'roleCategories', 'canEdit', 'canReview', 'canAssign', 'analytics'));
     }
 
     public function question(Request $request, CfdtCourse $course)
@@ -104,7 +108,7 @@ class CfdtController extends Controller
         if (empty($data['user_ids']) && empty($data['department_ids']) && empty($data['role_categories'])) throw ValidationException::withMessages(['audience' => 'Sélectionnez au moins un agent, une structure ou une fonction.']);
         $departmentIds = array_map('intval', $data['department_ids'] ?? []);
         if ($request->boolean('include_descendants')) $departmentIds = collect($departmentIds)->flatMap(fn ($id) => Department::subtreeIds($id))->unique()->values()->all();
-        $targets = User::query()->where('active', true)->where(function ($query) use ($data, $departmentIds) {
+        $targets = User::query()->where('active', true)->where(fn ($query) => $query->whereNull('cfdt_role')->orWhere('cfdt_role', 'learner'))->where(function ($query) use ($data, $departmentIds) {
             $first = true;
             foreach ([['id', $data['user_ids'] ?? []], ['department_id', $departmentIds], ['role', $data['role_categories'] ?? []]] as [$column, $values]) {
                 if (empty($values)) continue;
@@ -125,14 +129,14 @@ class CfdtController extends Controller
     }
 
     public function invitation(Request $request, string $token) { $e = CfdtEnrollment::with('course')->where('invitation_token', $token)->where('user_id', $request->user()->id)->firstOrFail(); abort_if($e->isExpired(), 403, 'Ce lien d’invitation a expiré.'); return redirect()->route('cfdt.show', $e->course); }
-    public function attempt(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($course->status === 'published', 403); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_if($e->attempts()->count() >= $course->max_attempts, 403, 'Nombre maximal de tentatives atteint.'); return view('cfdt.attempt', compact('course', 'e')); }
+    public function attempt(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($request->user()->cfdt_role === 'learner' && $course->status === 'published', 403); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_if($e->attempts()->count() >= $course->allowedAttempts(), 403, 'Les trois tentatives autorisées ont été utilisées.'); return view('cfdt.attempt', compact('course', 'e')); }
     public function submit(Request $request, CfdtCourse $course)
     {
         $this->guard($request);
-        abort_unless($course->status === 'published', 403);
+        abort_unless($request->user()->cfdt_role === 'learner' && $course->status === 'published', 403);
         $enrollment = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail();
         abort_if($enrollment->isExpired(), 403, 'La date limite de ce test est dépassée.');
-        abort_if($enrollment->attempts()->count() >= $course->max_attempts, 403);
+        abort_if($enrollment->attempts()->count() >= $course->allowedAttempts(), 403, 'Les trois tentatives autorisées ont été utilisées.');
         $answers = $request->input('answers', []);
         $score = $total = 0;
         foreach ($course->questions as $question) {
@@ -172,5 +176,6 @@ class CfdtController extends Controller
     private function guard(Request $request): void { abort_unless($request->user()->canAccessCfdt(), 403); }
     private function canCreate(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['trainer', 'administrator'], true); }
     private function canReview(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['validator', 'administrator'], true); }
+    private function courseAnalytics(CfdtCourse $course): array { $enrollments = $course->relationLoaded('enrollments') ? $course->enrollments : $course->enrollments()->with('attempts')->get(); $attempts = $enrollments->flatMap->attempts; $done = $enrollments->filter(fn ($enrollment) => $enrollment->attempts->isNotEmpty())->count(); return ['invited' => $enrollments->count(), 'done' => $done, 'pending' => $enrollments->count() - $done, 'highest' => $attempts->max('percentage'), 'average' => $attempts->avg('percentage')]; }
     private function assignmentSource(array $data): string { return ! empty($data['department_ids']) ? 'structure' : (! empty($data['role_categories']) ? 'fonction' : 'individuel'); }
 }

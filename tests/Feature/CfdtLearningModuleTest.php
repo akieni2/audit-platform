@@ -57,4 +57,18 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $owner=$this->user('auditeur','learner');$intruder=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'RESULT-SEC','title'=>'Corrigé privé','status'=>'published','questions'=>[],'content'=>[],'created_by'=>$owner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$owner->id,'assigned_by'=>$owner->id,'assigned_at'=>now()]);$attempt=CfdtAttempt::create(['enrollment_id'=>$enrollment->id,'question_snapshot'=>[],'answers'=>[],'score'=>0,'total'=>0,'percentage'=>0,'passed'=>false,'started_at'=>now(),'submitted_at'=>now()]);
   $this->actingAs($intruder)->get(route('cfdt.result',$attempt))->assertForbidden();
  }
+ public function test_trainer_dashboard_shows_course_analytics_without_pass_test_action():void{
+  $trainer=$this->user('auditeur','trainer');$learner=$this->user('auditeur','learner');$pending=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'STATS-01','title'=>'QCM analytique','status'=>'published','questions'=>[['id'=>'q1','text'=>'Question ?','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>1]],'content'=>[],'created_by'=>$trainer->id]);$doneEnrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$trainer->id,'assigned_at'=>now()]);CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$pending->id,'assigned_by'=>$trainer->id,'assigned_at'=>now()]);CfdtAttempt::create(['enrollment_id'=>$doneEnrollment->id,'question_snapshot'=>$course->questions,'answers'=>['q1'=>['0']],'score'=>1,'total'=>1,'percentage'=>100,'passed'=>true,'started_at'=>now(),'submitted_at'=>now()]);
+  $this->actingAs($trainer)->get(route('cfdt.index'))->assertOk()->assertSee('Invités')->assertSee('Ont participé')->assertSee('En attente')->assertSee('Meilleur score')->assertDontSee('Passer le test');
+  $this->actingAs($trainer)->get(route('cfdt.show',$course))->assertOk()->assertSee('N’ont pas encore participé')->assertDontSee('Passer le QCM');
+ }
+ public function test_trainer_cannot_take_a_test_even_if_an_enrollment_exists():void{
+  $trainer=$this->user('auditeur','trainer');$course=CfdtCourse::create(['code'=>'NO-TRAINER-TEST','title'=>'Test réservé','status'=>'published','questions'=>[],'content'=>[],'created_by'=>$trainer->id]);CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$trainer->id,'assigned_by'=>$trainer->id,'assigned_at'=>now()]);
+  $this->actingAs($trainer)->get(route('cfdt.attempt',$course))->assertForbidden();
+ }
+ public function test_learner_is_limited_to_initial_attempt_and_two_retakes():void{
+  $learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'LIMIT-03','title'=>'Trois tentatives','status'=>'published','max_attempts'=>10,'questions'=>[['id'=>'q1','text'=>'Question ?','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>1]],'content'=>[],'created_by'=>$learner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$learner->id,'assigned_at'=>now()]);
+  foreach(range(1,3) as $number)CfdtAttempt::create(['enrollment_id'=>$enrollment->id,'question_snapshot'=>$course->questions,'answers'=>['q1'=>['1']],'score'=>0,'total'=>1,'percentage'=>0,'passed'=>false,'started_at'=>now(),'submitted_at'=>now()]);
+  $this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertForbidden();$this->actingAs($learner)->post(route('cfdt.submit',$course),['answers'=>['q1'=>['0']]])->assertForbidden();
+ }
 }

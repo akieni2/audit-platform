@@ -19,6 +19,6 @@
     </section>
     @endforeach
 
-    <div class="flex flex-wrap gap-3"><a class="dgcpt-btn-secondary" href="{{ route('cfdt.index') }}">Retour à mon espace CFDT</a>@if(!$attempt->passed && !$attempt->enrollment->isExpired() && $attempt->enrollment->attempts()->count() < $course->max_attempts)<a class="dgcpt-btn-primary" href="{{ route('cfdt.attempt',$course) }}">Retenter le test</a>@endif @if($attempt->enrollment->certificate)<a class="dgcpt-btn-primary" href="{{ route('cfdt.certificate',$attempt->enrollment->certificate) }}">Télécharger le certificat</a>@endif</div>
+    <div class="flex flex-wrap gap-3"><a class="dgcpt-btn-secondary" href="{{ route('cfdt.index') }}">Retour à mon espace CFDT</a>@if(!$attempt->enrollment->isExpired() && $attempt->enrollment->attempts()->count() < 3)<a class="dgcpt-btn-primary" href="{{ route('cfdt.attempt',$course) }}">Refaire le test ({{ 3-$attempt->enrollment->attempts()->count() }} tentative(s) restante(s))</a>@endif @if($attempt->enrollment->certificate)<a class="dgcpt-btn-primary" href="{{ route('cfdt.certificate',$attempt->enrollment->certificate) }}">Télécharger le certificat</a>@endif</div>
 </div>
 </x-app-layout>
