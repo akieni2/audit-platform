@@ -30,26 +30,66 @@
 
         <div class="dgcpt-surface overflow-x-auto">
             <table class="min-w-full text-left">
-                <thead><tr class="border-b border-slate-700"><th class="p-4">Agent</th><th class="p-4">Structure</th><th class="p-4">Rôle CFDT</th><th class="p-4">Action</th></tr></thead>
+                <thead><tr class="border-b border-slate-700"><th class="p-4">Agent</th><th class="p-4">Structure</th><th class="p-4">Accès actuel</th><th class="p-4">Action</th></tr></thead>
                 <tbody>
                 @foreach($users as $user)
+                    @php
+                        $cfdtRoleLabels = [
+                            'learner' => 'Agent / apprenant',
+                            'trainer' => 'Formateur / enseignant',
+                            'validator' => 'Validateur pédagogique',
+                            'administrator' => 'Administrateur CFDT',
+                        ];
+                    @endphp
                     <tr class="border-b border-slate-800">
                         <td class="p-4"><strong>{{ $user->prenom }} {{ $user->name }}</strong><br><span class="dgcpt-text-muted">{{ $user->email }}</span></td>
                         <td class="p-4">{{ $user->department?->name ?? 'Non rattaché' }}</td>
                         <td class="p-4">
-                            <form class="flex min-w-72 gap-2" method="post" action="{{ route('cfdt.access.update', $user) }}">
-                                @csrf @method('PATCH')
-                                <select class="dgcpt-select" name="cfdt_role">
-                                    <option value="">Aucun accès</option>
-                                    <option value="learner" @selected($user->cfdt_role === 'learner')>Apprenant</option>
-                                    <option value="trainer" @selected($user->cfdt_role === 'trainer')>Formateur</option>
-                                    <option value="validator" @selected($user->cfdt_role === 'validator')>Validateur</option>
-                                    @if(auth()->user()->isInstitutionalSuperAdmin() || $user->cfdt_role === 'administrator')<option value="administrator" @selected($user->cfdt_role === 'administrator')>Administrateur CFDT</option>@endif
-                                </select>
-                                <button class="dgcpt-btn-primary">Enregistrer</button>
-                            </form>
+                            <span class="inline-flex rounded-full border border-cyan-900 bg-cyan-950/30 px-3 py-1 text-sm font-semibold text-cyan-100">
+                                {{ $cfdtRoleLabels[$user->cfdt_role] ?? 'Aucun accès au CFDT' }}
+                            </span>
                         </td>
-                        <td class="p-4 text-sm">Accès révocable</td>
+                        <td class="p-4 align-top">
+                            @if($user->isInstitutionalSuperAdmin())
+                                <span class="text-sm text-[#9FB3C8]">Compte Super Admin protégé</span>
+                            @else
+                                <details class="group min-w-72">
+                                    <summary class="dgcpt-btn-primary inline-flex cursor-pointer list-none items-center gap-2">
+                                        {{ $user->cfdt_role ? 'Modifier le rôle' : 'Affecter au CFDT' }}
+                                        <span class="transition group-open:rotate-180">⌄</span>
+                                    </summary>
+                                    <form class="mt-3 space-y-3 rounded-xl border border-cyan-900/70 bg-slate-950/70 p-4" method="post" action="{{ route('cfdt.access.update', $user) }}">
+                                        @csrf @method('PATCH')
+                                        <p class="text-sm font-bold text-[#E6EEF8]">Choisir le rôle de {{ $user->prenom ?: $user->name }}</p>
+                                        <div class="grid gap-2">
+                                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700 p-3 hover:border-cyan-600">
+                                                <input type="radio" name="cfdt_role" value="learner" @checked($user->cfdt_role === 'learner')>
+                                                <span><strong>Agent / apprenant</strong><small class="block text-[#9FB3C8]">Suit les formations, passe les tests et reçoit ses certificats.</small></span>
+                                            </label>
+                                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700 p-3 hover:border-cyan-600">
+                                                <input type="radio" name="cfdt_role" value="trainer" @checked($user->cfdt_role === 'trainer')>
+                                                <span><strong>Formateur / enseignant</strong><small class="block text-[#9FB3C8]">Crée les contenus, QCM et affectations pédagogiques.</small></span>
+                                            </label>
+                                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700 p-3 hover:border-cyan-600">
+                                                <input type="radio" name="cfdt_role" value="validator" @checked($user->cfdt_role === 'validator')>
+                                                <span><strong>Validateur pédagogique</strong><small class="block text-[#9FB3C8]">Contrôle et publie les formations préparées.</small></span>
+                                            </label>
+                                            @if(auth()->user()->isInstitutionalSuperAdmin() || $user->cfdt_role === 'administrator')
+                                                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700 p-3 hover:border-cyan-600">
+                                                    <input type="radio" name="cfdt_role" value="administrator" @checked($user->cfdt_role === 'administrator')>
+                                                    <span><strong>Administrateur CFDT</strong><small class="block text-[#9FB3C8]">Administre les comptes, les formations et les affectations.</small></span>
+                                                </label>
+                                            @endif
+                                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-red-900/60 p-3 hover:border-red-600">
+                                                <input type="radio" name="cfdt_role" value="" @checked(!$user->cfdt_role)>
+                                                <span><strong>Retirer l’accès</strong><small class="block text-[#9FB3C8]">L’utilisateur reste dans la base mais ne voit plus le CFDT.</small></span>
+                                            </label>
+                                        </div>
+                                        <button class="dgcpt-btn-primary w-full">Confirmer l’affectation</button>
+                                    </form>
+                                </details>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
