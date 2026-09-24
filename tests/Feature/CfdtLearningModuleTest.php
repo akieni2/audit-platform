@@ -28,6 +28,10 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $certificate=CfdtCertificate::create(['enrollment_id'=>$enrollment->id,'verification_token'=>(string)\Illuminate\Support\Str::uuid(),'number'=>'CFDT-TEST-1','score'=>100,'issued_at'=>now(),'signature_hash'=>'test']);
   $this->actingAs($intruder)->get(route('cfdt.certificate',$certificate))->assertForbidden();
  }
+ public function test_owner_can_download_landscape_certificate_with_embedded_qr_code():void{
+  $owner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'CERT-PDF','title'=>'Audit des systèmes','questions'=>[],'content'=>[],'created_by'=>$owner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$owner->id,'assigned_by'=>$owner->id,'assigned_at'=>now()]);$token=(string)\Illuminate\Support\Str::uuid();$certificate=CfdtCertificate::create(['enrollment_id'=>$enrollment->id,'verification_token'=>$token,'number'=>'CFDT-TEST-PDF','score'=>100,'issued_at'=>now(),'signature_hash'=>hash('sha256',$token.'|'.$enrollment->id.'|100')]);
+  $response=$this->actingAs($owner)->get(route('cfdt.certificate',$certificate));$response->assertOk()->assertHeader('content-type','application/pdf')->assertDownload('CFDT-TEST-PDF.pdf');$this->assertStringStartsWith('%PDF',$response->getContent());
+ }
  public function test_cfdt_administrator_can_create_trainer_but_not_another_administrator():void{
   Notification::fake();$admin=$this->user('auditeur','administrator');$department=Department::create(['name'=>'Pôle formation','code'=>'PF','type'=>'pole','active'=>true]);
   $payload=['name'=>'FORMATEUR','prenom'=>'Alice','email'=>'alice.formateur@example.test','department_id'=>$department->id,'fonction'=>'Formatrice','role'=>'agent_operationnel','cfdt_role'=>'trainer'];

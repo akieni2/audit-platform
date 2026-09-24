@@ -6,6 +6,9 @@ use App\Models\{CfdtAttempt, CfdtCertificate, CfdtCourse, CfdtEnrollment, Depart
 use App\Notifications\Cfdt\CfdtTestAssignedNotification;
 use App\Support\UserRoles;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -199,7 +202,20 @@ class CfdtController extends Controller
 
         return view('cfdt.result', compact('attempt'));
     }
-    public function certificate(Request $request, CfdtCertificate $certificate) { $certificate->load('enrollment.user', 'enrollment.course'); abort_unless($certificate->enrollment->user_id === $request->user()->id || $request->user()->canManageCfdt(), 403); return Pdf::loadView('cfdt.certificate', compact('certificate'))->download($certificate->number.'.pdf'); }
+    public function certificate(Request $request, CfdtCertificate $certificate)
+    {
+        $certificate->load('enrollment.user', 'enrollment.course');
+        abort_unless($certificate->enrollment->user_id === $request->user()->id || $request->user()->canManageCfdt(), 403);
+        $verificationUrl = route('cfdt.verify', $certificate->verification_token);
+        $qrCode = (new Builder(writer: new PngWriter(), data: $verificationUrl, errorCorrectionLevel: ErrorCorrectionLevel::High, size: 240, margin: 8))->build()->getDataUri();
+        $logoPath = public_path('assets/branding/dgcpt-logo.png');
+        $logo = is_file($logoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoPath)) : null;
+        $directorName = config('cfdt.director_name');
+        $directorTitle = config('cfdt.director_title');
+
+        return Pdf::loadView('cfdt.certificate', compact('certificate', 'qrCode', 'logo', 'directorName', 'directorTitle'))
+            ->setPaper('a4', 'landscape')->download($certificate->number.'.pdf');
+    }
     public function verify(string $token) { $certificate = CfdtCertificate::with('enrollment.user', 'enrollment.course')->where('verification_token', $token)->firstOrFail(); $expected = hash('sha256', $certificate->verification_token.'|'.$certificate->enrollment_id.'|'.$certificate->score); $valid = hash_equals($expected, $certificate->signature_hash); return view('cfdt.verify', compact('certificate', 'valid')); }
     private function guard(Request $request): void { abort_unless($request->user()->canAccessCfdt(), 403); }
     private function canCreate(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['trainer', 'administrator'], true); }
