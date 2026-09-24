@@ -175,8 +175,15 @@ class CfdtController extends Controller
             $attempt = CfdtAttempt::create(['enrollment_id' => $enrollment->id, 'question_snapshot' => $course->questions, 'answers' => $answers, 'score' => $score, 'total' => $total, 'percentage' => $percentage, 'passed' => $passed, 'started_at' => now(), 'submitted_at' => now()]);
             if ($passed) {
                 $enrollment->update(['status' => 'completed', 'progress' => 100, 'completed_at' => now()]);
-                $token = (string) Str::uuid();
-                CfdtCertificate::firstOrCreate(['enrollment_id' => $enrollment->id], ['verification_token' => $token, 'number' => 'CFDT-'.now()->format('Y').'-'.str_pad($enrollment->id, 6, '0', STR_PAD_LEFT), 'score' => $percentage, 'issued_at' => now(), 'signature_hash' => hash('sha256', $token.'|'.$enrollment->id.'|'.$percentage)]);
+                $certificate = CfdtCertificate::firstOrNew(['enrollment_id' => $enrollment->id]);
+                if (! $certificate->exists) {
+                    $certificate->verification_token = (string) Str::uuid();
+                    $certificate->number = 'CFDT-'.now()->format('Y').'-'.str_pad($enrollment->id, 6, '0', STR_PAD_LEFT);
+                    $certificate->issued_at = now();
+                }
+                $certificate->score = max((float) ($certificate->score ?? 0), $percentage);
+                $certificate->signature_hash = hash('sha256', $certificate->verification_token.'|'.$enrollment->id.'|'.$certificate->score);
+                $certificate->save();
             }
             return $attempt;
         });
