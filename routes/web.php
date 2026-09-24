@@ -95,6 +95,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/cours/{course}/affecter', [CfdtController::class, 'enroll'])->name('enroll');
         Route::get('/cours/{course}/test', [CfdtController::class, 'attempt'])->name('attempt');
         Route::post('/cours/{course}/test', [CfdtController::class, 'submit'])->name('submit');
+        Route::get('/tentatives/{attempt}/corrige', [CfdtController::class, 'result'])->name('result');
         Route::get('/certificat/{certificate}', [CfdtController::class, 'certificate'])->name('certificate');
     });
 

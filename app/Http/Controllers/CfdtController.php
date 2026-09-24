@@ -126,7 +126,47 @@ class CfdtController extends Controller
 
     public function invitation(Request $request, string $token) { $e = CfdtEnrollment::with('course')->where('invitation_token', $token)->where('user_id', $request->user()->id)->firstOrFail(); abort_if($e->isExpired(), 403, 'Ce lien d’invitation a expiré.'); return redirect()->route('cfdt.show', $e->course); }
     public function attempt(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($course->status === 'published', 403); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_if($e->attempts()->count() >= $course->max_attempts, 403, 'Nombre maximal de tentatives atteint.'); return view('cfdt.attempt', compact('course', 'e')); }
-    public function submit(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($course->status === 'published', 403); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_if($e->attempts()->count() >= $course->max_attempts, 403); $answers = $request->input('answers', []); $score = $total = 0; foreach ($course->questions as $q) { $pts = (int) $q['points']; $total += $pts; $given = (array) ($answers[$q['id']] ?? []); sort($given); $correct = (array) $q['correct']; sort($correct); if ($given === $correct) $score += $pts; } $pct = $total ? round($score * 100 / $total, 2) : 0; $passed = $pct >= $course->pass_mark; DB::transaction(function () use ($e, $course, $answers, $score, $total, $pct, $passed) { CfdtAttempt::create(['enrollment_id' => $e->id, 'question_snapshot' => $course->questions, 'answers' => $answers, 'score' => $score, 'total' => $total, 'percentage' => $pct, 'passed' => $passed, 'started_at' => now(), 'submitted_at' => now()]); if ($passed) { $e->update(['status' => 'completed', 'progress' => 100, 'completed_at' => now()]); $token = (string) Str::uuid(); CfdtCertificate::firstOrCreate(['enrollment_id' => $e->id], ['verification_token' => $token, 'number' => 'CFDT-'.now()->format('Y').'-'.str_pad($e->id, 6, '0', STR_PAD_LEFT), 'score' => $pct, 'issued_at' => now(), 'signature_hash' => hash('sha256', $token.'|'.$e->id.'|'.$pct)]); } }); return redirect()->route('cfdt.show', $course)->with('status', $passed ? 'Réussite : certificat délivré.' : 'Seuil non atteint.'); }
+    public function submit(Request $request, CfdtCourse $course)
+    {
+        $this->guard($request);
+        abort_unless($course->status === 'published', 403);
+        $enrollment = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail();
+        abort_if($enrollment->isExpired(), 403, 'La date limite de ce test est dépassée.');
+        abort_if($enrollment->attempts()->count() >= $course->max_attempts, 403);
+        $answers = $request->input('answers', []);
+        $score = $total = 0;
+        foreach ($course->questions as $question) {
+            $points = (int) $question['points'];
+            $total += $points;
+            $given = array_map('strval', (array) ($answers[$question['id']] ?? []));
+            $correct = array_map('strval', (array) ($question['correct'] ?? []));
+            sort($given);
+            sort($correct);
+            if ($given === $correct) $score += $points;
+        }
+        $percentage = $total ? round($score * 100 / $total, 2) : 0;
+        $passed = $percentage >= $course->pass_mark;
+        $attempt = DB::transaction(function () use ($enrollment, $course, $answers, $score, $total, $percentage, $passed) {
+            $attempt = CfdtAttempt::create(['enrollment_id' => $enrollment->id, 'question_snapshot' => $course->questions, 'answers' => $answers, 'score' => $score, 'total' => $total, 'percentage' => $percentage, 'passed' => $passed, 'started_at' => now(), 'submitted_at' => now()]);
+            if ($passed) {
+                $enrollment->update(['status' => 'completed', 'progress' => 100, 'completed_at' => now()]);
+                $token = (string) Str::uuid();
+                CfdtCertificate::firstOrCreate(['enrollment_id' => $enrollment->id], ['verification_token' => $token, 'number' => 'CFDT-'.now()->format('Y').'-'.str_pad($enrollment->id, 6, '0', STR_PAD_LEFT), 'score' => $percentage, 'issued_at' => now(), 'signature_hash' => hash('sha256', $token.'|'.$enrollment->id.'|'.$percentage)]);
+            }
+            return $attempt;
+        });
+
+        return redirect()->route('cfdt.result', $attempt);
+    }
+
+    public function result(Request $request, CfdtAttempt $attempt)
+    {
+        $this->guard($request);
+        $attempt->load('enrollment.course', 'enrollment.certificate');
+        abort_unless($attempt->enrollment->user_id === $request->user()->id || $this->canReview($request->user()), 403);
+
+        return view('cfdt.result', compact('attempt'));
+    }
     public function certificate(Request $request, CfdtCertificate $certificate) { $certificate->load('enrollment.user', 'enrollment.course'); abort_unless($certificate->enrollment->user_id === $request->user()->id || $request->user()->canManageCfdt(), 403); return Pdf::loadView('cfdt.certificate', compact('certificate'))->download($certificate->number.'.pdf'); }
     public function verify(string $token) { $certificate = CfdtCertificate::with('enrollment.user', 'enrollment.course')->where('verification_token', $token)->firstOrFail(); $expected = hash('sha256', $certificate->verification_token.'|'.$certificate->enrollment_id.'|'.$certificate->score); $valid = hash_equals($expected, $certificate->signature_hash); return view('cfdt.verify', compact('certificate', 'valid')); }
     private function guard(Request $request): void { abort_unless($request->user()->canAccessCfdt(), 403); }
