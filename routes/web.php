@@ -89,6 +89,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/invitation/{token}', [CfdtController::class, 'invitation'])->name('invitation');
         Route::get('/cours/{course}', [CfdtController::class, 'show'])->name('show');
         Route::post('/cours/{course}/questions', [CfdtController::class, 'question'])->name('questions.store');
+        Route::patch('/cours/{course}/soumettre', [CfdtController::class, 'submitForReview'])->name('submit-review');
+        Route::patch('/cours/{course}/examiner', [CfdtController::class, 'review'])->name('review');
         Route::patch('/cours/{course}/publier', [CfdtController::class, 'publish'])->name('publish');
         Route::post('/cours/{course}/affecter', [CfdtController::class, 'enroll'])->name('enroll');
         Route::get('/cours/{course}/test', [CfdtController::class, 'attempt'])->name('attempt');

@@ -81,6 +81,8 @@ class CfdtCourseAssignmentValidationTest extends TestCase
             'questions' => [],
             'content' => [],
             'created_by' => $trainer->id,
+            'status' => 'published',
+            'published_at' => now(),
         ]);
 
         return [$trainer, $course];

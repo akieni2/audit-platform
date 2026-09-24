@@ -7,7 +7,8 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $trainer=$this->user('auditeur','trainer');$validator=$this->user('auditeur','validator');$learner=$this->user('auditeur','learner');
   $this->actingAs($trainer)->post(route('cfdt.store'),['code'=>'CFDT-01','title'=>'Comptabilité publique','pass_mark'=>70,'max_attempts'=>3])->assertRedirect();$course=CfdtCourse::firstOrFail();
   $this->actingAs($trainer)->post(route('cfdt.questions.store',$course),['text'=>'Quel principe garantit la traçabilité ?','type'=>'single','options'=>['Journalisation','Suppression','Anonymat'],'correct'=>[0],'points'=>2])->assertRedirect();
-  $this->actingAs($validator)->patch(route('cfdt.publish',$course))->assertRedirect();
+  $this->actingAs($trainer)->patch(route('cfdt.submit-review',$course))->assertRedirect();
+  $this->actingAs($validator)->patch(route('cfdt.review',$course),['decision'=>'approve'])->assertRedirect();
   $this->actingAs($trainer)->post(route('cfdt.enroll',$course),['user_ids'=>[$learner->id],'expires_at'=>now()->addWeek()->format('Y-m-d H:i:s')])->assertRedirect();$e=CfdtEnrollment::firstOrFail();$qid=CfdtCourse::first()->questions[0]['id'];
   $this->actingAs($learner)->post(route('cfdt.submit',$course),['answers'=>[$qid=>[0]]])->assertRedirect();
   $this->assertDatabaseHas('cfdt_attempts',['enrollment_id'=>$e->id,'passed'=>true]);$this->assertDatabaseHas('cfdt_certificates',['enrollment_id'=>$e->id]);
@@ -35,7 +36,7 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $this->actingAs($admin)->post(route('cfdt.access.store'),[...$payload,'email'=>'admin.cfdt@example.test','cfdt_role'=>'administrator'])->assertSessionHasErrors('cfdt_role');
  }
  public function test_trainer_assigns_test_to_department_descendants_and_role_with_expiry():void{
-  Notification::fake();$trainer=$this->user('auditeur','trainer');$parent=Department::create(['name'=>'Direction test','code'=>'DT','type'=>'direction','active'=>true]);$child=Department::create(['name'=>'Service test','code'=>'ST','type'=>'service','active'=>true,'parent_department_id'=>$parent->id]);$learner=$this->user('auditeur','learner');$learner->update(['department_id'=>$child->id,'role'=>'inspecteur_verificateur']);$course=CfdtCourse::create(['code'=>'CIBLE-01','title'=>'Test ciblé','questions'=>[],'content'=>[],'created_by'=>$trainer->id]);
+  Notification::fake();$trainer=$this->user('auditeur','trainer');$parent=Department::create(['name'=>'Direction test','code'=>'DT','type'=>'direction','active'=>true]);$child=Department::create(['name'=>'Service test','code'=>'ST','type'=>'service','active'=>true,'parent_department_id'=>$parent->id]);$learner=$this->user('auditeur','learner');$learner->update(['department_id'=>$child->id,'role'=>'inspecteur_verificateur']);$course=CfdtCourse::create(['code'=>'CIBLE-01','title'=>'Test ciblé','questions'=>[],'content'=>[],'created_by'=>$trainer->id,'status'=>'published','published_at'=>now()]);
   $this->actingAs($trainer)->post(route('cfdt.enroll',$course),['department_ids'=>[$parent->id],'include_descendants'=>1,'role_categories'=>['inspecteur_verificateur'],'expires_at'=>now()->addDays(3)->format('Y-m-d H:i:s')])->assertRedirect();
   $enrollment=CfdtEnrollment::where('user_id',$learner->id)->firstOrFail();$this->assertNotNull($enrollment->invitation_token);$this->assertNotNull($enrollment->expires_at);Notification::assertSentTo($learner,CfdtTestAssignedNotification::class);
  }
