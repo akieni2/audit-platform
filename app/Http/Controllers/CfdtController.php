@@ -208,12 +208,16 @@ class CfdtController extends Controller
         abort_unless($certificate->enrollment->user_id === $request->user()->id || $request->user()->canManageCfdt(), 403);
         $verificationUrl = route('cfdt.verify', $certificate->verification_token);
         $qrCode = (new Builder(writer: new PngWriter(), data: $verificationUrl, errorCorrectionLevel: ErrorCorrectionLevel::High, size: 240, margin: 8))->build()->getDataUri();
-        $logoPath = public_path('assets/branding/dgcpt-logo.png');
-        $logo = is_file($logoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoPath)) : null;
+        $logoPath = public_path('assets/branding/dgcpt-logo-certificate.jpg');
+        $framePath = public_path('assets/branding/cfdt-certificate-frame.svg');
+        $medalPath = public_path('assets/branding/cfdt-certificate-medal.svg');
+        $logo = is_file($logoPath) ? 'data:image/jpeg;base64,'.base64_encode(file_get_contents($logoPath)) : null;
+        $frame = is_file($framePath) ? 'data:image/svg+xml;base64,'.base64_encode(file_get_contents($framePath)) : null;
+        $medal = is_file($medalPath) ? 'data:image/svg+xml;base64,'.base64_encode(file_get_contents($medalPath)) : null;
         $directorName = config('cfdt.director_name');
         $directorTitle = config('cfdt.director_title');
 
-        return Pdf::loadView('cfdt.certificate', compact('certificate', 'qrCode', 'logo', 'directorName', 'directorTitle'))
+        return Pdf::loadView('cfdt.certificate', compact('certificate', 'qrCode', 'logo', 'frame', 'medal', 'directorName', 'directorTitle'))
             ->setPaper('a4', 'landscape')->download($certificate->number.'.pdf');
     }
     public function verify(string $token) { $certificate = CfdtCertificate::with('enrollment.user', 'enrollment.course')->where('verification_token', $token)->firstOrFail(); $expected = hash('sha256', $certificate->verification_token.'|'.$certificate->enrollment_id.'|'.$certificate->score); $valid = hash_equals($expected, $certificate->signature_hash); return view('cfdt.verify', compact('certificate', 'valid')); }
