@@ -10,7 +10,9 @@
         @elseif($resource->type === 'pdf')
             <iframe class="h-[75vh] w-full rounded-xl bg-white" src="{{ route('cfdt.resources.file', [$course, $resource]) }}" title="{{ $resource->title }}"></iframe>
         @elseif($resource->type === 'video' && $resource->youtubeEmbedUrl())
-            <div class="aspect-video"><iframe class="h-full w-full rounded-xl" src="{{ $resource->youtubeEmbedUrl() }}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+            <div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:0.75rem;background:#000;">
+                <iframe style="position:absolute;inset:0;width:100%;height:100%;border:0;" src="{{ $resource->youtubeEmbedUrl() }}" title="{{ $resource->title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
         @elseif($resource->type === 'video')
             <video class="mx-auto max-h-[75vh] w-full rounded-xl bg-black" controls preload="metadata" src="{{ $resource->external_url ?: route('cfdt.resources.file', [$course, $resource]) }}"></video>
         @elseif($resource->type === 'epub')
