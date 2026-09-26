@@ -55,6 +55,7 @@ use App\Http\Controllers\AdministrativeWork\AdministrativeTaskController;
 use App\Http\Controllers\InstitutionalProcessController;
 use App\Http\Controllers\InstitutionalAssetController;
 use App\Http\Controllers\CfdtController;
+use App\Http\Controllers\CfdtCourseResourceController;
 use App\Http\Controllers\CfdtAccessController;
 
 /*
@@ -88,6 +89,11 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::patch('/habilitations/{user}', [CfdtAccessController::class, 'update'])->name('access.update');
         Route::get('/invitation/{token}', [CfdtController::class, 'invitation'])->name('invitation');
         Route::get('/cours/{course}', [CfdtController::class, 'show'])->name('show');
+        Route::post('/cours/{course}/supports', [CfdtCourseResourceController::class, 'store'])->name('resources.store');
+        Route::get('/cours/{course}/supports/{resource}', [CfdtCourseResourceController::class, 'show'])->name('resources.show');
+        Route::get('/cours/{course}/supports/{resource}/fichier', [CfdtCourseResourceController::class, 'file'])->name('resources.file');
+        Route::patch('/cours/{course}/supports/{resource}/terminer', [CfdtCourseResourceController::class, 'complete'])->name('resources.complete');
+        Route::delete('/cours/{course}/supports/{resource}', [CfdtCourseResourceController::class, 'destroy'])->name('resources.destroy');
         Route::post('/cours/{course}/questions', [CfdtController::class, 'question'])->name('questions.store');
         Route::patch('/cours/{course}/questions/{questionId}/ponderation', [CfdtController::class, 'updateQuestionWeight'])->name('questions.weight');
         Route::patch('/cours/{course}/soumettre', [CfdtController::class, 'submitForReview'])->name('submit-review');

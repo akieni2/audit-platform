@@ -51,8 +51,9 @@ class CfdtController extends Controller
     public function show(Request $request, CfdtCourse $course)
     {
         $this->guard($request);
+        $course->load('resources');
         $user = $request->user();
-        $enrollment = CfdtEnrollment::with(['attempts', 'certificate'])->where(['course_id' => $course->id, 'user_id' => $user->id])->first();
+        $enrollment = CfdtEnrollment::with(['attempts', 'certificate', 'resourceProgress'])->where(['course_id' => $course->id, 'user_id' => $user->id])->first();
         abort_unless($course->created_by === $user->id || $this->canReview($user) || ($course->status === 'published' && $enrollment), 403);
         $canEdit = $course->created_by === $user->id && in_array($course->status, ['draft', 'changes_requested'], true);
         $canReview = $this->canReview($user);
@@ -62,8 +63,10 @@ class CfdtController extends Controller
         $roleCategories = collect(UserRoles::all())->mapWithKeys(fn ($role) => [$role => UserRoles::label($role)]);
 
         $analytics = ($course->created_by === $user->id || $canReview) ? $this->courseAnalytics($course->load('enrollments.attempts')) : null;
+        $completedResourceIds = $enrollment?->resourceProgress->whereNotNull('completed_at')->pluck('resource_id')->all() ?? [];
+        $requiredResourcesComplete = $enrollment ? $this->hasCompletedRequiredResources($course, $enrollment) : true;
 
-        return view('cfdt.show', compact('course', 'enrollment', 'users', 'departments', 'roleCategories', 'canEdit', 'canReview', 'canAssign', 'analytics'));
+        return view('cfdt.show', compact('course', 'enrollment', 'users', 'departments', 'roleCategories', 'canEdit', 'canReview', 'canAssign', 'analytics', 'completedResourceIds', 'requiredResourcesComplete'));
     }
 
     public function question(Request $request, CfdtCourse $course)
@@ -153,13 +156,15 @@ class CfdtController extends Controller
     }
 
     public function invitation(Request $request, string $token) { $e = CfdtEnrollment::with('course')->where('invitation_token', $token)->where('user_id', $request->user()->id)->firstOrFail(); abort_if($e->isExpired(), 403, 'Ce lien d’invitation a expiré.'); return redirect()->route('cfdt.show', $e->course); }
-    public function attempt(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($request->user()->cfdt_role === 'learner' && $course->status === 'published', 403); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_if($e->attempts()->count() >= $course->allowedAttempts(), 403, 'Les trois tentatives autorisées ont été utilisées.'); return view('cfdt.attempt', compact('course', 'e')); }
+    public function attempt(Request $request, CfdtCourse $course) { $this->guard($request); abort_unless($request->user()->cfdt_role === 'learner' && $course->status === 'published', 403); $course->load('resources'); $e = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail(); abort_if($e->isExpired(), 403, 'La date limite de ce test est dépassée.'); abort_unless($this->hasCompletedRequiredResources($course, $e), 403, 'Terminez les supports pédagogiques obligatoires avant de passer le test.'); abort_if($e->attempts()->count() >= $course->allowedAttempts(), 403, 'Les trois tentatives autorisées ont été utilisées.'); return view('cfdt.attempt', compact('course', 'e')); }
     public function submit(Request $request, CfdtCourse $course)
     {
         $this->guard($request);
         abort_unless($request->user()->cfdt_role === 'learner' && $course->status === 'published', 403);
+        $course->load('resources');
         $enrollment = CfdtEnrollment::where(['course_id' => $course->id, 'user_id' => $request->user()->id])->firstOrFail();
         abort_if($enrollment->isExpired(), 403, 'La date limite de ce test est dépassée.');
+        abort_unless($this->hasCompletedRequiredResources($course, $enrollment), 403, 'Terminez les supports pédagogiques obligatoires avant de passer le test.');
         abort_if($enrollment->attempts()->count() >= $course->allowedAttempts(), 403, 'Les trois tentatives autorisées ont été utilisées.');
         $answers = $request->input('answers', []);
         $score = $total = 0;
@@ -226,5 +231,6 @@ class CfdtController extends Controller
     private function canReview(User $user): bool { return $user->isInstitutionalSuperAdmin() || in_array($user->cfdt_role, ['validator', 'administrator'], true); }
     private function courseAnalytics(CfdtCourse $course): array { $enrollments = $course->relationLoaded('enrollments') ? $course->enrollments : $course->enrollments()->with('attempts')->get(); $attempts = $enrollments->flatMap->attempts; $done = $enrollments->filter(fn ($enrollment) => $enrollment->attempts->isNotEmpty())->count(); return ['invited' => $enrollments->count(), 'done' => $done, 'pending' => $enrollments->count() - $done, 'highest' => $attempts->max('percentage'), 'average' => $attempts->avg('percentage')]; }
     private function questionWeightTotal(array $questions): int { return collect($questions)->sum(fn ($question) => (int) ($question['points'] ?? 0)); }
+    private function hasCompletedRequiredResources(CfdtCourse $course, CfdtEnrollment $enrollment): bool { $requiredIds = $course->resources->where('required', true)->pluck('id'); if ($requiredIds->isEmpty()) return true; return $enrollment->resourceProgress()->whereIn('resource_id', $requiredIds)->whereNotNull('completed_at')->distinct('resource_id')->count('resource_id') === $requiredIds->count(); }
     private function assignmentSource(array $data): string { return ! empty($data['department_ids']) ? 'structure' : (! empty($data['role_categories']) ? 'fonction' : 'individuel'); }
 }

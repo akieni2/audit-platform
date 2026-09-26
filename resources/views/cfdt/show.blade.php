@@ -12,6 +12,37 @@
         @if($course->review_observation)<div class="mt-5 rounded-xl border border-amber-500/50 bg-amber-950/20 p-4"><p class="font-black text-amber-200">Observations du superviseur</p><p class="mt-2 whitespace-pre-line">{{ $course->review_observation }}</p></div>@endif
     </section>
 
+    <section class="dgcpt-surface p-5 sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-3"><div><p class="dgcpt-card-title">Parcours pédagogique</p><h2 class="text-xl font-black">Supports du cours</h2><p class="dgcpt-text-muted">Textes, vidéos, documents PDF, livres EPUB et séries d’images à consulter avant l’évaluation.</p></div><span class="rounded-full border border-cyan-700 px-3 py-1 text-sm">{{ $course->resources->count() }} support(s)</span></div>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+            @forelse($course->resources as $resource)
+            @php($typeLabels=['text'=>'Texte','pdf'=>'Document PDF','epub'=>'Livre EPUB','image'=>'Image','video'=>'Vidéo'])
+            <article class="rounded-xl border border-slate-700 p-4">
+                <div class="flex items-start justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wide text-cyan-300">{{ $typeLabels[$resource->type] ?? $resource->type }}</p><h3 class="mt-1 font-black">{{ $resource->title }}</h3></div>@if(in_array($resource->id,$completedResourceIds))<span class="rounded-full border border-emerald-500/60 px-2 py-1 text-xs text-emerald-300">Terminé</span>@elseif($resource->required)<span class="rounded-full border border-amber-500/60 px-2 py-1 text-xs text-amber-300">Obligatoire</span>@else<span class="rounded-full border border-slate-600 px-2 py-1 text-xs">Facultatif</span>@endif</div>
+                @if($resource->description)<p class="mt-2 text-sm dgcpt-text-muted">{{ $resource->description }}</p>@endif
+                <p class="mt-2 text-xs dgcpt-text-muted">{{ $resource->estimated_minutes ? $resource->estimated_minutes.' min estimées' : 'Durée libre' }}</p>
+                <div class="mt-4 flex flex-wrap gap-2"><a class="dgcpt-btn-secondary" href="{{ route('cfdt.resources.show',[$course,$resource]) }}">Ouvrir le support</a>@if($canEdit)<form method="post" action="{{ route('cfdt.resources.destroy',[$course,$resource]) }}" onsubmit="return confirm('Supprimer ce support ?')">@csrf @method('DELETE')<button class="dgcpt-btn-secondary">Supprimer</button></form>@endif</div>
+            </article>
+            @empty<p class="dgcpt-text-muted">Aucun support multimédia n’a encore été ajouté.</p>@endforelse
+        </div>
+    </section>
+
+    @if($canEdit)
+    <details class="dgcpt-surface p-5"><summary class="cursor-pointer text-lg font-black">Ajouter un support pédagogique</summary>
+        <form class="mt-5 grid gap-4 md:grid-cols-2" method="post" action="{{ route('cfdt.resources.store',$course) }}" enctype="multipart/form-data">@csrf
+            <label class="dgcpt-label">Format<select class="dgcpt-select mt-1" name="type" required><option value="text">Texte rédigé</option><option value="pdf">Document PDF</option><option value="epub">Livre EPUB</option><option value="image">Image</option><option value="video">Fichier vidéo</option><option value="video_url">Vidéo en ligne / YouTube</option></select></label>
+            <label class="dgcpt-label">Titre<input class="dgcpt-input mt-1" name="title" required></label>
+            <label class="dgcpt-label md:col-span-2">Description<textarea class="dgcpt-textarea mt-1" name="description" rows="2"></textarea></label>
+            <label class="dgcpt-label md:col-span-2">Contenu écrit<textarea class="dgcpt-textarea mt-1" name="body" rows="8" placeholder="À renseigner pour un support de type Texte"></textarea></label>
+            <label class="dgcpt-label">Fichier<input class="dgcpt-input mt-1" type="file" name="file" accept=".pdf,.epub,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov"><span class="mt-1 block text-xs dgcpt-text-muted">PDF, EPUB, image ou vidéo — maximum 500 Mo.</span></label>
+            <label class="dgcpt-label">Adresse de la vidéo<input class="dgcpt-input mt-1" type="url" name="external_url" placeholder="https://www.youtube.com/watch?v=..."></label>
+            <label class="dgcpt-label">Durée estimée en minutes<input class="dgcpt-input mt-1" type="number" min="1" name="estimated_minutes"></label>
+            <label class="flex items-center gap-2 self-end"><input type="checkbox" name="required" value="1" checked> Consultation obligatoire avant le QCM</label>
+            <div class="md:col-span-2"><button class="dgcpt-btn-primary">Ajouter au parcours</button></div>
+        </form>
+    </details>
+    @endif
+
     @if($course->created_by === auth()->id() || $canReview)
     @if($analytics)<section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><div class="dgcpt-surface p-4"><p class="dgcpt-text-muted">Invités</p><p class="text-2xl font-black">{{ $analytics['invited'] }}</p></div><div class="dgcpt-surface p-4"><p class="dgcpt-text-muted">Ont participé</p><p class="text-2xl font-black">{{ $analytics['done'] }}</p></div><div class="dgcpt-surface p-4"><p class="dgcpt-text-muted">N’ont pas encore participé</p><p class="text-2xl font-black">{{ $analytics['pending'] }}</p></div><div class="dgcpt-surface p-4"><p class="dgcpt-text-muted">Meilleur score</p><p class="text-2xl font-black">{{ $analytics['highest'] === null ? '—' : number_format($analytics['highest'],1,',').' %' }}</p></div><div class="dgcpt-surface p-4"><p class="dgcpt-text-muted">Score moyen</p><p class="text-2xl font-black">{{ $analytics['average'] === null ? '—' : number_format($analytics['average'],1,',').' %' }}</p></div></section>@endif
     @php($weightTotal = collect($course->questions ?? [])->sum(fn($question)=>(int)($question['points'] ?? 0)))
@@ -38,6 +69,8 @@
     <section class="dgcpt-surface p-5"><h2 class="font-black">Affecter le test validé</h2><p class="dgcpt-text-muted">Sélectionnez au moins un agent, une structure ou une catégorie professionnelle. Les critères se cumulent par union.</p><form method="post" action="{{ route('cfdt.enroll',$course) }}" class="mt-3 grid gap-4 md:grid-cols-2">@csrf<div><label class="font-bold">Agents nommément désignés</label><select class="dgcpt-select mt-2 min-h-48" name="user_ids[]" multiple>@foreach($users as $user)<option value="{{ $user->id }}" @selected(in_array($user->id, array_map('intval', old('user_ids', []))))>{{ $user->prenom }} {{ $user->name }} — {{ $user->department?->name ?? 'Sans structure' }}</option>@endforeach</select></div><div><label class="font-bold">Directions, administrations ou départements</label><select class="dgcpt-select mt-2 min-h-48" name="department_ids[]" multiple>@foreach($departments as $department)<option value="{{ $department->id }}" @selected(in_array($department->id, array_map('intval', old('department_ids', []))))>{{ $department->code }} — {{ $department->name }}</option>@endforeach</select><label class="mt-2 block"><input type="checkbox" name="include_descendants" value="1" @checked(old('include_descendants', true))> Inclure toutes les sous-structures</label></div><div><label class="font-bold">Catégories professionnelles</label><select class="dgcpt-select mt-2 min-h-40" name="role_categories[]" multiple>@foreach($roleCategories as $value=>$label)<option value="{{ $value }}" @selected(in_array($value, old('role_categories', [])))>{{ $label }}</option>@endforeach</select></div><div><label class="font-bold">Date et heure limites</label><input class="dgcpt-input mt-2" type="datetime-local" name="expires_at" value="{{ old('expires_at', now()->addDays(7)->format('Y-m-d\TH:i')) }}" min="{{ now()->addMinute()->format('Y-m-d\TH:i') }}" required><p class="mt-2 dgcpt-text-muted">Une notification interne et un courriel personnel seront envoyés.</p></div><div class="md:col-span-2"><button class="dgcpt-btn-primary">Affecter et notifier</button></div></form></section>
     @endif
 
-    @if(auth()->user()->cfdt_role === 'learner' && $enrollment && $course->status === 'published')@if($enrollment->attempts()->count() < 3 && !$enrollment->isExpired())<a class="dgcpt-btn-primary" href="{{ route('cfdt.attempt',$course) }}">{{ $enrollment->attempts()->exists() ? 'Refaire le QCM' : 'Passer le QCM' }}</a>@endif @if($enrollment->certificate)<a class="dgcpt-btn-secondary" href="{{ route('cfdt.certificate',$enrollment->certificate) }}">Télécharger mon certificat</a>@endif @endif
+    @if(auth()->user()->cfdt_role === 'learner' && $enrollment && $course->status === 'published')
+        <section class="dgcpt-surface p-5"><h2 class="font-black">Évaluation des connaissances</h2>@if(!$requiredResourcesComplete)<p class="mt-2 text-amber-300">Terminez d’abord tous les supports obligatoires du parcours pour débloquer le QCM.</p>@elseif($enrollment->attempts()->count() < 3 && !$enrollment->isExpired())<a class="dgcpt-btn-primary mt-4 inline-flex" href="{{ route('cfdt.attempt',$course) }}">{{ $enrollment->attempts()->exists() ? 'Refaire le QCM' : 'Passer le QCM' }}</a>@endif @if($enrollment->certificate)<a class="dgcpt-btn-secondary mt-4 inline-flex" href="{{ route('cfdt.certificate',$enrollment->certificate) }}">Télécharger mon certificat</a>@endif</section>
+    @endif
 </div>
 </x-app-layout>

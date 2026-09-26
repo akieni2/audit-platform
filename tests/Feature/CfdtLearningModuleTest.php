@@ -1,6 +1,6 @@
 <?php
 namespace Tests\Feature;
-use App\Models\{CfdtAttempt,CfdtCertificate,CfdtCourse,CfdtEnrollment,Department,Role,User}; use App\Notifications\Cfdt\CfdtTestAssignedNotification; use Illuminate\Foundation\Testing\RefreshDatabase; use Illuminate\Support\Facades\Notification; use Tests\TestCase;
+use App\Models\{CfdtAttempt,CfdtCertificate,CfdtCourse,CfdtCourseResource,CfdtEnrollment,Department,Role,User}; use App\Notifications\Cfdt\CfdtTestAssignedNotification; use Illuminate\Foundation\Testing\RefreshDatabase; use Illuminate\Http\UploadedFile; use Illuminate\Support\Facades\Notification; use Illuminate\Support\Facades\Storage; use Tests\TestCase;
 class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
  private function user(string $slug,string $cfdt):User{$role=Role::firstOrCreate(['slug'=>$slug],['name'=>$slug,'hierarchy_level'=>100,'active'=>true]);return User::factory()->create(['role_id'=>$role->id,'cfdt_role'=>$cfdt,'active'=>true,'approval_status'=>'approved']);}
  public function test_trainer_creates_questions_validator_publishes_and_learner_earns_certificate():void{
@@ -89,5 +89,20 @@ class CfdtLearningModuleTest extends TestCase {use RefreshDatabase;
   $learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'CERT-BEST','title'=>'Meilleur score','status'=>'published','pass_mark'=>20,'questions'=>[['id'=>'q1','text'=>'Question 1','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>25],['id'=>'q2','text'=>'Question 2','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>75]],'content'=>[],'created_by'=>$learner->id]);$enrollment=CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$learner->id,'assigned_at'=>now(),'expires_at'=>now()->addDay()]);
   $this->actingAs($learner)->post(route('cfdt.submit',$course),['answers'=>['q1'=>['0'],'q2'=>['1']]])->assertRedirect();$certificate=CfdtCertificate::where('enrollment_id',$enrollment->id)->firstOrFail();$this->assertEquals(25.0,$certificate->score);
   $this->actingAs($learner)->post(route('cfdt.submit',$course),['answers'=>['q1'=>['0'],'q2'=>['0']]])->assertRedirect();$certificate->refresh();$this->assertEquals(100.0,$certificate->score);$this->assertSame(hash('sha256',$certificate->verification_token.'|'.$enrollment->id.'|'.$certificate->score),$certificate->signature_hash);$this->assertSame(1,CfdtCertificate::where('enrollment_id',$enrollment->id)->count());
+ }
+ public function test_trainer_adds_text_pdf_and_video_resources_to_a_course():void{
+  Storage::fake('local');$trainer=$this->user('auditeur','trainer');$course=CfdtCourse::create(['code'=>'MEDIA-01','title'=>'Cours multimédia','questions'=>[],'content'=>[],'created_by'=>$trainer->id]);
+  $this->actingAs($trainer)->post(route('cfdt.resources.store',$course),['type'=>'text','title'=>'Introduction','body'=>'Contenu pédagogique détaillé','required'=>1])->assertRedirect();
+  $this->actingAs($trainer)->post(route('cfdt.resources.store',$course),['type'=>'pdf','title'=>'Manuel','file'=>UploadedFile::fake()->create('manuel.pdf',100,'application/pdf'),'required'=>1])->assertRedirect();
+  $this->actingAs($trainer)->post(route('cfdt.resources.store',$course),['type'=>'video_url','title'=>'Cours vidéo','external_url'=>'https://www.youtube.com/watch?v=abcdefghijk','required'=>1])->assertRedirect();
+  $this->assertSame(3,$course->resources()->count());$pdf=$course->resources()->where('type','pdf')->firstOrFail();Storage::disk('local')->assertExists($pdf->path);$this->assertSame('https://www.youtube-nocookie.com/embed/abcdefghijk',$course->resources()->where('type','video')->firstOrFail()->youtubeEmbedUrl());
+ }
+ public function test_required_course_resources_must_be_completed_before_qcm():void{
+  $trainer=$this->user('auditeur','trainer');$learner=$this->user('auditeur','learner');$course=CfdtCourse::create(['code'=>'MEDIA-GATE','title'=>'Parcours obligatoire','status'=>'published','questions'=>[['id'=>'q1','text'=>'Question ?','type'=>'single','options'=>['Oui','Non'],'correct'=>[0],'points'=>100]],'content'=>[],'created_by'=>$trainer->id]);$resource=CfdtCourseResource::create(['course_id'=>$course->id,'type'=>'text','title'=>'Cours préalable','body'=>'À lire','required'=>true,'sort_order'=>1,'created_by'=>$trainer->id]);CfdtEnrollment::create(['course_id'=>$course->id,'user_id'=>$learner->id,'assigned_by'=>$trainer->id,'assigned_at'=>now(),'expires_at'=>now()->addDay()]);
+  $this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertForbidden();$this->actingAs($learner)->get(route('cfdt.resources.show',[$course,$resource]))->assertOk()->assertSee('Cours préalable');$this->actingAs($learner)->patch(route('cfdt.resources.complete',[$course,$resource]))->assertRedirect(route('cfdt.show',$course));$this->actingAs($learner)->get(route('cfdt.attempt',$course))->assertOk();
+ }
+ public function test_trainer_cannot_open_another_trainers_private_draft_resource():void{
+  $owner=$this->user('auditeur','trainer');$other=$this->user('auditeur','trainer');$course=CfdtCourse::create(['code'=>'MEDIA-PRIVATE','title'=>'Brouillon privé','status'=>'draft','questions'=>[],'content'=>[],'created_by'=>$owner->id]);$resource=CfdtCourseResource::create(['course_id'=>$course->id,'type'=>'text','title'=>'Support confidentiel','body'=>'Brouillon','required'=>true,'sort_order'=>1,'created_by'=>$owner->id]);
+  $this->actingAs($other)->get(route('cfdt.resources.show',[$course,$resource]))->assertForbidden();
  }
 }
