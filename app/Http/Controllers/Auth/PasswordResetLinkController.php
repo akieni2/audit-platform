@@ -36,9 +36,15 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
+        $message = $status === Password::RESET_THROTTLED
+            ? __($status, [
+                'minutes' => (int) ceil(config('auth.passwords.users.throttle', 900) / 60),
+            ])
+            : __($status);
+
         return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
+                    ? back()->with('status', $message)
                     : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+                        ->withErrors(['email' => $message]);
     }
 }

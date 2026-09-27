@@ -272,7 +272,13 @@ class UserManagementController extends Controller
         $status = Password::broker()->sendResetLink(['email' => $user->email]);
 
         if ($status !== Password::RESET_LINK_SENT) {
-            return back()->withErrors(['email' => __($status)]);
+            $message = $status === Password::RESET_THROTTLED
+                ? __($status, [
+                    'minutes' => (int) ceil(config('auth.passwords.users.throttle', 900) / 60),
+                ])
+                : __($status);
+
+            return back()->withErrors(['email' => $message]);
         }
 
         app(SecurityAuditService::class)->log(
