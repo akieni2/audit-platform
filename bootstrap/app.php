@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ['middleware' => ['web', 'auth']],
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Nginx termine TLS en production et transmet le protocole d'origine.
+        // Faire confiance au reverse proxy garantit des URL, cookies et QR codes HTTPS.
+        $middleware->trustProxies(at: ['127.0.0.1', '::1']);
+
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\LoadIamContext::class,
             \App\Http\Middleware\ResolveTenantContext::class,
