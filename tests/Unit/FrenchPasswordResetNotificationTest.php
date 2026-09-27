@@ -31,5 +31,10 @@ class FrenchPasswordResetNotificationTest extends TestCase
             "Si vous n'êtes pas à l'origine de cette demande, aucune action n'est requise.",
             $message->outroLines
         );
+        $this->assertSame(900, config('auth.passwords.users.throttle'));
+        $this->assertSame(
+            'Un lien de réinitialisation a déjà été envoyé. Veuillez attendre 15 minutes avant de demander un nouveau lien.',
+            __('passwords.throttled', ['minutes' => 15])
+        );
     }
 }
