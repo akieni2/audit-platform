@@ -5,7 +5,7 @@
 - Nom : `DGCPT`
 - Identifiant Android : `ga.dgcpt.plateforme`
 - URL applicative : `https://www.dgcpt.ga`
-- Version actuelle : `1.1` (`versionCode` 2)
+- Version actuelle : `1.2` (`versionCode` 3)
 - Android minimal : API 24 (Android 7)
 
 L'application est une enveloppe Android Capacitor sécurisée de la plateforme web. Les connexions HTTP en clair sont interdites et la navigation applicative est limitée au domaine DGCPT.

@@ -19,7 +19,7 @@ public class MainActivity extends BridgeActivity {
         String currentUserAgent = bridge.getWebView().getSettings().getUserAgentString();
         if (currentUserAgent == null || !currentUserAgent.contains("DGCPT-Android/")) {
             bridge.getWebView().getSettings().setUserAgentString(
-                (currentUserAgent == null ? "" : currentUserAgent) + " DGCPT-Android/1.1"
+                (currentUserAgent == null ? "" : currentUserAgent) + " DGCPT-Android/1.2"
             );
         }
 
