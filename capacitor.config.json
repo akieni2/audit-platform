@@ -3,7 +3,7 @@
   "appName": "DGCPT",
   "webDir": "mobile-shell",
   "server": {
-    "url": "https://www.dgcpt.ga",
+    "url": "https://www.dgcpt.ga/login",
     "cleartext": false,
     "allowNavigation": ["www.dgcpt.ga", "dgcpt.ga"]
   },
