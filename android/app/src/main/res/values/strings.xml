@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DGCPT</string>
+    <string name="title_activity_main">DGCPT</string>
+    <string name="package_name">ga.dgcpt.plateforme</string>
+    <string name="custom_url_scheme">ga.dgcpt.plateforme</string>
+    <string name="download_description">Téléchargement depuis la plateforme DGCPT</string>
+    <string name="download_started">Téléchargement démarré</string>
+    <string name="download_failed">Le téléchargement n’a pas pu démarrer</string>
+</resources>

@@ -19,6 +19,12 @@
 /storage/*.key
 /storage/pail
 /vendor
+/android/.gradle
+/android/.idea
+/android/app/build
+/android/build
+/output/android/*.apk
+/output/android/*.aab
 Homestead.json
 Homestead.yaml
 Thumbs.db
