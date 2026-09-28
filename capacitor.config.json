@@ -1,0 +1,23 @@
+{
+  "appId": "ga.dgcpt.plateforme",
+  "appName": "DGCPT",
+  "webDir": "mobile-shell",
+  "server": {
+    "url": "https://www.dgcpt.ga",
+    "cleartext": false,
+    "allowNavigation": ["www.dgcpt.ga", "dgcpt.ga"]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1800,
+      "backgroundColor": "#061228",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    }
+  }
+}

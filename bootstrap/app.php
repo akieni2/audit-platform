@@ -22,9 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: ['127.0.0.1', '::1']);
 
         $middleware->appendToGroup('web', [
+            \App\Http\Middleware\DetectMobileApplication::class,
             \App\Http\Middleware\LoadIamContext::class,
             \App\Http\Middleware\ResolveTenantContext::class,
             \App\Http\Middleware\EnsurePasswordChanged::class,
+            \App\Http\Middleware\EnforceMobileMenuAccess::class,
         ]);
 
         $middleware->alias([

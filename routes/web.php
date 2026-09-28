@@ -34,6 +34,7 @@ use App\Http\Controllers\Iam\Admin\DepartmentManagementController;
 use App\Http\Controllers\Iam\Admin\EnrollmentApprovalController;
 use App\Http\Controllers\Iam\Admin\SecurityAuditLogController;
 use App\Http\Controllers\Iam\Admin\UserManagementController;
+use App\Http\Controllers\Iam\Admin\MobileMenuAccessController;
 use App\Http\Controllers\ModuleHubController;
 use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\NotificationUnreadController;
@@ -597,6 +598,12 @@ Route::middleware(['auth', 'active'])->group(function () {
     */
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
+        Route::middleware(['can:viewAdminDashboard'])->group(function (): void {
+            Route::get('/mobile-menu-access', [MobileMenuAccessController::class, 'index'])->name('mobile-menu.index');
+            Route::post('/mobile-menu-access', [MobileMenuAccessController::class, 'store'])->name('mobile-menu.store');
+            Route::delete('/mobile-menu-access/{subjectType}/{subjectId}', [MobileMenuAccessController::class, 'destroy'])->name('mobile-menu.destroy');
+        });
+
         Route::middleware(['can:manageEnrollmentRequests'])->group(function (): void {
             Route::get('/enrollments', [EnrollmentApprovalController::class, 'index'])->name('enrollments.index');
             Route::get('/enrollments/pending-count', [EnrollmentApprovalController::class, 'pendingCount'])

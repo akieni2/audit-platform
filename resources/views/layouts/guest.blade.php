@@ -24,17 +24,17 @@
 <div class="fixed inset-0 opacity-[0.35] bg-[radial-gradient(ellipse_at_top,_rgba(0,209,255,0.14),transparent_55%),radial-gradient(ellipse_at_bottom,_rgba(10,42,102,0.5),transparent_50%)]"></div>
 <div class="fixed inset-0 opacity-30 bg-[linear-gradient(rgba(0,209,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,209,255,0.04)_1px,transparent_1px)] bg-[length:40px_40px]"></div>
 
-<div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6">
-    <a href="{{ url('/') }}" class="mb-8 flex flex-col items-center gap-3 text-center transition hover:opacity-95">
-        <img src="{{ asset('assets/branding/dgcpt-logo.png') }}" alt="DGCPT" class="h-24 w-24 rounded-full object-contain shadow-[0_0_40px_rgba(0,209,255,0.25)] ring-2 ring-dgcpt-cyan/30">
-        <span class="max-w-md text-[0.65rem] font-bold uppercase tracking-[0.16em] text-dgcpt-cyan/90">DGCPT — Direction Générale de la Comptabilité Publique et du Trésor</span>
+<div class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-5 sm:px-6 sm:py-10">
+    <a href="{{ url('/') }}" class="mb-5 flex flex-col items-center gap-2 text-center transition hover:opacity-95 sm:mb-8 sm:gap-3">
+        <img src="{{ asset('assets/branding/dgcpt-logo.png') }}" alt="DGCPT" class="h-20 w-20 rounded-full object-contain shadow-[0_0_40px_rgba(0,209,255,0.25)] ring-2 ring-dgcpt-cyan/30 sm:h-24 sm:w-24">
+        <span class="max-w-[20rem] text-[0.62rem] font-bold uppercase leading-relaxed tracking-[0.08em] text-dgcpt-cyan/90 sm:max-w-md sm:text-[0.65rem] sm:tracking-[0.16em]">DGCPT — Direction Générale de la Comptabilité Publique et du Trésor</span>
     </a>
 
-    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
+    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
         {{ $slot }}
     </div>
 
-    <p class="mt-8 max-w-md text-center text-xs text-slate-500">
+    <p class="mt-5 max-w-md px-3 text-center text-[0.7rem] leading-relaxed text-slate-500 sm:mt-8 sm:text-xs">
         Accès réservé aux agents habilités. Toute connexion est journalisée.
     </p>
 </div>

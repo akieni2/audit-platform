@@ -1,9 +1,11 @@
 @php
     $nav = $institutionalNavMode ?? 'department';
+    $mobileCan = static fn (string $key): bool => ! ($isMobileApp ?? false)
+        || in_array($key, $mobileMenuKeys ?? [], true);
 @endphp
 
 @auth
-    @if (($canAccessCopriNav ?? false) && $nav !== 'copri')
+    @if (($canAccessCopriNav ?? false) && $nav !== 'copri' && $mobileCan('reports'))
         <p class="nav-section-title">Pilotage COPRI</p>
         <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
            href="{{ route('dashboard.executive') }}">
@@ -12,7 +14,7 @@
         </a>
     @endif
     @if ($nav === 'technical_admin')
-        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false))
+        @if ($mobileCan('administration') && (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false)))
             <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration technique">
                 <p class="nav-card-title">Administration</p>
                 @if ($canManageUsers ?? false)
@@ -38,6 +40,13 @@
                            href="{{ route('admin.security.audit-logs') }}">
                             <span class="ni" aria-hidden="true">▤</span>
                             Journal sécurité
+                        </a>
+                    @endif
+                    @if ($canAccessAdminConsoleNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.mobile-menu.*') ? 'active' : '' }}"
+                           href="{{ route('admin.mobile-menu.index') }}">
+                            <span class="ni" aria-hidden="true">▦</span>
+                            Menus application mobile
                         </a>
                     @endif
                 @endif
@@ -74,6 +83,7 @@
         @endif
 
     @elseif ($nav === 'copri')
+        @if ($mobileCan('reports'))
         <p class="nav-section-title">Pilotage COPRI</p>
         @can('viewExecutiveDashboard')
             <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
@@ -82,6 +92,7 @@
                 Tableau stratégique national
             </a>
         @endcan
+        @endif
 
     @else
         {{-- Inspection des Services — consolidation / validation — ou utilisateur département (workflow ascendant) --}}
@@ -92,7 +103,7 @@
             Tableau de bord
         </a>
 
-        @if (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false))
+        @if ($mobileCan('administration') && (($canManageUsers ?? false) || ($canManageDepartmentsNav ?? false) || ($canViewOrganizationChartNav ?? false)))
             <div class="nav-card nav-card--admin" role="navigation" aria-label="Administration">
                 <p class="nav-card-title">Administration</p>
                 @if ($canManageUsers ?? false)
@@ -118,6 +129,13 @@
                            href="{{ route('admin.security.audit-logs') }}">
                             <span class="ni" aria-hidden="true">▤</span>
                             Journal sécurité
+                        </a>
+                    @endif
+                    @if ($canAccessAdminConsoleNav ?? false)
+                        <a class="nav-link {{ request()->routeIs('admin.mobile-menu.*') ? 'active' : '' }}"
+                           href="{{ route('admin.mobile-menu.index') }}">
+                            <span class="ni" aria-hidden="true">▦</span>
+                            Menus application mobile
                         </a>
                     @endif
                 @endif
@@ -153,6 +171,7 @@
             </div>
         @endif
 
+        @if ($mobileCan('reports'))
         @can('viewExecutiveDashboard')
             <a class="nav-link {{ request()->routeIs('dashboard.executive') ? 'active' : '' }}"
                href="{{ route('dashboard.executive') }}">
@@ -164,7 +183,9 @@
                 @endif
             </a>
         @endcan
+        @endif
 
+        @if ($mobileCan('missions'))
         <p class="nav-section-title">Missions</p>
         <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
            href="{{ route('missions.index') }}">
@@ -178,30 +199,40 @@
                 Nouvelle mission
             </a>
         @endcan
+        @endif
 
         <p class="nav-section-title">Terrain</p>
+        @if ($mobileCan('missions'))
         <a class="nav-link {{ request()->routeIs('missions.index') ? 'active' : '' }}"
            href="{{ route('missions.index') }}">
             <span class="ni" aria-hidden="true">◊</span>
             Services audités
         </a>
+        @endif
+        @if ($mobileCan('risks'))
         <a class="nav-link {{ request()->routeIs('cartographie.*') ? 'active' : '' }}"
            href="{{ route('cartographie.select') }}">
             <span class="ni" aria-hidden="true">◐</span>
             Cartographie
         </a>
+        @endif
+        @if ($mobileCan('reports'))
         <a class="nav-link {{ request()->routeIs('dgcpt.*') ? 'active' : '' }}"
            href="{{ route('dgcpt.hierarchy.index') }}">
             <span class="ni" aria-hidden="true">▣</span>
             Hiérarchie DGCPT
         </a>
+        @endif
 
         <p class="nav-section-title">Analyse</p>
+        @if ($mobileCan('questionnaires'))
         <a class="nav-link {{ request()->routeIs('questionnaire-builder.*') || request()->routeIs('questionnaire-templates.*') ? 'active' : '' }}"
            href="{{ route('questionnaire-builder.index') }}">
             <span class="ni" aria-hidden="true">≋</span>
             Questionnaires
         </a>
+        @endif
+        @if ($mobileCan('workflows'))
         <a class="nav-link {{ request()->routeIs('workflow-builder.*') ? 'active' : '' }}"
            href="{{ route('workflow-builder.index') }}">
             <span class="ni" aria-hidden="true">⇄</span>
@@ -212,6 +243,8 @@
             <span class="ni" aria-hidden="true">▤</span>
             Exécution des workflows
         </a>
+        @endif
+        @if ($mobileCan('reports'))
         @unless ($canManageDepartmentsNav ?? false)
             <a class="nav-link {{ request()->routeIs('enterprise.methodologies') ? 'active' : '' }}"
                href="{{ route('enterprise.methodologies') }}">
@@ -229,6 +262,8 @@
             <span class="ni" aria-hidden="true">☑</span>
             Contrôles
         </a>
+        @endif
+        @if ($mobileCan('risks'))
         <a class="nav-link {{ request()->routeIs('swot-builder.*') || request()->routeIs('swot.*') ? 'active' : '' }}"
            href="{{ route('swot-builder.index') }}">
             <span class="ni" aria-hidden="true">⬒</span>
@@ -239,31 +274,43 @@
             <span class="ni" aria-hidden="true">⌗</span>
             RACI
         </a>
+        @endif
+        @if ($mobileCan('ai'))
         <a class="nav-link {{ request()->routeIs('ai.*') ? 'active' : '' }}"
            href="{{ route('ai.index') }}">
             <span class="ni" aria-hidden="true">✦</span>
             Copilote IA
         </a>
+        @endif
+        @if ($mobileCan('forms'))
         <a class="nav-link {{ request()->routeIs('form-builder.*') ? 'active' : '' }}"
            href="{{ route('form-builder.index') }}">
             <span class="ni" aria-hidden="true">▣</span>
             Formulaires
         </a>
+        @endif
+        @if ($mobileCan('questionnaires'))
         <a class="nav-link {{ request()->routeIs('module.entretiens') ? 'active' : '' }}"
            href="{{ route('module.entretiens') }}">
             <span class="ni" aria-hidden="true">○</span>
             Entretiens
         </a>
+        @endif
+        @if ($mobileCan('processes'))
         <a class="nav-link {{ request()->routeIs('module.processus') ? 'active' : '' }}"
            href="{{ route('module.processus') }}">
             <span class="ni" aria-hidden="true">↗</span>
             Processus
         </a>
+        @endif
+        @if ($mobileCan('assets'))
         <a class="nav-link {{ request()->routeIs('module.actifs') ? 'active' : '' }}"
            href="{{ route('module.actifs') }}">
             <span class="ni" aria-hidden="true">▦</span>
             Actifs
         </a>
+        @endif
+        @if ($mobileCan('risks'))
         <a class="nav-link {{ request()->routeIs('module.risques') ? 'active' : '' }}"
            href="{{ route('module.risques') }}">
             <span class="ni" aria-hidden="true">※</span>
@@ -274,13 +321,17 @@
             <span class="ni" aria-hidden="true">◌</span>
             Comité de revue
         </a>
+        @endif
 
         <p class="nav-section-title">Suivi</p>
+        @if ($mobileCan('risks'))
         <a class="nav-link {{ request()->routeIs('module.actions') ? 'active' : '' }}"
            href="{{ route('module.actions') }}">
             <span class="ni" aria-hidden="true">✓</span>
             Actions correctives
         </a>
+        @endif
+        @if ($mobileCan('reports'))
         <a class="nav-link {{ request()->routeIs('module.rapports') ? 'active' : '' }}"
            href="{{ route('module.rapports') }}">
             <span class="ni" aria-hidden="true">▤</span>
@@ -291,7 +342,9 @@
             <span class="ni" aria-hidden="true">⇱</span>
             Consolidation
         </a>
+        @endif
 
+        @if ($mobileCan('reports'))
         @can('viewExecutiveDashboard')
             <p class="nav-section-title">Executive</p>
             <a class="nav-link {{ request()->routeIs('executive.national-dashboard') ? 'active' : '' }}"
@@ -320,8 +373,9 @@
                 Tableau de bord RACI
             </a>
         @endcan
+        @endif
 
-        @if ($nav === 'inspection' && isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
+        @if ($mobileCan('missions') && $nav === 'inspection' && isset($sidebarDepartments) && $sidebarDepartments->isNotEmpty())
             <p class="nav-section-title">Filtrer par pôle</p>
             @foreach ($sidebarDepartments as $dept)
                 <a class="nav-link dept-pill {{ (string) request()->query('department') === (string) $dept->id ? 'active' : '' }}"
@@ -337,6 +391,7 @@
         @endif
     @endif
 
+    @if ($mobileCan('processes'))
     @can('accessInstitutionalProcesses')
         <p class="nav-section-title">Pilotage des processus</p>
         <a class="nav-link {{ request()->routeIs('institutional-processes.*') && !request()->routeIs('institutional-processes.access*') ? 'active' : '' }}" href="{{ route('institutional-processes.index') }}">
@@ -350,6 +405,8 @@
             </a>
         @endif
     @endcan
+    @endif
+    @if ($mobileCan('assets'))
     @can('accessInstitutionalAssets')
         <p class="nav-section-title">Patrimoine informatique</p>
         <a class="nav-link {{ request()->routeIs('institutional-assets.*') && !request()->routeIs('institutional-assets.access*') ? 'active' : '' }}" href="{{ route('institutional-assets.index') }}"><span class="ni" aria-hidden="true">▣</span>Actifs informatiques</a>
@@ -357,25 +414,32 @@
             <a class="nav-link {{ request()->routeIs('institutional-assets.access*') ? 'active' : '' }}" href="{{ route('institutional-assets.access') }}"><span class="ni" aria-hidden="true">⌘</span>Habilitations actifs</a>
         @endif
     @endcan
-    @if (auth()->user()?->canAccessCorrespondenceModule() || auth()->user()?->canAccessAdministrativeWorkModule())
+    @endif
+    @if (($mobileCan('correspondence') && auth()->user()?->canAccessCorrespondenceModule()) || ($mobileCan('administrative_work') && auth()->user()?->canAccessAdministrativeWorkModule()))
         <p class="nav-section-title">Administration numérique</p>
+        @if ($mobileCan('correspondence'))
         @can('accessCorrespondence')
             <a class="nav-link {{ request()->routeIs('correspondence.*') ? 'active' : '' }}" href="{{ route('correspondence.index') }}">
                 <span class="ni" aria-hidden="true">✉</span>
                 Gestion du courrier
             </a>
         @endcan
+        @endif
+        @if ($mobileCan('administrative_work'))
         @can('accessAdministrativeWork')
             <a class="nav-link {{ request()->routeIs('administrative-work.*') ? 'active' : '' }}" href="{{ route('administrative-work.index') }}">
                 <span class="ni" aria-hidden="true">✓</span>
                 Traitement administratif
             </a>
         @endcan
+        @endif
     @endif
+    @if ($mobileCan('cfdt'))
     @can('accessCfdt')
         <p class="nav-section-title">Formation professionnelle</p>
         <a class="nav-link {{ request()->routeIs('cfdt.*') ? 'active' : '' }}" href="{{ route('cfdt.index') }}"><span class="ni">▤</span>Espace CFDT</a>
     @endcan
+    @endif
 
     <p class="nav-section-title">Compte</p>
     <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
