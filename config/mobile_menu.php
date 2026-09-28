@@ -7,6 +7,7 @@ return [
         'dashboard',
         'profile.*',
         'notifications.*',
+        'cfdt.verify',
         'search',
         'logout',
     ],
