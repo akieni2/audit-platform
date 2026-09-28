@@ -57,7 +57,7 @@
                         <tr>
                             <td class="font-semibold text-[#E6EEF8]">{{ $assignment->process_label }}</td>
                             <td>{{ $assignment->raciRole?->name ?? 'Role' }}</td>
-                            <td>{{ strtoupper(substr((string) $assignment->role_type, 0, 1)) }}</td>
+                            <td>{{ strtoupper(substr((string) ($assignment->role_type instanceof \BackedEnum ? $assignment->role_type->value : $assignment->role_type), 0, 1)) }}</td>
                             <td>{{ $assignment->responsibility_level?->label() ?? $assignment->responsibility_level }}</td>
                             <td>{{ \App\Support\UiLabel::translate($assignment->status) }}</td>
                         </tr>
