@@ -467,6 +467,16 @@
         <span class="ni" aria-hidden="true">⌗</span>
         Sécurité du compte
     </a>
+    @if ($isMobileApp ?? false)
+        <button
+            type="button"
+            class="nav-link w-full text-left"
+            onclick="if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) { window.Capacitor.Plugins.App.exitApp(); }"
+        >
+            <span class="ni" aria-hidden="true">⏻</span>
+            Quitter l’application
+        </button>
+    @endif
     <form method="POST" action="{{ route('logout') }}">
         @csrf
         <button type="submit" class="btn-logout">Déconnexion</button>
