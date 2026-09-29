@@ -23,7 +23,6 @@ import com.getcapacitor.BridgeWebViewClient;
 
 public class MainActivity extends BridgeActivity {
     private static final String PLATFORM_URL = "https://www.dgcpt.ga/dashboard";
-    private static final String ZIMBRA_HOST = "mail.tresorpublic.ga";
     private Button returnToDgcptButton;
 
     @Override
@@ -97,7 +96,7 @@ public class MainActivity extends BridgeActivity {
     private void installReturnToDgcptButton() {
         ViewGroup parent = (ViewGroup) bridge.getWebView().getParent();
         returnToDgcptButton = new Button(this);
-        returnToDgcptButton.setText("← Retour DGCPT");
+        returnToDgcptButton.setText("✕  EXIT");
         returnToDgcptButton.setTextColor(Color.WHITE);
         returnToDgcptButton.setTextSize(12);
         returnToDgcptButton.setAllCaps(false);
@@ -115,8 +114,8 @@ public class MainActivity extends BridgeActivity {
             CoordinatorLayout.LayoutParams.WRAP_CONTENT,
             dp(44)
         );
-        params.gravity = Gravity.TOP | Gravity.END;
-        params.setMargins(dp(12), dp(12), dp(12), 0);
+        params.gravity = Gravity.BOTTOM | Gravity.END;
+        params.setMargins(dp(12), 0, dp(12), dp(20));
         parent.addView(returnToDgcptButton, params);
     }
 
@@ -126,8 +125,10 @@ public class MainActivity extends BridgeActivity {
         }
 
         String host = Uri.parse(url == null ? "" : url).getHost();
+        boolean isPlatformPage = "www.dgcpt.ga".equalsIgnoreCase(host)
+            || "dgcpt.ga".equalsIgnoreCase(host);
         returnToDgcptButton.setVisibility(
-            ZIMBRA_HOST.equalsIgnoreCase(host) ? View.VISIBLE : View.GONE
+            host != null && !isPlatformPage ? View.VISIBLE : View.GONE
         );
     }
 
