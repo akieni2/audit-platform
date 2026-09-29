@@ -17,7 +17,8 @@
                     </p>
                     @if ($isMobileApp ?? false)
                         <p class="rounded-xl border border-[rgba(0,209,255,.22)] bg-[rgba(0,209,255,.08)] p-3 text-sm text-[#BFEFFF]">
-                            Dans l’application Android, utilisez le bouton Retour du téléphone pour revenir à la plateforme.
+                            À la première connexion, sélectionnez « Rester connecté » dans Zimbra. L’application conservera
+                            uniquement la session sécurisée sur ce téléphone. Utilisez le bouton Retour pour revenir à la plateforme.
                         </p>
                     @endif
                 </div>
@@ -39,6 +40,7 @@
                 <li>Vérifiez que l’adresse commence toujours par <strong class="text-white">https://mail.tresorpublic.ga</strong>.</li>
                 <li>Ne communiquez jamais votre mot de passe par courriel, téléphone ou messagerie instantanée.</li>
                 <li>Sur un appareil partagé, déconnectez-vous de Zimbra après utilisation.</li>
+                <li>Pour fermer la session mémorisée, utilisez « Déconnexion » directement dans Zimbra.</li>
             </ul>
         </section>
     </div>

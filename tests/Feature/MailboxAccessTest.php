@@ -59,6 +59,8 @@ class MailboxAccessTest extends TestCase
             ->withHeaders($headers)
             ->get(route('mailbox.index'))
             ->assertOk()
-            ->assertSee('bouton Retour du téléphone');
+            ->assertSee('Rester connecté')
+            ->assertSee('uniquement la session sécurisée')
+            ->assertSee('bouton Retour');
     }
 }

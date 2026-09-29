@@ -16,6 +16,14 @@ public class MainActivity extends BridgeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Zimbra reste l'unique détenteur du mot de passe. L'application conserve
+        // seulement ses cookies de session HTTPS entre deux ouvertures, comme un
+        // navigateur mobile, afin d'éviter une nouvelle connexion systématique.
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookieManager.setAcceptThirdPartyCookies(bridge.getWebView(), true);
+        bridge.getWebView().getSettings().setDomStorageEnabled(true);
+
         String currentUserAgent = bridge.getWebView().getSettings().getUserAgentString();
         if (currentUserAgent == null || !currentUserAgent.contains("DGCPT-Android/")) {
             bridge.getWebView().getSettings().setUserAgentString(
@@ -50,5 +58,17 @@ public class MainActivity extends BridgeActivity {
                 Toast.makeText(this, R.string.download_failed, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        CookieManager.getInstance().flush();
+        super.onStop();
     }
 }
