@@ -175,6 +175,19 @@ html.dark .main-wrap .text-\[\#E6EEF8\] {
     color: #0b1220 !important;
 }
 
+/*
+ * Les utilitaires ci-dessus adaptent les anciens textes clairs au fond clair
+ * de la colonne principale. Ils ne doivent toutefois jamais assombrir un
+ * texte placé explicitement sur un bouton, un champ ou un encart bleu nuit.
+ * Sans cette exception, des actions comme « Créer utilisateur » deviennent
+ * pratiquement invisibles (texte #0b1220 sur fond #10192B).
+ */
+html.dark .main-wrap .bg-\[\#10192B\].text-\[\#E6EEF8\],
+html.dark .main-wrap .bg-\[\#050816\].text-\[\#E6EEF8\],
+html.dark .main-wrap .dark\:bg-\[\#10192B\].dark\:text-\[\#E6EEF8\] {
+    color: var(--dgcpt-text) !important;
+}
+
 html.dark .main-wrap .dgcpt-surface .text-\[\#9FB3C8\],
 html.dark .main-wrap .dgcpt-panel .text-\[\#9FB3C8\],
 html.dark .main-wrap .dgcpt-filter-bar .text-\[\#9FB3C8\],
