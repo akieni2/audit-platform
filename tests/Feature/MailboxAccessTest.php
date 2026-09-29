@@ -19,9 +19,10 @@ class MailboxAccessTest extends TestCase
         $this->actingAs($user)
             ->get(route('mailbox.index'))
             ->assertOk()
-            ->assertSee('Messagerie institutionnelle')
+            ->assertSee('Messagerie DGCPT')
             ->assertSee('https://mail.tresorpublic.ga/', false)
-            ->assertSee('ne conserve et ne journalise jamais votre mot de passe');
+            ->assertSee('Ouvrir ma messagerie')
+            ->assertDontSee('Conseils de sécurité');
     }
 
     public function test_guest_is_redirected_to_login(): void
@@ -59,8 +60,7 @@ class MailboxAccessTest extends TestCase
             ->withHeaders($headers)
             ->get(route('mailbox.index'))
             ->assertOk()
-            ->assertSee('Rester connecté')
-            ->assertSee('uniquement la session sécurisée')
-            ->assertSee('bouton Retour');
+            ->assertSee('Ouvrir ma messagerie')
+            ->assertDontSee('Rester connecté');
     }
 }
