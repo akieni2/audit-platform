@@ -58,6 +58,7 @@ use App\Http\Controllers\InstitutionalAssetController;
 use App\Http\Controllers\CfdtController;
 use App\Http\Controllers\CfdtCourseResourceController;
 use App\Http\Controllers\CfdtAccessController;
+use App\Http\Controllers\MailboxController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,8 @@ Route::get('/certificats/cfdt/{token}', [CfdtController::class, 'verify'])->name
 */
 
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/messagerie', [MailboxController::class, 'index'])->name('mailbox.index');
+
     Route::prefix('formation')->name('cfdt.')->middleware('can:accessCfdt')->group(function () {
         Route::get('/', [CfdtController::class, 'index'])->name('index');
         Route::post('/', [CfdtController::class, 'store'])->name('store');

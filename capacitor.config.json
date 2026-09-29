@@ -5,7 +5,7 @@
   "server": {
     "url": "https://www.dgcpt.ga/login",
     "cleartext": false,
-    "allowNavigation": ["www.dgcpt.ga", "dgcpt.ga"]
+    "allowNavigation": ["www.dgcpt.ga", "dgcpt.ga", "mail.tresorpublic.ga"]
   },
   "android": {
     "allowMixedContent": false,

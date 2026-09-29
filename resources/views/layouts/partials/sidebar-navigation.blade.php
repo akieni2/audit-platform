@@ -441,6 +441,14 @@
     @endcan
     @endif
 
+    @if ($mobileCan('mailbox'))
+        <p class="nav-section-title">Communication</p>
+        <a class="nav-link {{ request()->routeIs('mailbox.*') ? 'active' : '' }}" href="{{ route('mailbox.index') }}">
+            <span class="ni" aria-hidden="true">✉</span>
+            Messagerie DGCPT
+        </a>
+    @endif
+
     <p class="nav-section-title">Compte</p>
     <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
        href="{{ route('notifications.index') }}">

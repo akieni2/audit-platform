@@ -43,6 +43,11 @@ return [
             'description' => 'Courriers entrants, sortants, transmissions et suivi.',
             'routes' => ['correspondence.*'],
         ],
+        'mailbox' => [
+            'label' => 'Messagerie DGCPT',
+            'description' => 'Accès sécurisé au Webmail institutionnel Zimbra. Les identifiants restent gérés par Zimbra.',
+            'routes' => ['mailbox.*'],
+        ],
         'administrative_work' => [
             'label' => 'Travail administratif',
             'description' => 'Tâches administratives transversales.',
