@@ -5,7 +5,7 @@
             <div class="mt-8">
                 <a
                     class="dgcpt-btn-primary inline-flex min-h-12 items-center justify-center text-center"
-                    href="{{ $webmailUrl }}"
+                    href="{{ ($isMobileApp ?? false) ? 'dgcptmail://open' : $webmailUrl }}"
                     rel="noreferrer"
                     @unless($isMobileApp ?? false) target="_blank" @endunless
                 >

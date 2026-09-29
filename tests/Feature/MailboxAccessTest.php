@@ -61,6 +61,7 @@ class MailboxAccessTest extends TestCase
             ->get(route('mailbox.index'))
             ->assertOk()
             ->assertSee('Ouvrir ma messagerie')
+            ->assertSee('dgcptmail://open', false)
             ->assertDontSee('Rester connecté');
     }
 }

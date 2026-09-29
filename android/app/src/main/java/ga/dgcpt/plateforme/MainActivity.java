@@ -2,29 +2,20 @@ package ga.dgcpt.plateforme;
 
 import android.app.DownloadManager;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.Toast;
-
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.BridgeWebViewClient;
 
 public class MainActivity extends BridgeActivity {
-    private static final String PLATFORM_URL = "https://www.dgcpt.ga/dashboard";
-    private Button returnToDgcptButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,19 +27,25 @@ public class MainActivity extends BridgeActivity {
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(bridge.getWebView(), true);
         bridge.getWebView().getSettings().setDomStorageEnabled(true);
-        installReturnToDgcptButton();
         bridge.getWebView().setWebViewClient(new BridgeWebViewClient(bridge) {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                updateReturnButton(url);
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                if ("dgcptmail".equalsIgnoreCase(uri.getScheme())) {
+                    Intent intent = new Intent(MainActivity.this, MailActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return super.shouldOverrideUrlLoading(view, request);
             }
         });
 
         String currentUserAgent = bridge.getWebView().getSettings().getUserAgentString();
         if (currentUserAgent == null || !currentUserAgent.contains("DGCPT-Android/")) {
             bridge.getWebView().getSettings().setUserAgentString(
-                (currentUserAgent == null ? "" : currentUserAgent) + " DGCPT-Android/1.2"
+                (currentUserAgent == null ? "" : currentUserAgent) + " DGCPT-Android/1.3"
             );
         }
 
@@ -93,46 +90,4 @@ public class MainActivity extends BridgeActivity {
         super.onStop();
     }
 
-    private void installReturnToDgcptButton() {
-        ViewGroup parent = (ViewGroup) bridge.getWebView().getParent();
-        returnToDgcptButton = new Button(this);
-        returnToDgcptButton.setText("✕  EXIT");
-        returnToDgcptButton.setTextColor(Color.WHITE);
-        returnToDgcptButton.setTextSize(12);
-        returnToDgcptButton.setAllCaps(false);
-        returnToDgcptButton.setElevation(dp(8));
-        returnToDgcptButton.setPadding(dp(14), 0, dp(14), 0);
-        returnToDgcptButton.setVisibility(View.GONE);
-
-        GradientDrawable background = new GradientDrawable();
-        background.setColor(Color.rgb(10, 56, 126));
-        background.setCornerRadius(dp(22));
-        returnToDgcptButton.setBackground(background);
-        returnToDgcptButton.setOnClickListener(view -> bridge.getWebView().loadUrl(PLATFORM_URL));
-
-        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
-            CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-            dp(44)
-        );
-        params.gravity = Gravity.BOTTOM | Gravity.END;
-        params.setMargins(dp(12), 0, dp(12), dp(20));
-        parent.addView(returnToDgcptButton, params);
-    }
-
-    private void updateReturnButton(String url) {
-        if (returnToDgcptButton == null) {
-            return;
-        }
-
-        String host = Uri.parse(url == null ? "" : url).getHost();
-        boolean isPlatformPage = "www.dgcpt.ga".equalsIgnoreCase(host)
-            || "dgcpt.ga".equalsIgnoreCase(host);
-        returnToDgcptButton.setVisibility(
-            host != null && !isPlatformPage ? View.VISIBLE : View.GONE
-        );
-    }
-
-    private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
-    }
 }
