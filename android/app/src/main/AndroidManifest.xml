@@ -12,6 +12,7 @@
             android:name=".MailActivity"
             android:exported="false"
             android:label="Messagerie DGCPT"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"

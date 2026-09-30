@@ -56,7 +56,7 @@ public class MailActivity extends AppCompatActivity {
         exitButton.setTextSize(13);
         exitButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         exitButton.setBackgroundColor(Color.rgb(10, 92, 174));
-        exitButton.setOnClickListener(view -> finish());
+        exitButton.setOnClickListener(view -> returnToPlatform());
         toolbar.addView(exitButton, new LinearLayout.LayoutParams(dp(86), dp(46)));
         root.addView(toolbar, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -153,10 +153,20 @@ public class MailActivity extends AppCompatActivity {
                 if (webView.canGoBack()) {
                     webView.goBack();
                 } else {
-                    finish();
+                    returnToPlatform();
                 }
             }
         });
+    }
+
+    private void returnToPlatform() {
+        CookieManager.getInstance().flush();
+
+        // Ramène l'activité principale au premier plan sans détruire le WebView
+        // Zimbra. La boîte et sa session restent ainsi intactes en arrière-plan.
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
     }
 
     @Override
