@@ -10,8 +10,10 @@ return new class extends Migration
     {
         Schema::create('server_audit_control_definitions', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('methodology_requirement_id')->nullable()->constrained('methodology_requirements')->nullOnDelete();
-            $table->foreignId('control_measure_id')->nullable()->constrained('control_measures')->nullOnDelete();
+            $table->foreignId('methodology_requirement_id')->nullable();
+            $table->foreign('methodology_requirement_id', 'sa_control_requirement_fk')->references('id')->on('methodology_requirements')->nullOnDelete();
+            $table->foreignId('control_measure_id')->nullable();
+            $table->foreign('control_measure_id', 'sa_control_measure_fk')->references('id')->on('control_measures')->nullOnDelete();
             $table->string('code', 96)->unique();
             $table->unsignedInteger('version')->default(1);
             $table->string('title');
@@ -29,7 +31,8 @@ return new class extends Migration
 
         Schema::create('server_audit_control_references', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('server_audit_control_definition_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('server_audit_control_definition_id');
+            $table->foreign('server_audit_control_definition_id', 'sa_reference_definition_fk')->references('id')->on('server_audit_control_definitions')->cascadeOnDelete();
             $table->string('authority', 100);
             $table->string('document_title');
             $table->string('document_version')->nullable();
@@ -85,7 +88,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('server_audit_run_id')->constrained()->cascadeOnDelete();
             $table->string('control_code', 96);
-            $table->foreignId('server_audit_control_definition_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('server_audit_control_definition_id')->nullable();
+            $table->foreign('server_audit_control_definition_id', 'sa_result_definition_fk')->references('id')->on('server_audit_control_definitions')->nullOnDelete();
             $table->string('status', 24);
             $table->string('criticality', 24)->nullable();
             $table->text('expected')->nullable();
