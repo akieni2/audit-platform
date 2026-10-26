@@ -559,6 +559,7 @@
             <a href="{{ route('cartographie.index', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Cartographie</a>
             <a href="{{ route('constats.index', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Constats et recommandations</a>
             <a href="{{ route('missions.rapport', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Rapport PDF</a>
+            <a href="{{ route('missions.audit-data-analytics.export', $mission) }}" class="font-semibold text-[#00D1FF] hover:underline">Exporter Excel / Power Query</a>
             <a href="{{ route('missions.index') }}" class="dgcpt-text-muted text-sm hover:underline">← Liste des missions</a>
         </div>
 

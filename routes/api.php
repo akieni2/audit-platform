@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\RiskController;
+use App\Http\Controllers\Api\V1\ServerAuditCollectorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,4 +21,7 @@ Route::prefix('v1')
         Route::post('/risques', [RiskController::class, 'store'])->name('api.v1.risques.store');
         Route::get('/risques/{risque}', [RiskController::class, 'show'])->name('api.v1.risques.show');
         Route::patch('/risques/{risque}', [RiskController::class, 'update'])->name('api.v1.risques.update');
+        Route::post('/missions/{mission}/server-audit/runs', [ServerAuditCollectorController::class, 'store'])
+            ->middleware('throttle:30,1')
+            ->name('api.v1.missions.server-audit.runs.store');
     });

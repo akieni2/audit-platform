@@ -42,6 +42,7 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\QuestionnaireBuilderController;
 use App\Http\Controllers\RiskReviewBoardController;
+use App\Http\Controllers\ServerAuditExcelExportController;
 use App\Http\Controllers\RaciBuilderController;
 use App\Http\Controllers\RaciRuntimeController;
 use App\Http\Controllers\SwotBuilderController;
@@ -277,6 +278,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('identified-risks.reject');
     Route::patch('/identified-risks/{identified_risk}/promote', [IdentifiedRiskController::class, 'promote'])
         ->name('identified-risks.promote');
+    Route::get('/missions/{mission}/audit-data-analytics.xlsx', ServerAuditExcelExportController::class)
+        ->name('missions.audit-data-analytics.export');
 
     Route::post('/entretiens', [EntretienController::class, 'store'])->name('entretiens.store');
 
